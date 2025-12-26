@@ -21,7 +21,7 @@ export default function Footer() {
                     </div>
                     <div className="flex items-center gap-2 md:justify-self-end">
                         <div className="hidden sm:flex items-center gap-2">
-                            <span className="text-base font-semibold tracking-tight group-hover:opacity-80 transition-opacity">
+                            <span className="text-base font-semibold tracking-tight text-[#6b5848] group-hover:opacity-80 transition-opacity">
                                 @2025 Munch Nearby. All rights reserved.
                             </span>
                         </div>
