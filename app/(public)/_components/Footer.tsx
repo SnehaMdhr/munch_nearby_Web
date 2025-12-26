@@ -1,3 +1,4 @@
+import Image from "next/image";
 export default function Footer() {
     return (
         <footer className="sticky top-0 z-50 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-black/10 dark:border-white/10">
@@ -5,19 +6,19 @@ export default function Footer() {
                 <div className="flex h-16 items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] w-full">
                     {/* Left: Logo */}
                     <div className="flex items-center gap-2">
-                            <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-foreground">
-                                <img
-                                src="/logo_without_background.png"
-                                alt="Munch logo"
-                                className="h-6 w-6 object-contain"
-                                />
-                            </span>
-                            <span className="text-base font-semibold tracking-tight group-hover:opacity-80 transition-opacity">
-                                Munch Nearby
-                            </span>
+                                        <Image
+                                            src="/images/logo_without_background.png"
+                                            alt="MunchNearby logo"
+                                            width={32}
+                                            height={32}
+                                            priority
+                                            className="object-contain"
+                                          />
+                                        
+                                          <h2 className="text-lg font-bold tracking-tight">
+                                            MunchNearby
+                                          </h2>
                     </div>
-
-                    {/* Right: Auth + Mobile Toggle */}
                     <div className="flex items-center gap-2 md:justify-self-end">
                         <div className="hidden sm:flex items-center gap-2">
                             <span className="text-base font-semibold tracking-tight group-hover:opacity-80 transition-opacity">
