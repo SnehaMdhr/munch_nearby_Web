@@ -1,4 +1,5 @@
 import { ArrowRight,  MapPin, Utensils, Star  } from "lucide-react";
+import Link from "next/link";
 export default function Page() {
     return (
     
@@ -20,10 +21,13 @@ export default function Page() {
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
-                <button className="flex items-center h-9 px-4 rounded-full bg-[#E87A5D] text-white font-bold hover:bg-orange-600 transition-colors">
+                <Link
+                  href="/login"
+                  className="flex items-center h-9 px-4 rounded-full bg-[#E87A5D] text-white font-bold hover:bg-orange-600 transition-colors"
+                >
                   Get Started
                   <ArrowRight className="w-4 h-4 ml-1" />
-                </button>
+                </Link>
               </div>
             </div>
 

@@ -31,7 +31,7 @@ export default function Header() {
           </Link>
 
           <Link
-            href="/signup"
+            href="/register"
             className="flex items-center h-9 px-4 rounded-full bg-[#E87A5D] text-white font-bold hover:bg-orange-600 transition-colors"
           >
             Sign Up

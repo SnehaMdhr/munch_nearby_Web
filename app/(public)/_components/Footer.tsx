@@ -6,18 +6,18 @@ export default function Footer() {
                 <div className="flex h-16 items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] w-full">
                     {/* Left: Logo */}
                     <div className="flex items-center gap-2">
-                                        <Image
-                                            src="/images/logo_without_background.png"
-                                            alt="MunchNearby logo"
-                                            width={32}
-                                            height={32}
-                                            priority
-                                            className="object-contain"
-                                          />
+                        <Image
+                            src="/images/logo_without_background.png"
+                            alt="MunchNearby logo"
+                            width={32}
+                            height={32}
+                            priority
+                            className="object-contain"
+                        />
                                         
-                                          <h2 className="text-lg font-bold tracking-tight">
-                                            MunchNearby
-                                          </h2>
+                        <h2 className="text-lg font-bold tracking-tight">
+                            MunchNearby
+                        </h2>
                     </div>
                     <div className="flex items-center gap-2 md:justify-self-end">
                         <div className="hidden sm:flex items-center gap-2">
