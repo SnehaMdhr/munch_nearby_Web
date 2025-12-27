@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Page() {
     return (
     
-      <main className="flex-grow bg-gradient-to-b from-white to-[#fffaf5]">
+      <main className=" from-white to-[#fffaf5]">
         {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 md:px-10 py-16 md:py-24 ">
           <div className="flex flex-col-reverse lg:flex-row gap-16 items-center">
