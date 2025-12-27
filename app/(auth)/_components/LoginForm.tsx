@@ -6,8 +6,10 @@ import Link from "next/link";
 import { useTransition } from "react";
 import { LoginData, loginSchema } from "../schema";
 import { Mail, Lock, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -22,6 +24,7 @@ export default function LoginForm() {
     startTransition(async () => {
       await new Promise((r) => setTimeout(r, 1000));
       console.log(values);
+      router.push("/dashboard");
     });
   };
 
@@ -60,7 +63,7 @@ export default function LoginForm() {
 
         <div className="text-right">
           <Link
-            href="/forgot-password"
+            href="/forgetpassword"
             className="text-xs text-[#E87A5D] hover:underline"
           >
             Forgot Password?
