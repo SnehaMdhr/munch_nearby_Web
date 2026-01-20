@@ -8,6 +8,7 @@ export const loginSchema = z.object({
 export type LoginData = z.infer<typeof loginSchema>;
 
 export const registerSchema = z.object({
+    name: z.string().min(2, { message: "Name must be at least 2 characters" }),
     email: z.email({ message: "Enter your valid email" }),
     role: z.enum(["Customer", "Restaurant Owner"],),
     password: z.string().min(6, { message: "Minimum 6 characters" }),
