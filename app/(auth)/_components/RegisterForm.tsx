@@ -3,10 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { RegisterData, registerSchema } from "../schema";
-import { Mail, Lock, EyeOff } from "lucide-react";
+import { Mail, Lock, EyeOff, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { handleRegister } from "@/lib/actions/auth-actions";
 
 export default function RegisterForm() {
     const router = useRouter();
@@ -17,17 +18,60 @@ export default function RegisterForm() {
     } = useForm<RegisterData>({
         resolver: zodResolver(registerSchema),
     });
+
+    const [error, setError] = useState("");
+    const [now, setNow] = useState<string>("");
+    useEffect(() => {
+        setNow(new Date().toLocaleString());
+    }, []);
     const [pending, startTransition] = useTransition();
     const submit = async (values: RegisterData) => {
         startTransition(async () => {
-            await new Promise((r) => setTimeout(r, 1000));
-            console.log(values);
-            router.push("/login");
+            setError("");
+            try {
+
+                const response = await handleRegister(values);
+                if (!response.success) {
+                    throw new Error(response.message);
+                }
+                if (response.success) {
+                    router.push("/login");
+                } else {
+                    setError('Registration failed');
+                }
+
+            } catch (err: Error | any) {
+                setError(err.message || 'Registration failed');
+            }
         });
+        // GO TO LOGIN PAGE
         console.log("register", values);
     };
+    
     return (
     <form onSubmit={handleSubmit(submit)} className="space-y-5">
+
+        {/* Name */}
+        <div className="space-y-1">
+        <label htmlFor="name" className="text-sm font-medium">
+            Name
+        </label>
+        <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+            id="name"
+            type="text"
+            {...register("name")}
+            placeholder="Enter your name"
+            className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-10 pr-3 text-sm outline-none focus:border-[#E87A5D]"
+            />
+        </div>
+        {errors.name && (
+            <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>
+        )}
+        </div>
+
+
         {/* Email */}
         <div className="space-y-1">
             <label className="text-sm font-medium">Email</label>
@@ -47,26 +91,23 @@ export default function RegisterForm() {
 
         {/* Role */}
         <div className="space-y-2">
-            <label className="text-sm font-medium">Role</label>
-            <div className="flex gap-4">
-            {["Customer", "Restaurant Owner"].map((role) => (
-                <label
-                key={role}
-                className="flex items-center gap-2 text-sm cursor-pointer"
-                >
-                <input
-                    type="radio"
-                    value={role}
-                    {...register("role")}
-                    className="accent-[#E87A5D]"
-                />
-                {role}
-                </label>
-            ))}
-            </div>
-            {errors.role && (
+        <label className="text-sm font-medium">Role</label>
+        <div className="relative">
+            <select
+            {...register("role")}
+            className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-3 text-sm outline-none focus:border-[#E87A5D]"
+            defaultValue=""
+            >
+            <option value="" disabled>
+                Select your role
+            </option>
+            <option value="Customer">Customer</option>
+            <option value="Restaurant Owner">Restaurant Owner</option>
+            </select>
+        </div>
+        {errors.role && (
             <p className="text-xs text-red-600">{errors.role.message}</p>
-            )}
+        )}
         </div>
 
         {/* Password */}
@@ -144,4 +185,4 @@ export default function RegisterForm() {
         </p>
         </form>
     );
-    }
+}

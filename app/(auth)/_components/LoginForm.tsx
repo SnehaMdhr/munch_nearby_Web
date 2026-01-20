@@ -3,10 +3,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { LoginData, loginSchema } from "../schema";
 import { Mail, Lock, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { handleLogin } from "@/lib/actions/auth-actions";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -18,15 +19,31 @@ export default function LoginForm() {
     resolver: zodResolver(loginSchema),
   });
 
-  const [pending, startTransition] = useTransition();
-
+  const [error, setError] = useState("");
+      const [now, setNow] = useState<string>("");
+      useEffect(() => {
+          setNow(new Date().toLocaleString());
+      }, []);
+      const [pending, startTransition] = useTransition();
   const submit = async (values: LoginData) => {
-    startTransition(async () => {
-      await new Promise((r) => setTimeout(r, 1000));
-      console.log(values);
-      router.push("/dashboard");
-    });
-  };
+    setError("");
+        // GOTO
+        startTransition(async () => {
+            try {
+                const response = await handleLogin(values);
+                if (!response.success) {
+                    throw new Error(response.message);
+                }
+                if (response.success) {
+                    router.push("/customer/dashboard");
+                } else {
+                    setError('Login failed');
+                }
+            } catch (err: Error | any) {
+                setError(err.message || 'Login failed');
+            }
+        })
+    };
 
   return (
     <form onSubmit={handleSubmit(submit)} className="space-y-5">

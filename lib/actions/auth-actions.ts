@@ -1,5 +1,4 @@
 "use server";
-
 import { loginuser, registerUser } from "../api/auth";
 import { setAuthToken, setUserData } from "../cookie";
 export const handleRegister = async (formData: any) => {
