@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Home, Map, Heart, User, LogOut } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+
 
 // -------- Types --------
 type MenuItemProps = {
@@ -16,6 +18,7 @@ type MenuItemProps = {
 
 // -------- Sidebar --------
 export default function Sidebar() {
+  const { user, logout } = useAuth();
   const pathname = usePathname();
 
   return (
@@ -70,10 +73,14 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div className="px-6 py-6 flex justify-center">
-        <button className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium
-          text-white bg-[#E87A5D] justify-center hover:bg-orange-600 transition-colors">
+        <button
+          onClick={logout}
+          disabled={!user}
+          className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium
+          text-white bg-[#E87A5D] justify-center hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
           <LogOut size={18} />
-          <span>Logout</span>
+          Logout
         </button>
       </div>
 
