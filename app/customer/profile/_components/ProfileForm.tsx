@@ -129,7 +129,7 @@ export default function ProfileForm({ user }: { user: any }) {
         </div>
         ) : user?.imageUrl ? (
         <Image
-            src={process.env.NEXT_PUBLIC_API_BASE_URL + user.imageUrl}
+            src={process.env.NEXT_PUBLIC_API_BASE + user.imageUrl}
             alt="Profile"
             width={64}
             height={64}
