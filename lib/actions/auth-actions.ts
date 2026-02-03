@@ -56,7 +56,7 @@ export const handleUpdateProfile = async(formData: any)=>{
         const res = await updateProfile(formData);
         if(res.success){
             await setUserData(res.data); //update cookie user data
-            revalidatePath("user/profile"); //revalidate profile page/ new data
+            revalidatePath("/user/profile"); //revalidate profile page/ new data
             return {
                 success: true, 
                 data: res.data,
