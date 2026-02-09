@@ -35,7 +35,13 @@ export default function LoginForm() {
                     throw new Error(response.message);
                 }
                 if (response.success) {
-                    router.push("/customer/dashboard");
+                    if (response.data?.role == 'admin') {
+                        return router.replace("/admin/users");
+                    }
+                    if (response.data?.role === 'customer') {
+                        return router.replace("/customer/dashboard");
+                    }
+                    return router.replace("/");
                 } else {
                     setError('Login failed');
                 }

@@ -1,3 +1,4 @@
+"use server";
 import { cookies } from "next/headers";
 export const setAuthToken = async (token: string) => {
     const cookieStore = await cookies();
