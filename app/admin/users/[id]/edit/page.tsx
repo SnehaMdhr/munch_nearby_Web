@@ -1,5 +1,22 @@
-export default function Page() {
+import UpdateUserForm from "@/app/admin/_components/UpdateUserForm";
+import { handleGetOneUser } from "@/lib/actions/admin/user-actions";
+
+export default async function Page({
+    params
+}: {
+    params: Promise<{ id: string }>;
+}) {
+    const { id } = await params;
+
+    const response = await handleGetOneUser(id);
+
+    if (!response.success) {
+        throw new Error(response.message || 'Failed to load user');
+    }
+
     return (
-        <div>Edit Page</div>
+        <div>
+            <UpdateUserForm user={response.data} />
+        </div>
     );
 }

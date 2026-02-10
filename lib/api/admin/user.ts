@@ -60,3 +60,25 @@ export const getUserById = async (id: string) => {
             || error.message || 'Get user by id failed');
     }
 }
+
+export const updateUser = async (id: string, userData: any) => {
+    try {
+        const response = await axios.put(
+            API.ADMIN.Users.UPDATE(id),
+            userData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // for file update
+                }
+            }
+        );
+        return response.data;
+    } catch (error: Error | any) {
+        throw new Error(
+            error?.response?.data?.message ||
+            error.message ||
+            'Update user failed'
+        );
+    }
+};
+
