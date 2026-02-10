@@ -47,3 +47,16 @@ export const createUser = async (userData: any) => {
             || error.message || 'Create user failed');
     }
 }
+
+export const getUserById = async (id: string) => {
+    try {
+        const response = await axios.get(
+            API.ADMIN.Users.GET_ONE(id)
+        );
+        return response.data;
+    }
+    catch (error: Error | any) {
+        throw new Error(error.response?.data?.message
+            || error.message || 'Get user by id failed');
+    }
+}
