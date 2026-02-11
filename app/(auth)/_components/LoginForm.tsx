@@ -35,11 +35,14 @@ export default function LoginForm() {
                     throw new Error(response.message);
                 }
                 if (response.success) {
-                    if (response.data?.role == 'admin') {
+                    if (response.data?.role?.toLowerCase() == 'admin') {
                         return router.replace("/admin/users");
                     }
-                    if (response.data?.role === 'customer') {
+                    if (response.data?.role?.toLowerCase() == 'customer') {
                         return router.replace("/customer/dashboard");
+                    }
+                    if (response.data?.role?.toLowerCase() == 'restaurant owner') {
+                        return router.replace("/restaurantowner/dashboard");
                     }
                     return router.replace("/");
                 } else {
