@@ -13,5 +13,16 @@ export const API = {
             UPDATE: (id: string) => `/admin/users/${id}`,
             DELETE: (id: string) => `/admin/users/${id}`
         }
+    },
+    RESTAURANT: {
+    GET_ALL: "/restaurant",
+    GET_ONE: (id: string) => `/restaurant/${id}`,
+
+    OWNER: {
+      GET_MY: "/restaurant/my-restaurant",
+      CREATE: "/restaurant/create",
+      UPDATE: "/restaurant/update",
+      DELETE: "/restaurant/delete"
     }
+  },
 };
