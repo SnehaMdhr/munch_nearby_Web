@@ -105,7 +105,6 @@ export default function UpdateRestaurantForm({
 
       // ✅ FIXED: pass restaurant ID only
       const res = await handleUpdateRestaurant(
-        restaurant?.id || restaurant?._id,
         formData
       );
 
