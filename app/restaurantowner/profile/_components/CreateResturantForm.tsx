@@ -56,99 +56,134 @@ export default function CreateRestaurantForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="space-y-5">
+    <div className="max-w-xl">
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">
+        Create Restaurant
+      </h1>
+      <form onSubmit={handleSubmit(submit)} className="space-y-6">
 
       {/* Name */}
       <div>
-        <label className="text-sm font-medium">Restaurant Name</label>
+        <label className="block text-sm font-medium mb-1">
+          Name
+        </label>
         <input
           {...register("name")}
-          className="h-11 w-full rounded-lg border px-3 text-sm"
+          className="h-11 w-full rounded-lg border border-black/10
+            bg-[#FFF8F4] px-3 text-sm outline-none
+            focus:border-[#E87A5D]"
         />
         {errors.name && (
-          <p className="text-xs text-red-500">{errors.name.message}</p>
+          <p className="text-sm text-red-600">
+            {errors.name.message}
+          </p>
         )}
       </div>
 
       {/* Address */}
       <div>
-        <label className="text-sm font-medium">Address</label>
+        <label className="block text-sm font-medium mb-1">
+          Address
+        </label>
         <input
           {...register("address")}
-          className="h-11 w-full rounded-lg border px-3 text-sm"
+          className="h-11 w-full rounded-lg border border-black/10
+            bg-[#FFF8F4] px-3 text-sm outline-none
+            focus:border-[#E87A5D]"
         />
-        {errors.address && (
-          <p className="text-xs text-red-500">{errors.address.message}</p>
-        )}
       </div>
 
       {/* Contact */}
       <div>
-        <label className="text-sm font-medium">Contact Number</label>
+        <label className="block text-sm font-medium mb-1">
+          Contact Number
+        </label>
         <input
           {...register("contactNumber")}
-          className="h-11 w-full rounded-lg border px-3 text-sm"
+          className="h-11 w-full rounded-lg border border-black/10
+            bg-[#FFF8F4] px-3 text-sm outline-none
+            focus:border-[#E87A5D]"
         />
-        {errors.contactNumber && (
-          <p className="text-xs text-red-500">{errors.contactNumber.message}</p>
-        )}
       </div>
 
       {/* Map Link */}
       <div>
-        <label className="text-sm font-medium">Google Map Link</label>
+        <label className="block text-sm font-medium mb-1">
+          Google Map Link
+        </label>
         <input
           {...register("mapLink")}
-          className="h-11 w-full rounded-lg border px-3 text-sm"
+          className="h-11 w-full rounded-lg border border-black/10
+            bg-[#FFF8F4] px-3 text-sm outline-none
+            focus:border-[#E87A5D]"
         />
-        {errors.mapLink && (
-          <p className="text-xs text-red-500">{errors.mapLink.message}</p>
-        )}
       </div>
 
       {/* Category */}
       <div>
-        <label className="text-sm font-medium">Category</label>
+        <label className="block text-sm font-medium mb-1">
+          Category
+        </label>
         <input
           {...register("category")}
-          className="h-11 w-full rounded-lg border px-3 text-sm"
+          className="h-11 w-full rounded-lg border border-black/10
+            bg-[#FFF8F4] px-3 text-sm outline-none
+            focus:border-[#E87A5D]"
         />
       </div>
 
       {/* Description */}
       <div>
-        <label className="text-sm font-medium">Description</label>
+        <label className="block text-sm font-medium mb-1">
+          Description
+        </label>
         <textarea
           {...register("description")}
-          className="w-full rounded-lg border px-3 py-2 text-sm"
+          className="w-full rounded-lg border border-black/10
+            bg-[#FFF8F4] px-3 py-2 text-sm outline-none
+            focus:border-[#E87A5D]"
         />
       </div>
 
       {/* Image */}
       <div>
-        <label className="text-sm font-medium">Restaurant Image</label>
+        <label className="block text-sm font-medium mb-1">
+          Restaurant Image
+        </label>
         <input
           type="file"
-          accept="imageUrl/*"
+          accept=".jpg,.jpeg,.png,.webp"
           onChange={(e) =>
             setImageFile(e.target.files ? e.target.files[0] : null)
           }
+          className="block w-full text-sm
+            file:mr-4 file:rounded-full file:border-0
+            file:bg-[#E87A5D]/10 file:px-4 file:py-2
+            file:text-[#E87A5D] hover:file:bg-[#E87A5D]/20"
         />
       </div>
 
       {error && (
-        <p className="text-sm text-red-500">{error}</p>
+        <p className="text-sm text-red-600">
+          {error}
+        </p>
       )}
 
+      {/* Submit */}
       <button
         type="submit"
         disabled={isSubmitting || pending}
-        className="h-11 w-full rounded-full bg-[#E87A5D] text-white font-semibold disabled:opacity-60"
+        className="h-11 w-full rounded-full bg-[#E87A5D]
+          text-white font-semibold hover:opacity-90
+          transition disabled:opacity-60"
       >
         {isSubmitting || pending
-          ? "Creating Restaurant..."
+          ? "Creating..."
           : "Create Restaurant"}
       </button>
     </form>
+    </div>
+
+
   );
 }

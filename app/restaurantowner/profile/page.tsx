@@ -17,26 +17,46 @@ export default async function Page() {
     <div className="flex">
       <Sidebar />
       <div className="flex-1 p-6">
-        <Link
+
+        <RestaurantProfileForm user={result.data} />
+      
+        <div className="mt-6 mb-6 space-y-6 max-w-md">
+          <Link
           href="/restaurantowner/profile/create"
-          className="bg-blue-500 text-white px-4 py-2 rounded inline-block"
+          className="
+            h-11 w-full
+            rounded-full
+            bg-[#E87A5D]
+            text-white
+            font-semibold
+            hover:opacity-90
+            transition
+            flex items-center justify-center
+          "
         >
           Create Restaurant
         </Link>
 
         <Link
           href="/restaurantowner/profile/update"
-          className="bg-blue-500 text-white px-4 py-2 rounded inline-block"
+          className="
+            h-11 w-full
+            rounded-full
+            bg-[#E87A5D]
+            text-white
+            font-semibold
+            hover:opacity-90
+            transition
+            flex items-center justify-center
+          "
         >
           Update Restaurant
         </Link>
+        </div>
+        </div>
 
 
-        <RestaurantProfileForm user={result.data} />
-        
-
-
-      </div>
+      
     </div>
   );
 }

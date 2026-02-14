@@ -7,12 +7,13 @@ import { useRef, useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { handleUpdateUser } from "@/lib/actions/admin/user-actions";
+import { useRouter } from "next/navigation";
 
 export default function UpdateUserForm({ user }: { user: any }) {
   const [pending, startTransition] = useTransition();
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -76,6 +77,8 @@ export default function UpdateUserForm({ user }: { user: any }) {
 
         handleDismissImage();
         toast.success("Profile updated successfully");
+        router.push("/admin/users");
+
       } catch (err: any) {
         toast.error(err.message || "Update failed");
       }
