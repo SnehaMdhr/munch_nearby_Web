@@ -62,30 +62,45 @@ export const handleGetMyRestaurant = async () => {
 
 // Create restaurant
 export const handleCreateRestaurant = async (formData: FormData) => {
+  // try {
+  //   const res = await createRestaurant(formData);
+
+  //   if (res.success) {
+  //     revalidatePath("/"); // refresh homepage
+  //     revalidatePath("/restaurantowner/profile"); // refresh owner dashboard
+
+  //     return {
+  //       success: true,
+  //       data: res.data,
+  //       message: "Restaurant created successfully"
+  //     };
+  //   }
+
+  //   return { success: false, message: res.message || "Creation failed" };
+
+  // } catch (err: Error | any) {
+  //   return { success: false, message: err.message || "Creation failed" };
+  // }
+
   try {
-    const res = await createRestaurant(formData);
-
-    if (res.success) {
-      revalidatePath("/"); // refresh homepage
-      revalidatePath("/restaurantowner/profile"); // refresh owner dashboard
-
-      return {
-        success: true,
-        data: res.data,
-        message: "Restaurant created successfully"
-      };
+      const res = await createRestaurant(formData);
+      if (res.success) {
+        revalidatePath("/restaurantowner/profile");
+        return {
+          success: true,
+          data: res.data,
+          message: "Registration successful",
+        };
+      }
+      return { success: false, message: res.message || "Registration failed" };
+    } catch (err: Error | any) {
+      return { success: false, message: err.message || "Registration failed" };
     }
-
-    return { success: false, message: res.message || "Creation failed" };
-
-  } catch (err: Error | any) {
-    return { success: false, message: err.message || "Creation failed" };
-  }
 };
 
 
 // Update restaurant
-export const handleUpdateRestaurant = async (restaurantId: string, formData: FormData) => {
+export const handleUpdateRestaurant = async (formData: FormData) => {
   try {
     const res = await updateRestaurant(formData);
 

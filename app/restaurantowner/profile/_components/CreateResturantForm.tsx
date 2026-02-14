@@ -1,189 +1,264 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { handleCreateRestaurant } from "@/lib/actions/restaurant-actions";
 import { RestaurantData, restaurantSchema } from "../restaurantschema";
+import { toast } from "react-toastify";
 
 export default function CreateRestaurantForm() {
-  const router = useRouter();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<RestaurantData>({
-    resolver: zodResolver(restaurantSchema),
-  });
-
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [error, setError] = useState("");
-  const [pending, startTransition] = useTransition();
-
-  const submit = async (values: RestaurantData) => {
-    startTransition(async () => {
-      try {
-        setError("");
-
-        const formData = new FormData();
-
-        formData.append("name", values.name);
-        formData.append("address", values.address);
-        formData.append("mapLink", values.mapLink || "");
-        formData.append("contactNumber", values.contactNumber);
-        formData.append("category", values.category || "");
-        formData.append("description", values.description || "");
-
-        if (imageFile) {
-          formData.append("imageUrl", imageFile); // must match multer
-        }
-
-        const response = await handleCreateRestaurant(formData);
-
-        if (!response.success) {
-          throw new Error(response.message);
-        }
-
-        router.refresh();
-        router.push("/restaurantowner/profile");
-
-      } catch (err: any) {
-        setError(err.message || "Failed to create restaurant");
-      }
-    });
-  };
-
+ const router = useRouter();
+   const [pending, startTransition] = useTransition();
+ 
+   const {
+     register,
+     handleSubmit,
+     control,
+     reset,
+     formState: { errors, isSubmitting },
+   } = useForm<RestaurantData>({
+     resolver: zodResolver(restaurantSchema),
+   });
+ 
+   const [error, setError] = useState<string | null>(null);
+   const [previewImage, setPreviewImage] = useState<string | null>(null);
+   const fileInputRef = useRef<HTMLInputElement>(null);
+ 
+   const handleImageChange = (
+     file: File | undefined,
+     onChange: (file: File | undefined) => void
+   ) => {
+     if (file) {
+       const reader = new FileReader();
+       reader.onloadend = () =>
+         setPreviewImage(reader.result as string);
+       reader.readAsDataURL(file);
+     } else {
+       setPreviewImage(null);
+     }
+     onChange(file);
+   };
+ 
+   const handleDismissImage = (
+     onChange?: (file: File | undefined) => void
+   ) => {
+     setPreviewImage(null);
+     onChange?.(undefined);
+     if (fileInputRef.current) {
+       fileInputRef.current.value = "";
+     }
+   };
+ 
+   const onSubmit = async (data: RestaurantData) => {
+     setError(null);
+ 
+     startTransition(async () => {
+       try {
+         const formData = new FormData();
+         if (data.name) formData.append("name", data.name);
+         if (data.address) formData.append("address", data.address);
+         if (data.contactNumber) formData.append("contactNumber", data.contactNumber);
+         if (data.mapLink) formData.append("mapLink", data.mapLink);
+         if (data.category) formData.append("category", data.category);
+         if (data.description) formData.append("description", data.description);
+         if (data.imageUrl) formData.append("imageUrl", data.imageUrl);
+ 
+         const response = await handleCreateRestaurant(formData);
+ 
+         if (!response.success) {
+           throw new Error(response.message || "Create profile failed");
+         }
+ 
+         reset();
+         handleDismissImage();
+         toast.success("Profile Created successfully 🎉");
+ 
+         // 👉 redirect to users list
+         router.push("/restaurantowner/profile");
+       } catch (error: Error | any) {
+         toast.error(error.message || "Create profile failed");
+         setError(error.message || "Create profile failed");
+       }
+     });
+   };
+ 
   return (
-    <div className="max-w-xl">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">
-        Create Restaurant
-      </h1>
-      <form onSubmit={handleSubmit(submit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
 
       {/* Name */}
       <div>
-        <label className="block text-sm font-medium mb-1">
-          Name
-        </label>
+        <label className="text-sm font-medium">Name</label>
         <input
           {...register("name")}
-          className="h-11 w-full rounded-lg border border-black/10
-            bg-[#FFF8F4] px-3 text-sm outline-none
-            focus:border-[#E87A5D]"
+          placeholder="Jane"
+          className="
+            h-11 w-full rounded-lg
+            border border-black/10
+            bg-[#FFF8F4]
+            px-3 text-sm
+            outline-none
+            focus:border-[#E87A5D]
+          "
         />
         {errors.name && (
-          <p className="text-sm text-red-600">
-            {errors.name.message}
-          </p>
+          <p className="text-xs text-red-600">{errors.name.message}</p>
         )}
       </div>
 
       {/* Address */}
       <div>
-        <label className="block text-sm font-medium mb-1">
-          Address
-        </label>
+        <label className="text-sm font-medium">Address</label>
         <input
           {...register("address")}
-          className="h-11 w-full rounded-lg border border-black/10
-            bg-[#FFF8F4] px-3 text-sm outline-none
-            focus:border-[#E87A5D]"
+          placeholder="Enter your address"
+          className="
+            h-11 w-full rounded-lg
+            border border-black/10
+            bg-[#FFF8F4]
+            px-3 text-sm
+            outline-none
+            focus:border-[#E87A5D]
+          "
         />
+        {errors.address && (
+          <p className="text-xs text-red-600">{errors.address.message}</p>
+        )}
       </div>
 
-      {/* Contact */}
+      {/* Contact Number */}
       <div>
-        <label className="block text-sm font-medium mb-1">
-          Contact Number
-        </label>
+        <label className="text-sm font-medium">Contact Number</label>
         <input
           {...register("contactNumber")}
-          className="h-11 w-full rounded-lg border border-black/10
-            bg-[#FFF8F4] px-3 text-sm outline-none
-            focus:border-[#E87A5D]"
+          placeholder="Enter your contact number"
+          className="
+            h-11 w-full rounded-lg
+            border border-black/10
+            bg-[#FFF8F4]
+            px-3 text-sm
+            outline-none
+            focus:border-[#E87A5D]
+          "
         />
+        {errors.contactNumber && (
+          <p className="text-xs text-red-600">{errors.contactNumber.message}</p>
+        )}
       </div>
 
       {/* Map Link */}
       <div>
-        <label className="block text-sm font-medium mb-1">
-          Google Map Link
-        </label>
+        <label className="text-sm font-medium">Map Link</label>
         <input
           {...register("mapLink")}
-          className="h-11 w-full rounded-lg border border-black/10
-            bg-[#FFF8F4] px-3 text-sm outline-none
-            focus:border-[#E87A5D]"
+          placeholder="Enter your map Link"
+          className="
+            h-11 w-full rounded-lg
+            border border-black/10
+            bg-[#FFF8F4]
+            px-3 text-sm
+            outline-none
+            focus:border-[#E87A5D]
+          "
         />
+        {errors.mapLink && (
+          <p className="text-xs text-red-600">{errors.mapLink.message}</p>
+        )}
       </div>
 
       {/* Category */}
       <div>
-        <label className="block text-sm font-medium mb-1">
-          Category
-        </label>
+        <label className="text-sm font-medium">Category</label>
         <input
           {...register("category")}
-          className="h-11 w-full rounded-lg border border-black/10
-            bg-[#FFF8F4] px-3 text-sm outline-none
-            focus:border-[#E87A5D]"
+          placeholder="Enter your category"
+          className="
+            h-11 w-full rounded-lg
+            border border-black/10
+            bg-[#FFF8F4]
+            px-3 text-sm
+            outline-none
+            focus:border-[#E87A5D]
+          "
         />
+        {errors.category && (
+          <p className="text-xs text-red-600">{errors.category.message}</p>
+        )}
       </div>
 
       {/* Description */}
       <div>
-        <label className="block text-sm font-medium mb-1">
-          Description
-        </label>
-        <textarea
-          {...register("description")}
-          className="w-full rounded-lg border border-black/10
-            bg-[#FFF8F4] px-3 py-2 text-sm outline-none
-            focus:border-[#E87A5D]"
-        />
-      </div>
-
-      {/* Image */}
-      <div>
-        <label className="block text-sm font-medium mb-1">
-          Restaurant Image
-        </label>
+        <label className="text-sm font-medium">Description</label>
         <input
-          type="file"
-          accept=".jpg,.jpeg,.png,.webp"
-          onChange={(e) =>
-            setImageFile(e.target.files ? e.target.files[0] : null)
-          }
-          className="block w-full text-sm
-            file:mr-4 file:rounded-full file:border-0
-            file:bg-[#E87A5D]/10 file:px-4 file:py-2
-            file:text-[#E87A5D] hover:file:bg-[#E87A5D]/20"
+          {...register("description")}
+          placeholder="Enter your description"
+          className="
+            h-11 w-full rounded-lg
+            border border-black/10
+            bg-[#FFF8F4]
+            px-3 text-sm
+            outline-none
+            focus:border-[#E87A5D]
+          "
         />
+        {errors.description && (
+          <p className="text-xs text-red-600">{errors.description.message}</p>
+        )}
       </div>
 
-      {error && (
-        <p className="text-sm text-red-600">
-          {error}
-        </p>
-      )}
+      {/* Image Upload */}
+     <div>
+        <label className="text-sm font-medium mb-1 block">
+          Profile Image
+        </label>
+        <Controller
+          name="imageUrl"
+          control={control}
+          render={({ field: { onChange } }) => (
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp"
+              onChange={(e) =>
+                handleImageChange(e.target.files?.[0], onChange)
+              }
+              className="
+                block w-full text-sm
+                file:h-11 file:px-4
+                file:rounded-md
+                file:border-0
+                file:bg-[#E87A5D]
+                file:text-white
+                hover:file:opacity-90
+                transition
+              "
+            />
+          )}
+        />
+        {errors.imageUrl && (
+          <p className="text-xs text-red-600 mt-1">
+            {errors.imageUrl.message}
+          </p>
+        )}
+      </div>
 
-      {/* Submit */}
       <button
         type="submit"
         disabled={isSubmitting || pending}
-        className="h-11 w-full rounded-full bg-[#E87A5D]
-          text-white font-semibold hover:opacity-90
-          transition disabled:opacity-60"
+        className="
+          h-11 w-full rounded-lg
+          bg-[#E87A5D] text-white
+          text-sm font-semibold
+          hover:opacity-90
+          transition
+          disabled:opacity-60
+        "
       >
         {isSubmitting || pending
-          ? "Creating..."
+          ? "Creating account..."
           : "Create Restaurant"}
       </button>
     </form>
-    </div>
-
-
   );
 }

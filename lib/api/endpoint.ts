@@ -16,7 +16,7 @@ export const API = {
             DELETE: (id: string) => `/admin/users/${id}`
         }
     },
-    RESTAURANT: {
+   RESTAURANT: {
     GET_ALL: "/restaurant",
     GET_ONE: (id: string) => `/restaurant/${id}`,
 

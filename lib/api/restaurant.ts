@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "./axios";
 import { API } from "./endpoint";
 
 
@@ -6,7 +6,7 @@ import { API } from "./endpoint";
 // Get all restaurants
 export const getAllRestaurants = async () => {
     try {
-        const response = await axios.get(API.RESTAURANT.GET_ALL);
+        const response = await axiosInstance.get(API.RESTAURANT.GET_ALL);
         return response.data;
     } catch (err: Error | any) {
         throw new Error(
@@ -21,7 +21,7 @@ export const getAllRestaurants = async () => {
 // Get restaurant by ID
 export const getRestaurantById = async (id: string) => {
     try {
-        const response = await axios.get(API.RESTAURANT.GET_ONE(id));
+        const response = await axiosInstance.get(API.RESTAURANT.GET_ONE(id));
         return response.data;
     } catch (err: Error | any) {
         throw new Error(
@@ -36,7 +36,7 @@ export const getRestaurantById = async (id: string) => {
 // Get my restaurant
 export const getMyRestaurant = async () => {
     try{
-        const response = await axios.get(API.RESTAURANT.OWNER.GET_MY);
+        const response = await axiosInstance.get(API.RESTAURANT.OWNER.GET_MY);
         return response.data;
     }catch(err: Error | any){
         throw new Error(
@@ -50,8 +50,8 @@ export const getMyRestaurant = async () => {
 
 // Create restaurant
 export const createRestaurant = async (restaurantData: FormData) => {
-    try {
-        const response = await axios.post(
+     try{
+        const response = await axiosInstance.post(
             API.RESTAURANT.OWNER.CREATE,
             restaurantData,
             {
@@ -60,13 +60,14 @@ export const createRestaurant = async (restaurantData: FormData) => {
                 }
             }
         );
-        return response.data;
-    } catch (err: Error | any) {
+        return response.data; // response ko body(what backend returns)
+    }catch(err: Error | any){
+        // if 4xx/5xx error, axios throws error
         throw new Error(
-            err.response?.data?.message ||
-            err.message ||
-            "Creating restaurant failed"
-        );
+            err.response?.data?.message  // backend error message
+            || err.message // general axios error message
+            || "Restaurant Creation failed" // fallback message
+        )
     }
 };
 
@@ -74,7 +75,7 @@ export const createRestaurant = async (restaurantData: FormData) => {
 // Update restaurant
 export const updateRestaurant = async (restaurantData: FormData) => {
     try {
-        const response = await axios.put(
+        const response = await axiosInstance.put(
             API.RESTAURANT.OWNER.UPDATE,
             restaurantData,
             {
@@ -97,7 +98,7 @@ export const updateRestaurant = async (restaurantData: FormData) => {
 // Delete restaurant
 export const deleteRestaurant = async () => {
     try {
-        const response = await axios.delete(
+        const response = await axiosInstance.delete(
             API.RESTAURANT.OWNER.DELETE
         );
         return response.data;
