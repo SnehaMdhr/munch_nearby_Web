@@ -27,4 +27,15 @@ export const API = {
       DELETE: "/restaurant/delete"
     }
   },
+  MENU: {
+    GET_ALL: "/menu",
+    GET_ONE: (id: string) => `/menu/${id}`,
+    GET_BY_RESTAURANT: (restaurantId: string) => `/menu/restaurant/${restaurantId}`,
+
+    OWNER: {
+      CREATE: "/menu/create",
+      UPDATE: (id: string) => `/menu/update/${id}`,
+      DELETE: (id: string) => `/menu/delete/${id}`
+    }
+  },
 };
