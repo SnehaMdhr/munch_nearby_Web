@@ -1,6 +1,6 @@
 "use server";
 
-import { createUser, deleteUser, getAllUsers } from "@/lib/api/admin/user";
+import { createUser, deleteUser, getAllUsers, getUserById, updateUser } from "@/lib/api/admin/user";
 import { revalidatePath } from "next/cache";
 
 export const handleGetAllUsers = async (
@@ -73,4 +73,51 @@ export const handleCreateUser = async (data: FormData) => {
         return { success: false, message: error.message || 'Registration action failed' }
     }
 }
+
+export const handleGetOneUser = async (id: string) => {
+    try {
+        const response = await getUserById(id);
+        if (response.success) {
+            return {
+                success: true,
+                message: 'Get user by id successful',
+                data: response.data
+            }
+        }
+        return {
+            success: false,
+            message: response.message || 'Get user by id failed'
+        }
+    } catch (error: Error | any) {
+        return {
+            success: false,
+            message: error.message || 'Get user by id action failed'
+        }
+    }
+}
    
+
+export const handleUpdateUser = async (id: string, data: FormData) => {
+    try {
+        const response = await updateUser(id, data);
+
+        if (response.success) {
+            revalidatePath('/admin/users');
+            return {
+                success: true,
+                message: response.message || 'User updated successfully',
+                data: response.data,
+            };
+        }
+
+        return {
+            success: false,
+            message: response.message || 'Update failed',
+        };
+    } catch (error: Error | any) {
+        return {
+            success: false,
+            message: error.message || 'Update action failed',
+        };
+    }
+};

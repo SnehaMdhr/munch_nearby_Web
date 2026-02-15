@@ -8,6 +8,7 @@ import { LoginData, loginSchema } from "../schema";
 import { Mail, Lock, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleLogin } from "@/lib/actions/auth-actions";
+import { toast } from "react-toastify";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -26,29 +27,39 @@ export default function LoginForm() {
       }, []);
       const [pending, startTransition] = useTransition();
   const submit = async (values: LoginData) => {
-    setError("");
-        // GOTO
-        startTransition(async () => {
-            try {
-                const response = await handleLogin(values);
-                if (!response.success) {
-                    throw new Error(response.message);
-                }
-                if (response.success) {
-                    if (response.data?.role == 'admin') {
-                        return router.replace("/admin/users");
-                    }
-                    if (response.data?.role === 'customer') {
-                        return router.replace("/customer/dashboard");
-                    }
-                    return router.replace("/");
-                } else {
-                    setError('Login failed');
-                }
-            } catch (err: Error | any) {
-                setError(err.message || 'Login failed');
-            }
-        })
+      setError("");
+
+      startTransition(async () => {
+        try {
+          const response = await handleLogin(values);
+
+          if (!response.success) {
+            throw new Error(response.message || "Login failed");
+          }
+
+          toast.success("Login successful 🎉");
+
+          const role = response.data?.role?.toLowerCase();
+
+          if (role === "admin") {
+            return router.replace("/admin/users");
+          }
+
+          if (role === "customer") {
+            return router.replace("/customer/dashboard");
+          }
+
+          if (role === "restaurant owner") {
+            return router.replace("/restaurantowner/dashboard");
+          }
+
+          return router.replace("/");
+        } catch (err: any) {
+          const message = err.message || "Login failed";
+          setError(message);
+          toast.error(message);
+        }
+      });
     };
 
   return (

@@ -124,14 +124,14 @@ export default function UserTable({
 
                   <td className="px-6 py-4">
                     <div className="flex justify-end gap-2">
-                      {/* <Link
+                      <Link
                         href={`/admin/users/${user._id}`}
                         className="px-3 py-1.5 rounded-full text-xs
                           border border-gray-300 text-gray-700
                           hover:bg-gray-100 transition"
                       >
                         View
-                      </Link> */}
+                      </Link>
 
                       <Link
                         href={`/admin/users/${user._id}/edit`}

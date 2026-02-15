@@ -8,6 +8,7 @@ import { RegisterData, registerSchema } from "../schema";
 import { Mail, Lock, EyeOff, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleRegister } from "@/lib/actions/auth-actions";
+import { toast } from "react-toastify";
 
 export default function RegisterForm() {
     const router = useRouter();
@@ -35,6 +36,7 @@ export default function RegisterForm() {
                     throw new Error(response.message);
                 }
                 if (response.success) {
+                    toast.success("Registered successfully.");
                     router.push("/login");
                 } else {
                     setError('Registration failed');
@@ -42,6 +44,7 @@ export default function RegisterForm() {
 
             } catch (err: Error | any) {
                 setError(err.message || 'Registration failed');
+                toast.error(err.message || 'Registration failed');
             }
         });
         // GO TO LOGIN PAGE
