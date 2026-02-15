@@ -50,14 +50,14 @@ export const getMenusByRestaurant = async (restaurantId: string) => {
 
 
 // ✅ Create menu
-export const createMenu = async (menuData: FormData) => {
+export const createMenu = async (menuData: object) => {
   try {
     const response = await axiosInstance.post(
       API.MENU.OWNER.CREATE,
       menuData,
       {
         headers: {
-          "Content-Type": "multipart/form-data"
+          "Content-Type": "application/json"
         }
       }
     );
@@ -74,14 +74,14 @@ export const createMenu = async (menuData: FormData) => {
 
 
 // ✅ Update menu
-export const updateMenu = async (id: string, menuData: FormData) => {
+export const updateMenu = async (id: string, menuData: object) => {
   try {
     const response = await axiosInstance.put(
       API.MENU.OWNER.UPDATE(id),
       menuData,
       {
         headers: {
-          "Content-Type": "multipart/form-data"
+          "Content-Type": "application/json"
         }
       }
     );
