@@ -38,4 +38,9 @@ export const API = {
       DELETE: (id: string) => `/menu/delete/${id}`
     }
   },
+  FAVOURITE: {
+    ADD: (restaurantId: string) => `/favourite/${restaurantId}`,
+    REMOVE: (restaurantId: string) => `/favourite/${restaurantId}`,
+    GET_MY: "/favourite/my",
+  },
 };
