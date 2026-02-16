@@ -104,7 +104,7 @@ export default function CreateMenuForm() {
                 <textarea
                     {...register("description")}
                     placeholder="Describe the dish..."
-                    className="w-full rounded-lg border border-black/10 bg-[#FFF8F4] p-3 text-sm outline-none focus:border-[#E87A5D] min-h-[100px]"
+                    className="w-full rounded-lg border border-black/10 bg-[#FFF8F4] p-3 text-sm outline-none focus:border-[#E87A5D] min-h-25"
                 />
                 {errors.description && <p className="text-xs text-red-600">{errors.description.message}</p>}
             </div>

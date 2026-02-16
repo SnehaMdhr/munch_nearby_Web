@@ -14,3 +14,6 @@ export const menuSchema = z.object({
 export type MenuData = z.infer<typeof menuSchema>;
 export type MenuInput = z.input<typeof menuSchema>;
 
+export const MenuUpdateSchema = menuSchema.partial();
+export type MenuUpdateData = z.infer<typeof MenuUpdateSchema>;
+export type MenuUpdateInput = z.input<typeof MenuUpdateSchema>;
