@@ -26,9 +26,23 @@ export const handleRemoveFromFavourite = async (restaurantId: string) => {
 
 export const handleGetMyFavourites = async () => {
   try {
-    const data = await getMyFavourites(); // already pure array
-    return { success: true, data };
-  } catch (error: any) {
-    return { success: false, message: error.message };
+    const res = await getMyFavourites();
+
+    if (res.success) {
+      return {
+        success: true,
+        data: res.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: res.message || "Failed to fetch favourites",
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err.message || "Failed to fetch favourites",
+    };
   }
 };

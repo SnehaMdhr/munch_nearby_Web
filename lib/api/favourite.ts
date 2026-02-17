@@ -3,13 +3,25 @@ import { API } from "./endpoint";
 
 // Get My Favourites
 export const getMyFavourites = async () => {
-  const response = await axiosInstance.get(
-    API.FAVOURITE.GET_MY
-  );
+  try {
+    const response = await axiosInstance.get(API.FAVOURITE.GET_MY);
 
-  // Return ONLY the favourites array
-  return response.data.data;
+    return {
+      success: true,
+      data: response.data.data, // ✅ adjust if your backend differs
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message:
+        err.response?.data?.message ||
+        err.message ||
+        "Fetching favourites failed",
+    };
+  }
 };
+
+
 
 // Add To Favourite
 export const addToFavourite = async (restaurantId: string) => {
