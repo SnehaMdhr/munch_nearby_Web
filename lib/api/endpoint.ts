@@ -43,4 +43,10 @@ export const API = {
     REMOVE: (restaurantId: string) => `/favourite/${restaurantId}`,
     GET_MY: "/favourite/my",
   },
+  REVIEW: {
+    GET_BY_RESTAURANT: (restaurantId: string) => `/review/restaurant/${restaurantId}`,
+    CREATE: (restaurantId: string) => `/review/restaurant/${restaurantId}`,
+    UPDATE: (id: string) => `/review/${id}`,
+    DELETE: (id: string) => `/review/${id}`,
+  },
 };
