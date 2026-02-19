@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { handleGetMenusByRestaurant } from "@/lib/actions/menu-actions";
 import Sidebar from "@/app/customer/_components/SideBar";
 import { z } from "zod";
+import { useRouter } from "next/navigation";
 
 /* -------------------- ZOD SCHEMA -------------------- */
 
@@ -22,6 +23,7 @@ type Menu = z.infer<typeof MenuSchema>;
 
 export default function Page() {
   const params = useParams();
+  const router = useRouter();
   const restaurantId = params.id as string;
 
   const [menus, setMenus] = useState<Menu[]>([]);
@@ -70,6 +72,16 @@ export default function Page() {
 
       <div className="flex-1 p-6">
         <h1 className="text-xl font-semibold">Restaurant Menus</h1>
+
+        <button
+          onClick={() =>
+            router.push(`/customer/dashboard/${restaurantId}/reviews`)
+          }
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          View Reviews
+        </button>
+
 
         <div className="mt-6">
           {loading ? (
