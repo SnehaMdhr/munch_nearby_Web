@@ -1,10 +1,10 @@
-import Sidebar from "../_components/SideBar";
+import MapWrapper from "./MapWrapper";
 
 export default function Page() {
-    return (
-        <div className="flex">
-            <Sidebar />
-            <div className="p-6">Map</div>
-        </div>
-    );
+  return (
+    <div>
+      <h1>Customer Map</h1>
+      <MapWrapper />
+    </div>
+  );
 }
