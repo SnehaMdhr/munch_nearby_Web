@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Sidebar from "@/app/customer/_components/SideBar";
 import { z } from "zod";
-import { handleDeleteReview, handleGetReviewsByRestaurant } from "@/lib/actions/review-actions";
+import {
+  handleDeleteReview,
+  handleGetReviewsByRestaurant,
+} from "@/lib/actions/review-actions";
 import DeleteModal from "@/app/_components/DeleteModel";
-import { useRouter } from "next/navigation";
-
-
+import { useAuth } from "@/context/AuthContext";
 
 /* -------------------- ZOD SCHEMA -------------------- */
 
@@ -30,6 +31,7 @@ type RawReview = z.infer<typeof RawReviewSchema>;
 
 type Review = {
   _id: string;
+  customerId: string | null;
   customerName: string;
   rating: number;
   comment: string;
@@ -39,7 +41,10 @@ type Review = {
 export default function Page() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
+
   const restaurantId = params.id as string;
+  const loggedInUserId = user?._id || user?.id || null;
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +52,6 @@ export default function Page() {
 
   const [isDeleteOpen, setIsDeleteOpen] = useState<boolean | null>(null);
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
 
   /* -------------------- FETCH REVIEWS -------------------- */
 
@@ -61,13 +65,18 @@ export default function Page() {
         const parsed = z.array(RawReviewSchema).safeParse(res.data);
 
         if (!parsed.success) {
-          console.error("Review parse errors:", parsed.error.format());
-          console.error("Received payload:", res.data);
           setError("Invalid reviews data received from server");
         } else {
           const normalized: Review[] = parsed.data.map((r: RawReview) => {
             const ratingNum =
-              typeof r.rating === "number" ? r.rating : Number(r.rating);
+              typeof r.rating === "number"
+                ? r.rating
+                : Number(r.rating);
+
+            const customerId =
+              typeof r.customer === "string"
+                ? r.customer
+                : r.customer._id;
 
             const customerName =
               typeof r.customer === "string"
@@ -76,6 +85,7 @@ export default function Page() {
 
             return {
               _id: r._id,
+              customerId,
               customerName,
               rating: isNaN(ratingNum) ? 0 : ratingNum,
               comment: r.comment ?? "",
@@ -110,15 +120,12 @@ export default function Page() {
   const handleConfirmDelete = async () => {
     if (!selectedReviewId || !restaurantId) return;
 
-    setDeleting(true);
-
     const res = await handleDeleteReview(
       selectedReviewId,
       restaurantId
     );
 
     if (res.success) {
-      // Remove review from UI instantly
       setReviews((prev) =>
         prev.filter((r) => r._id !== selectedReviewId)
       );
@@ -126,9 +133,20 @@ export default function Page() {
       alert(res.message || "Failed to delete review");
     }
 
-    setDeleting(false);
     closeDeleteModal();
   };
+
+  /* -------------------- SEPARATE REVIEWS -------------------- */
+
+  const myReviews = reviews.filter(
+    (review) =>
+      loggedInUserId && review.customerId === loggedInUserId
+  );
+
+  const otherReviews = reviews.filter(
+    (review) =>
+      !loggedInUserId || review.customerId !== loggedInUserId
+  );
 
   /* -------------------- UI -------------------- */
 
@@ -137,19 +155,23 @@ export default function Page() {
       <Sidebar />
 
       <div className="flex-1 p-6">
-        <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold">
-          Restaurant Reviews
-        </h1>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-2xl font-semibold">
+            Restaurant Reviews
+          </h1>
 
-        <button
-          onClick={() => router.push(`/customer/dashboard/${restaurantId}/addreview`)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-        >
-          + Add Review
-        </button>
-      </div>
-
+          <button
+            onClick={() =>
+              router.push(
+                `/customer/dashboard/${restaurantId}/addreview`
+              )
+            }
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+          >
+            + Add Review
+          </button>
+        </div>
 
         {loading ? (
           <p>Loading reviews...</p>
@@ -158,67 +180,134 @@ export default function Page() {
         ) : reviews.length === 0 ? (
           <p>No reviews found.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {reviews.map((review) => (
-              <div
-                key={review._id}
-                className="border rounded-xl shadow-md p-5 bg-white hover:shadow-lg transition"
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-lg">
-                    {review.customerName}
-                  </h3>
+          <>
+            {/* ---------------- MY REVIEWS ---------------- */}
+            {myReviews.length > 0 && (
+              <div className="mb-12">
+                <h2 className="text-lg font-semibold mb-4 text-blue-600">
+                  Your Review
+                </h2>
 
-                  <div className="flex items-center gap-4">
-                    {/* Stars */}
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span
-                          key={star}
-                          className={`text-xl ${
-                            star <= review.rating
-                              ? "text-yellow-500"
-                              : "text-gray-300"
-                          }`}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Delete Button */}
-                    <button
-                      onClick={() =>
-                        openDeleteModal(review._id)
-                      }
-                      className="text-sm text-red-500 hover:text-red-700 font-medium"
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {myReviews.map((review) => (
+                    <div
+                      key={review._id}
+                      className="border-2 border-blue-500 rounded-xl shadow-md p-5 bg-white"
                     >
-                      Delete
-                    </button>
-                  </div>
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-lg">
+                          {review.customerName}
+                        </h3>
+
+                        <div className="flex items-center gap-4">
+                          <div className="flex">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <span
+                                key={star}
+                                className={`text-xl ${
+                                  star <= review.rating
+                                    ? "text-yellow-500"
+                                    : "text-gray-300"
+                                }`}
+                              >
+                                ★
+                              </span>
+                            ))}
+                          </div>
+
+                          <button
+                            onClick={() =>
+                              router.push(
+                                `/customer/dashboard/${restaurantId}/reviews/update/${review._id}`
+                              )
+                            }
+                            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                          >
+                            Update
+                          </button>
+
+                          <button
+                            onClick={() =>
+                              openDeleteModal(review._id)
+                            }
+                            className="text-sm text-red-500 hover:text-red-700 font-medium"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+
+                      <p className="text-gray-700">
+                        {review.comment}
+                      </p>
+
+                      {review.createdAt && (
+                        <p className="text-sm text-gray-500 mt-3">
+                          {new Date(
+                            review.createdAt
+                          ).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  ))}
                 </div>
-
-                {/* Comment */}
-                <p className="text-gray-700">
-                  {review.comment}
-                </p>
-
-                {/* Date */}
-                {review.createdAt && (
-                  <p className="text-sm text-gray-500 mt-3">
-                    {new Date(
-                      review.createdAt
-                    ).toLocaleDateString()}
-                  </p>
-                )}
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* ---------------- OTHER REVIEWS ---------------- */}
+            {otherReviews.length > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold mb-4">
+                  Other Reviews
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {otherReviews.map((review) => (
+                    <div
+                      key={review._id}
+                      className="border rounded-xl shadow-md p-5 bg-white hover:shadow-lg transition"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-lg">
+                          {review.customerName}
+                        </h3>
+
+                        <div className="flex">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                              key={star}
+                              className={`text-xl ${
+                                star <= review.rating
+                                  ? "text-yellow-500"
+                                  : "text-gray-300"
+                              }`}
+                            >
+                              ★
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <p className="text-gray-700">
+                        {review.comment}
+                      </p>
+
+                      {review.createdAt && (
+                        <p className="text-sm text-gray-500 mt-3">
+                          {new Date(
+                            review.createdAt
+                          ).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Delete Modal */}
       <DeleteModal
         isOpen={isDeleteOpen}
         onClose={closeDeleteModal}

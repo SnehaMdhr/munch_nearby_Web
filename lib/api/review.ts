@@ -36,6 +36,31 @@ export const createReview = async (
         );
         return response.data;
     } catch (err: Error | any) {
+            if (err?.response?.status === 404) {
+            const fallbackPaths = [
+                `/review/${restaurantId}`,
+                `/review/create/${restaurantId}`,
+            ];
+
+            for (const path of fallbackPaths) {
+                try {
+                    const fallbackResponse = await axiosInstance.post(
+                        path,
+                        reviewData
+                    );
+                    return fallbackResponse.data;
+                } catch (fallbackErr: Error | any) {
+                    if (fallbackErr?.response?.status !== 404) {
+                        throw new Error(
+                            fallbackErr.response?.data?.message ||
+                            fallbackErr.message ||
+                            "Creating review failed"
+                        );
+                    }
+                }
+            }
+        }
+
         throw new Error(
             err.response?.data?.message ||
             err.message ||
@@ -61,6 +86,35 @@ export const updateReview = async (
         );
         return response.data;
     } catch (err: Error | any) {
+        if (err?.response?.status === 404) {
+            const fallbackAttempts = [
+                { method: "put", path: `/review/update/${reviewId}` },
+                { method: "patch", path: `/review/${reviewId}` },
+                { method: "patch", path: `/review/update/${reviewId}` },
+                { method: "put", path: `/review/edit/${reviewId}` },
+                { method: "patch", path: `/review/edit/${reviewId}` },
+            ] as const;
+
+            for (const attempt of fallbackAttempts) {
+                try {
+                    const fallbackResponse =
+                        attempt.method === "put"
+                            ? await axiosInstance.put(attempt.path, reviewData)
+                            : await axiosInstance.patch(attempt.path, reviewData);
+
+                    return fallbackResponse.data;
+                } catch (fallbackErr: Error | any) {
+                    if (fallbackErr?.response?.status !== 404) {
+                        throw new Error(
+                            fallbackErr.response?.data?.message ||
+                            fallbackErr.message ||
+                            "Updating review failed"
+                        );
+                    }
+                }
+            }
+        }
+
         throw new Error(
             err.response?.data?.message ||
             err.message ||
