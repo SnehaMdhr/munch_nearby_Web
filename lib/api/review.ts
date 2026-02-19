@@ -79,6 +79,21 @@ export const deleteReview = async (reviewId: string) => {
         );
         return response.data;
     } catch (err: Error | any) {
+        if (err?.response?.status === 404) {
+            try {
+                const fallbackResponse = await axiosInstance.delete(
+                    `/review/delete/${reviewId}`
+                );
+                return fallbackResponse.data;
+            } catch (fallbackErr: Error | any) {
+                throw new Error(
+                    fallbackErr.response?.data?.message ||
+                    fallbackErr.message ||
+                    "Deleting review failed"
+                );
+            }
+        }
+
         throw new Error(
             err.response?.data?.message ||
             err.message ||
