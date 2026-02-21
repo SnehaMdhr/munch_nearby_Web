@@ -48,5 +48,9 @@ export const API = {
     CREATE: (restaurantId: string) => `/review/restaurant/${restaurantId}`,
     UPDATE: (id: string) => `/review/${id}`,
     DELETE: (id: string) => `/review/${id}`,
+
+    OWNER: {
+    GET_MY: "/review/owner/my-reviews",
+  }
   },
 };

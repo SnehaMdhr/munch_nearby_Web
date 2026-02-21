@@ -6,6 +6,7 @@ import {
   createReview,
   updateReview,
   deleteReview,
+  getReviewsForOwner,
 } from "../api/review";
 
 
@@ -138,6 +139,31 @@ export const handleDeleteReview = async (
     return {
       success: false,
       message: err.message || "Deleting review failed",
+    };
+  }
+};
+
+/* ---------------- GET REVIEWS FOR OWNER ---------------- */
+
+export const handleGetReviewsForOwner = async () => {
+  try {
+    const res = await getReviewsForOwner();
+
+    if (res.success) {
+      return {
+        success: true,
+        data: res.data,
+      };
+    }
+
+    return {
+      success: false,
+      message: res.message || "Failed to fetch owner reviews",
+    };
+  } catch (err: Error | any) {
+    return {
+      success: false,
+      message: err.message || "Failed to fetch owner reviews",
     };
   }
 };

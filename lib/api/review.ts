@@ -155,3 +155,17 @@ export const deleteReview = async (reviewId: string) => {
         );
     }
 };
+
+export const getReviewsForOwner = async () => {
+  try {
+    const response = await axiosInstance.get(
+      API.REVIEW.OWNER.GET_MY
+    );
+
+    return response.data;
+  } catch (err: any) {
+    throw new Error(
+      err.response?.data?.message || "Fetching owner reviews failed"
+    );
+  }
+};
