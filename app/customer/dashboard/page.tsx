@@ -50,14 +50,16 @@ export default function Page() {
         const res = await handleGetMyFavourites();
 
         if (res.success && Array.isArray(res.data)) {
-          const ids = res.data.map(
-            (fav: any) => fav.restaurant._id
-          );
+          const ids = res.data
+            .map((fav: any) => fav?.restaurant?._id)
+            .filter((id: string | undefined): id is string => Boolean(id));
 
           setFavourites(ids);
+        } else {
+          console.error(res.message || "Failed to fetch favourites");
         }
-      } catch (err) {
-        console.error("Failed to fetch favourites");
+      } catch (err: any) {
+        console.error(err?.message || "Failed to fetch favourites");
       }
     };
 
