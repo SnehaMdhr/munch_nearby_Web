@@ -1,20 +1,30 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Sidebar from "@/app/customer/_components/SideBar";
 import { handleCreateReview } from "@/lib/actions/review-actions";
+import { useRouter } from "next/navigation";
 
-export default function Page() {
-  const params = useParams();
-  const router = useRouter();
-  const restaurantId = params.id as string;
+interface Props {
+  restaurantId: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+}
 
+export default function AddReviewModal({
+  restaurantId,
+  isOpen,
+  onClose,
+  onSuccess,
+}: Props) {
+    const router = useRouter();
   const [rating, setRating] = useState<number>(0);
   const [hover, setHover] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +48,9 @@ export default function Page() {
     });
 
     if (res.success) {
-      router.push(`/customer/dashboard/${restaurantId}/reviews`);
+        router.refresh();
+      onSuccess();
+      onClose();
     } else {
       setError(res.message || "Failed to create review");
     }
@@ -47,21 +59,18 @@ export default function Page() {
   };
 
   return (
-    <div className="flex">
-      <Sidebar />
-
-      <div className="flex-1 p-6 max-w-2xl">
-        <h1 className="text-2xl font-semibold mb-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+      <div className="bg-white w-full max-w-lg rounded-3xl shadow-xl p-8 animate-scaleIn">
+        
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Add Review
-        </h1>
+        </h2>
 
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white shadow-md rounded-xl p-6 space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="space-y-6">
+          
           {/* Rating */}
           <div>
-            <label className="block font-medium mb-2">
+            <label className="block font-medium mb-3">
               Rating
             </label>
 
@@ -74,7 +83,7 @@ export default function Page() {
                   onMouseLeave={() => setHover(0)}
                   className={`cursor-pointer transition ${
                     star <= (hover || rating)
-                      ? "text-yellow-500"
+                      ? "text-[#E87A5D]"
                       : "text-gray-300"
                   }`}
                 >
@@ -95,33 +104,30 @@ export default function Page() {
               onChange={(e) => setComment(e.target.value)}
               rows={4}
               placeholder="Write your review here..."
-              className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              className="w-full rounded-2xl border border-gray-200 p-4 focus:ring-2 focus:ring-[#E87A5D]/30 focus:border-[#E87A5D] outline-none transition"
             />
           </div>
 
-          {/* Error */}
           {error && (
-            <p className="text-red-600 text-sm">{error}</p>
+            <p className="text-red-500 text-sm">{error}</p>
           )}
 
           {/* Buttons */}
-          <div className="flex gap-4">
+          <div className="flex justify-end gap-4">
             <button
-              type="submit"
-              disabled={loading}
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition"
             >
-              {loading ? "Submitting..." : "Submit Review"}
+              Cancel
             </button>
 
             <button
-              type="button"
-              onClick={() =>
-                router.push(`/customer/dashboard/${restaurantId}/reviews`)
-              }
-              className="px-5 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+              type="submit"
+              disabled={loading}
+              className="px-5 py-2 rounded-xl bg-[#E87A5D] text-white font-semibold hover:opacity-90 transition disabled:opacity-50"
             >
-              Cancel
+              {loading ? "Submitting..." : "Submit"}
             </button>
           </div>
         </form>
