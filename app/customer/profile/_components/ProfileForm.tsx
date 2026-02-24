@@ -8,9 +8,7 @@ import { toast } from "react-toastify";
 import { z } from "zod";
 import { handleUpdateProfile } from "@/lib/actions/auth-actions";
 
-
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
   "image/jpg",
@@ -34,8 +32,6 @@ const updateUserSchema = z.object({
 
 type UpdateUserData = z.infer<typeof updateUserSchema>;
 
-
-
 export default function ProfileForm({ user }: { user: any }) {
   const {
     register,
@@ -52,7 +48,6 @@ export default function ProfileForm({ user }: { user: any }) {
 
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
 
   const handleImageChange = (
     file: File | undefined,
@@ -74,8 +69,6 @@ export default function ProfileForm({ user }: { user: any }) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-
-
   const onSubmit = async (data: UpdateUserData) => {
     try {
       const formData = new FormData();
@@ -84,7 +77,6 @@ export default function ProfileForm({ user }: { user: any }) {
       if (data.image) formData.append("image", data.image);
 
       const res = await handleUpdateProfile(formData);
-
       if (!res.success) throw new Error(res.message);
 
       toast.success("Profile updated successfully 🎉");
@@ -94,127 +86,155 @@ export default function ProfileForm({ user }: { user: any }) {
     }
   };
 
+  return (
+    <div className="min-h-screen bg-[#F3F4F6] flex justify-center p-8">
+      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-md p-10">
 
- return (
-    <div className="max-w-xl">
-    <h1 className="text-2xl font-bold mb-6 text-gray-800">
-    Profile
-    </h1>
+        {/* Header */}
+        <h1 className="text-3xl font-bold text-gray-800 mb-2">
+          Profile Settings
+        </h1>
+        <p className="text-gray-500 mb-8">
+          Manage your account information and preferences.
+        </p>
 
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Profile Image */}
-        <div className="flex items-center gap-4">
-        {previewImage ? (
-        <div className="relative w-16 h-16">
-            <img
-            src={previewImage}
-            alt="Preview"
-            className="w-16 h-16 rounded-full object-cover border"
-            />
-            <Controller
-            name="image"
-            control={control}
-            render={({ field: { onChange } }) => (
-                <button
-                type="button"
-                onClick={() => removeImage(onChange)}
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full
-                    bg-red-500 text-white text-[10px] flex items-center
-                    justify-center hover:bg-red-600"
-                >
-                ✕
-                </button>
-            )}
-            />
-        </div>
-        ) : user?.imageUrl ? (
-        <Image
-            src={process.env.NEXT_PUBLIC_API_BASE + user.imageUrl}
-            alt="Profile"
-            width={64}
-            height={64}
-            className="w-16 h-16 rounded-full object-cover border"
-        />
-        ) : (
-        <div className="w-16 h-16 rounded-full bg-gray-200
-            flex items-center justify-center text-xs text-gray-500">
-            No Image
-        </div>
-        )}
-        </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
 
-        {/* Image Input */}
-        <Controller
-          name="image"
-          control={control}
-          render={({ field: { onChange } }) => (
+          {/* Profile Photo Section */}
+          <div className="flex items-center gap-6">
+
+            {/* Avatar */}
+            <div className="relative w-24 h-24">
+              {previewImage ? (
+                <img
+                  src={previewImage}
+                  className="w-24 h-24 rounded-full object-cover"
+                />
+              ) : user?.imageUrl ? (
+                <Image
+                  src={process.env.NEXT_PUBLIC_API_BASE + user.imageUrl}
+                  alt="Profile"
+                  fill
+                  className="rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
+                  No Image
+                </div>
+              )}
+            </div>
+
+            {/* Upload Buttons */}
+            <div>
+              <p className="font-semibold text-gray-700 mb-1">
+                Profile Photo
+              </p>
+              <p className="text-sm text-gray-400 mb-3">
+                JPG, PNG or WEBP. Max size 5MB
+              </p>
+
+              <Controller
+                name="image"
+                control={control}
+                render={({ field: { onChange } }) => (
+                  <>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".jpg,.jpeg,.png,.webp"
+                      hidden
+                      onChange={(e) =>
+                        handleImageChange(e.target.files?.[0], onChange)
+                      }
+                    />
+
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="px-5 py-2 rounded-xl 
+                                   bg-[#E87A5D]/10 text-[#E87A5D] 
+                                   font-medium hover:bg-[#E87A5D]/20 transition"
+                      >
+                        Upload New Photo
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => removeImage(onChange)}
+                        className="text-gray-500 hover:text-red-500 transition"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </>
+                )}
+              />
+
+              {errors.image && (
+                <p className="text-sm text-red-500 mt-2">
+                  {errors.image.message}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Full Name
+            </label>
             <input
-              ref={fileInputRef}
-              type="file"
-              accept=".jpg,.jpeg,.png,.webp"
-              onChange={(e) =>
-                handleImageChange(e.target.files?.[0], onChange)
-              }
-              className="block w-full text-sm
-                file:mr-4 file:rounded-full file:border-0
-                file:bg-[#E87A5D]/10 file:px-4 file:py-2
-                file:text-[#E87A5D] hover:file:bg-[#E87A5D]/20"
+              {...register("name")}
+              className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-5 pr-3 text-sm outline-none focus:border-[#E87A5D]"
             />
-          )}
-        />
-        {errors.image && (
-          <p className="text-sm text-red-600">
-            {errors.image.message}
-          </p>
-        )}
+            {errors.name && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.name.message}
+              </p>
+            )}
+          </div>
 
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Email
-          </label>
-          <input
-            {...register("email")}
-            className="h-11 w-full rounded-lg border border-black/10
-              bg-[#FFF8F4] px-3 text-sm outline-none
-              focus:border-[#E87A5D]"
-          />
-          {errors.email && (
-            <p className="text-sm text-red-600">
-              {errors.email.message}
-            </p>
-          )}
-        </div>
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Email Address
+            </label>
+            <input
+              {...register("email")}
+              className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-5 pr-3 text-sm outline-none focus:border-[#E87A5D]"
+            />
+            {errors.email && (
+              <p className="text-sm text-red-500 mt-1">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
 
-        {/* Name */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Name
-          </label>
-          <input
-            {...register("name")}
-            className="h-11 w-full rounded-lg border border-black/10
-              bg-[#FFF8F4] px-3 text-sm outline-none
-              focus:border-[#E87A5D]"
-          />
-          {errors.name && (
-            <p className="text-sm text-red-600">
-              {errors.name.message}
-            </p>
-          )}
-        </div>
+          {/* Footer Buttons */}
+          <div className="flex justify-end gap-4 pt-6 border-t">
+            <button
+              type="button"
+              className="px-6 py-2 rounded-xl border border-gray-300
+                         text-gray-600 hover:bg-gray-100 transition"
+            >
+              Cancel
+            </button>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="h-11 w-full rounded-full bg-[#E87A5D]
-            text-white font-semibold hover:opacity-90
-            transition disabled:opacity-60"
-        >
-          {isSubmitting ? "Updating..." : "Update Profile"}
-        </button>
-      </form>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex items-center justify-center gap-2 
+                               py-2 px-6  text-white text-xs font-semibold 
+                               rounded-xl transition shadow-sm
+                               bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
+                               hover:opacity-90"
+            >
+              {isSubmitting ? "Updating..." : "Update Profile"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
