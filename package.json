@@ -12,6 +12,7 @@
     "@hookform/resolvers": "^5.2.2",
     "@types/nodemailer": "^7.0.9",
     "axios": "^1.13.2",
+    "framer-motion": "^12.34.3",
     "leaflet": "^1.9.4",
     "leaflet-routing-machine": "^3.2.12",
     "lucide-react": "^0.562.0",

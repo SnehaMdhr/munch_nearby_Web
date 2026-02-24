@@ -11,6 +11,11 @@ export const getMyFavourites = async () => {
       data: response.data.data, // ✅ adjust if your backend differs
     };
   } catch (err: any) {
+    console.error("Favourites API Error:", {
+      status: err.response?.status,
+      message: err.response?.data?.message || err.message,
+      endpoint: API.FAVOURITE.GET_MY,
+    });
     return {
       success: false,
       message:
