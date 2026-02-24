@@ -2,47 +2,80 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { MenuData, MenuInput, menuSchema } from "../schema";
+import { menuSchema } from "../schema";
 import { handleCreateMenu } from "@/lib/actions/menu-actions";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 export default function CreateMenuForm() {
     const router = useRouter();
     const [error, setError] = useState("");
     const [pending, startTransition] = useTransition();
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     const {
         register,
         handleSubmit,
         formState: { errors, isSubmitting },
-    } = useForm<MenuInput>({ 
+    } = useForm({
         resolver: zodResolver(menuSchema),
         defaultValues: {
-            isAvailable: true,
-        }
+            isAvailable: "true",
+        },
     });
 
-    const submit = async (data: MenuInput) => {
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        
+        if (file) {
+            // Validate file
+            if (file.size > MAX_FILE_SIZE) {
+                toast.error("File size must be less than 5MB");
+                return;
+            }
+            
+            if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+                toast.error("Only JPG, JPEG, PNG or WEBP formats are supported");
+                return;
+            }
+
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => setPreviewImage(reader.result as string);
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const removeImage = () => {
+        setSelectedFile(null);
+        setPreviewImage(null);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const submit = async (data: any) => {
         startTransition(async () => {
             setError("");
             try {
-                // 1. Validate and transform data
-                const validatedData = menuSchema.parse(data);
+                // Create FormData for file upload
+                const formData = new FormData();
+                formData.append("name", data.name);
+                formData.append("price", data.price.toString());
+                formData.append("category", data.category);
+                formData.append("description", data.description || "");
+                formData.append("isAvailable", data.isAvailable === "true" ? "true" : "false");
 
-                // 2. Convert object to FormData to satisfy the Server Action type
-                    const menuPayload = {
-                        name: validatedData.name,
-                        price: validatedData.price,
-                        category: validatedData.category,
-                        description: validatedData.description || "",
-                        isAvailable: validatedData.isAvailable,
-                    };
+                if (selectedFile) {
+                    formData.append("imageUrl", selectedFile);
+                }
 
-                // 3. Call the action
-                    const response = await handleCreateMenu(menuPayload);
-                
+                const response = await handleCreateMenu(formData);
+
                 if (!response.success) {
                     throw new Error(response.message);
                 }
@@ -51,7 +84,7 @@ export default function CreateMenuForm() {
                 router.push("/restaurantowner/menu");
 
             } catch (err: any) {
-                const msg = err.message || 'Menu Creation failed';
+                const msg = err.message || "Menu Creation failed";
                 setError(msg);
                 toast.error(msg);
             }
@@ -60,73 +93,69 @@ export default function CreateMenuForm() {
 
     return (
         <form onSubmit={handleSubmit(submit)} className="space-y-5">
+
             {/* Name */}
-            <div className="space-y-1">
-                <label className="text-sm font-medium">Name</label>
-                <input
-                    type="text"
-                    {...register("name")}
-                    placeholder="Enter menu name"
-                    className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-3 text-sm outline-none focus:border-[#E87A5D]"
-                />
-                {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
+            <div>
+                <label>Name</label>
+                <input type="text" {...register("name")} />
+                {errors.name && <p>{errors.name.message}</p>}
             </div>
 
             {/* Price */}
-            <div className="space-y-1">
-                <label className="text-sm font-medium">Price</label>
-                <input
-                    type="number" 
-                    step="0.01"
-                    {...register("price")}
-                    placeholder="0.00"
-                    className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-3 text-sm outline-none focus:border-[#E87A5D]"
-                />
-                {errors.price && <p className="text-xs text-red-600">{errors.price.message}</p>}
+            <div>
+                <label>Price</label>
+                <input type="number" step="0.01" {...register("price")} />
+                {errors.price && <p>{errors.price.message}</p>}
             </div>
 
-          
             {/* Category */}
-            <div className="space-y-1">
-                <label className="text-sm font-medium">Category</label>
+            <div>
+                <label>Category</label>
+                <input type="text" {...register("category")} />
+                {errors.category && <p>{errors.category.message}</p>}
+            </div>
+
+            {/* 🔥 Image Upload */}
+            <div>
+                <label>Menu Image</label>
+                {previewImage && (
+                    <div className="mb-3 flex items-center gap-3">
+                        <img src={previewImage} alt="Preview" className="w-20 h-20 rounded-lg object-cover" />
+                        <button
+                            type="button"
+                            onClick={removeImage}
+                            className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+                        >
+                            Remove
+                        </button>
+                    </div>
+                )}
                 <input
-                    type="text"
-                    {...register("category")}
-                    placeholder="e.g. Italian"
-                    className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-3 text-sm outline-none focus:border-[#E87A5D]"
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="block w-full"
                 />
-                {errors.category && <p className="text-xs text-red-600">{errors.category.message}</p>}
             </div>
 
             {/* Description */}
-            <div className="space-y-1">
-                <label className="text-sm font-medium">Description</label>
-                <textarea
-                    {...register("description")}
-                    placeholder="Describe the dish..."
-                    className="w-full rounded-lg border border-black/10 bg-[#FFF8F4] p-3 text-sm outline-none focus:border-[#E87A5D] min-h-25"
-                />
-                {errors.description && <p className="text-xs text-red-600">{errors.description.message}</p>}
+            <div>
+                <label>Description</label>
+                <textarea {...register("description")} />
             </div>
 
             {/* Availability */}
-            <div className="space-y-2">
-                <label className="text-sm font-medium">Availability</label>
-                <select
-                    {...register("isAvailable")}
-                    className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-3 text-sm outline-none focus:border-[#E87A5D]"
-                >
+            <div>
+                <label>Availability</label>
+                <select {...register("isAvailable")}>
                     <option value="true">Available</option>
                     <option value="false">Not Available</option>
                 </select>
             </div>
 
-            <button
-                type="submit"
-                disabled={isSubmitting || pending}
-                className="h-11 w-full rounded-full bg-[#E87A5D] text-white font-semibold hover:opacity-90 transition disabled:opacity-60"
-            >
-                {isSubmitting || pending ? "Creating menu..." : "Create Menu"}
+            <button type="submit" disabled={isSubmitting || pending}>
+                {isSubmitting || pending ? "Creating..." : "Create Menu"}
             </button>
         </form>
     );

@@ -75,17 +75,12 @@
 
 
   // ✅ Create menu
-  export const handleCreateMenu = async (menuPayload: {
-    name: string;
-    price: number;
-    category: string;
-    description: string;
-    isAvailable: boolean;
-  }) => {
+  export const handleCreateMenu = async (menuData: FormData | object) => {
     try {
-      const res = await createMenu(menuPayload);
+      const res = await createMenu(menuData);
 
       if (res.success) {
+        revalidatePath("/restaurantowner/menu");
         revalidatePath("/restaurantowner/dashboard");
 
         return {
@@ -103,17 +98,12 @@
 
 
   // ✅ Update menu
-  export const handleUpdateMenu = async (id: string, menuPayload: {
-    name: string;
-    price: number;
-    category: string;
-    description: string;
-    isAvailable: boolean;
-  }) => {
+  export const handleUpdateMenu = async (id: string, menuData: FormData | object) => {
     try {
-      const res = await updateMenu(id, menuPayload);
+      const res = await updateMenu(id, menuData);
 
       if (res.success) {
+        revalidatePath("/restaurantowner/menu");
         revalidatePath("/restaurantowner/dashboard");
 
         return {
