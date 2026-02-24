@@ -120,12 +120,13 @@ export default function AddReviewModal({
               className="px-5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition"
             >
               Cancel
-            </button>
-
+              </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 rounded-xl bg-[#E87A5D] text-white font-semibold hover:opacity-90 transition disabled:opacity-50"
+              className="px-5 py-2 rounded-xl  text-white text-xs font-semibold transition shadow-sm
+                               bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
+                               hover:opacity-90"
             >
               {loading ? "Submitting..." : "Submit"}
             </button>

@@ -10,7 +10,7 @@ export default function Tabs({ id }: { id: string }) {
   const isReviews = pathname === `/customer/dashboard/${id}/reviews`;
 
   return (
-    <div className="px-4 flex border-b border-gray-300 py-4 w-full">
+    <div className="px-4 flex bg-white shadow-sm  py-4 w-full">
       <Link
         href={`/customer/dashboard/${id}/menu`}
         className={`flex-1 text-center py-2 rounded-full transition font-semibold ${

@@ -140,8 +140,9 @@ export default function UpdateReviewModal({
             <button
               type="submit"
               disabled={saving}
-              className="px-5 py-2 rounded-xl bg-[#E87A5D] text-white font-semibold disabled:opacity-50"
-            >
+              className="px-5 py-2 rounded-xl  text-white text-xs font-semibold transition shadow-sm
+                               bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
+                               hover:opacity-90">
               {saving ? "Updating..." : "Update"}
             </button>
           </div>

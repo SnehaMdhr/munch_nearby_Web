@@ -195,7 +195,7 @@ const [selectedReview, setSelectedReview] = useState<any>(null);
   /* -------------------- UI -------------------- */
 
   return (
-  <div className="min-h-screen bg-[#F8F6F4] p-6">
+  <div className="min-h-screen">
     {/* Header */}
     <div className="flex items-center justify-between mb-10">
       <h1 className="text-3xl font-bold text-gray-800">

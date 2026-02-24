@@ -89,7 +89,7 @@ export default function Page() {
   /* -------------------- UI -------------------- */
 
   return (
-    <div className="min-h-screen bg-[#F8F6F4] p-6">
+    <div className="min-h-screen">
       <h1 className="text-3xl font-bold text-gray-800 mb-10">
         Restaurant Menu
       </h1>
