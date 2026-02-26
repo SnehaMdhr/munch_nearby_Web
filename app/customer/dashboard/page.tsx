@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import Sidebar from "../_components/SideBar";
 import { handleGetAllRestaurants } from "@/lib/actions/restaurant-actions";
 
 // inside Page()
@@ -14,6 +13,7 @@ import {
 import { MapIcon, MapPin, Search, Utensils, X } from "lucide-react";
 import Link from "next/link";
 import RestaurantMapSheet from "../map/_components/RestaurantMapSheet";
+import Header from "@/app/(public)/_components/Header";
 
 export default function Page() {
   const { user } = useAuth();
@@ -21,8 +21,6 @@ export default function Page() {
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [favourites, setFavourites] = useState<string[]>([]);
 
-
-  
   // Search State
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -31,7 +29,7 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null);
 
   const [mapOpen, setMapOpen] = useState(false);
-const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
+  const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
   // ---------------- FETCH RESTAURANTS ----------------
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -89,9 +87,7 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
         const res = await handleRemoveFromFavourite(restaurantId);
 
         if (res.success) {
-          setFavourites((prev) =>
-            prev.filter((id) => id !== restaurantId)
-          );
+          setFavourites((prev) => prev.filter((id) => id !== restaurantId));
         }
       } else {
         const res = await handleAddToFavourite(restaurantId);
@@ -118,10 +114,10 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
   });
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+    <div>
+      <Header />
 
-      <div className="flex-1 p-6 ">
+      <div className="p-6 ">
         <div className="bg-linear-to-br from-[#FFD8C4] to-[#E87A5D] rounded-[20px] px-8 py-8 mb-8">
           {/* Title */}
           <h1 className="text-3xl font-bold text-[#1F2937] mb-1">
@@ -130,10 +126,8 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
 
           <p className="text-md text-gray-600 mb-6">
             Welcome back,{" "}
-            <span className="text-[#E87A5D] font-bold">
-              {user?.name}
-            </span>
-            . What are you craving today?
+            <span className="text-[#E87A5D] font-bold">{user?.name}</span>. What
+            are you craving today?
           </p>
 
           {/* Search Row */}
@@ -147,12 +141,12 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
               className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-10 pr-3 text-sm outline-none focus:border-[#E87A5D]"
             />
             {searchQuery && (
-                <button 
-                    onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                    <X size={16} />
-                </button>
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X size={16} />
+              </button>
             )}
           </div>
         </div>
@@ -161,26 +155,28 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
 
         <div className="p-6 mt-6">
           <h2 className="text-lg font-semibold mb-4">
-            {searchQuery ? `Results for "${searchQuery}"` : "Explore Restaurants"}
+            {searchQuery
+              ? `Results for "${searchQuery}"`
+              : "Explore Restaurants"}
           </h2>
 
           {loading && <p className="text-gray-500">Loading restaurants...</p>}
 
-          {error && (
-            <p className="text-red-500 font-medium">{error}</p>
-          )}
+          {error && <p className="text-red-500 font-medium">{error}</p>}
 
           {!loading && filteredRestaurants.length === 0 && (
             <div className="text-center py-10">
-                <p className="text-gray-500 italic">No restaurants found matching your search.</p>
-                {searchQuery && (
-                    <button 
-                        onClick={() => setSearchQuery("")}
-                        className="text-[#E87A5D] text-sm font-bold mt-2 hover:underline"
-                    >
-                        Clear search
-                    </button>
-                )}
+              <p className="text-gray-500 italic">
+                No restaurants found matching your search.
+              </p>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="text-[#E87A5D] text-sm font-bold mt-2 hover:underline"
+                >
+                  Clear search
+                </button>
+              )}
             </div>
           )}
 
@@ -232,10 +228,10 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
                   </div>
 
                   <div className="flex items-center gap-1 mt-0.5 mb-1">
-                    <MapPin 
-                      size={15} 
-                      className="text-gray-400 shrink-0" 
-                      strokeWidth={2.5} 
+                    <MapPin
+                      size={15}
+                      className="text-gray-400 shrink-0"
+                      strokeWidth={2.5}
                     />
                     <p className="text-sm leading-tight text-gray-500 line-clamp-1">
                       {restaurant.address}
@@ -245,10 +241,11 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
                   <div className="mt-auto pt-4 flex w-full items-center gap-2">
                     {restaurant.mapLink && (
                       <a
-                        onClick={()=> {
-                              setMapRestaurantId(restaurant._id);
+                        onClick={() => {
+                          setMapRestaurantId(restaurant._id);
 
-                          setMapOpen(true)}}
+                          setMapOpen(true);
+                        }}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 text-gray-600 text-[11px] font-bold rounded-xl border border-gray-200 hover:bg-gray-100 transition-all"
@@ -256,8 +253,6 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
                         <MapIcon size={14} strokeWidth={2.5} />
                         <span>Map</span>
                       </a>
-
-
                     )}
                     <Link
                       href={`/customer/dashboard/${restaurant._id}/menu`}
@@ -279,12 +274,11 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
       </div>
 
       <RestaurantMapSheet
-  open={mapOpen}
-  onOpenChange={setMapOpen}
-  restaurants={filteredRestaurants} 
-    restaurantId={mapRestaurantId}
-
-/>
+        open={mapOpen}
+        onOpenChange={setMapOpen}
+        restaurants={filteredRestaurants}
+        restaurantId={mapRestaurantId}
+      />
     </div>
   );
 }

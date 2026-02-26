@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Utensils, MapPin, Navigation, Search, X } from "lucide-react";
+import { Utensils, MapPin, Navigation, X } from "lucide-react";
 import {
   MapContainer,
   TileLayer,
@@ -218,7 +218,7 @@ export default function RestaurantMap({
     : null;
 
   return (
-    <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-[#E87A5D]/20">
+    <div className="relative isolate z-0 rounded-3xl overflow-hidden shadow-2xl border border-[#E87A5D]/20">
       <div className="absolute top-6 left-6 z-1000 w-85 bg-linear-to-r from-[#E87A5D]/10 to-[#F6B88F]/20 backdrop-blur-md rounded-2xl px-5 py-5 border border-[#E87A5D]/30 shadow-md">
         <h1 className="text-xl font-bold text-gray-800 mb-1">Restaurant Map</h1>
         <p className="text-[12px] text-gray-600 leading-relaxed mb-3">

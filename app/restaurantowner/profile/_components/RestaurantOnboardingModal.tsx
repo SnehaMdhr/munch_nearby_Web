@@ -10,7 +10,6 @@ type Props = {
   onCreated?: (restaurant: any) => void;
 };
 
-// ✅ Inline schema: image is now a File (optional) instead of imageUrl string
 const restaurantSchema = z.object({
   name: z.string().min(2, "Restaurant name must be at least 2 characters"),
   address: z.string().min(5, "Address must be at least 5 characters"),
@@ -88,7 +87,6 @@ export default function RestaurantOnboardingModal({
   const [serverError, setServerError] = useState<string>("");
   const [submitting, setSubmitting] = useState(false);
 
-  // ✅ preview url for selected file
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -107,7 +105,6 @@ export default function RestaurantOnboardingModal({
   }, [open]);
 
   useEffect(() => {
-    // manage object url lifecycle
     if (!form.imageUrl) {
       setPreviewUrl("");
       return;
@@ -231,7 +228,6 @@ export default function RestaurantOnboardingModal({
                   aria-label="Choose image"
                 >
                   {previewUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={previewUrl}
                       alt="Restaurant logo preview"
@@ -247,7 +243,6 @@ export default function RestaurantOnboardingModal({
                   Pick an image file (PNG/JPG/WEBP, max 5MB)
                 </p>
 
-                {/* hidden file input (design unchanged) */}
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -259,7 +254,6 @@ export default function RestaurantOnboardingModal({
                   }}
                 />
 
-                {/* small "choose file" control styled like the previous input */}
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}

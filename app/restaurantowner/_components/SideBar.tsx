@@ -15,7 +15,6 @@ type MenuItemProps = {
   pathname: string;
 };
 
-// -------- Sidebar --------
 export default function Sidebar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
@@ -38,9 +37,7 @@ export default function Sidebar() {
               priority
               className="object-contain"
             />
-            <h2 className="text-lg font-bold tracking-tight">
-              MunchNearby
-            </h2>
+            <h2 className="text-lg font-bold tracking-tight">MunchNearby</h2>
           </Link>
         </div>
 

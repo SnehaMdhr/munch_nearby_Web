@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import Sidebar from "../_components/SideBar";
+
 import { handleGetAllRestaurants } from "@/lib/actions/restaurant-actions";
 import {
   handleAddToFavourite,
@@ -10,6 +10,7 @@ import {
   handleGetMyFavourites,
 } from "@/lib/actions/favourite-actions";
 import { MapPin } from "lucide-react";
+import Header from "@/app/(public)/_components/Header";
 
 export default function Page() {
   const { user } = useAuth();
@@ -74,9 +75,7 @@ export default function Page() {
       if (favourites.includes(restaurantId)) {
         const res = await handleRemoveFromFavourite(restaurantId);
         if (res.success) {
-          setFavourites((prev) =>
-            prev.filter((id) => id !== restaurantId)
-          );
+          setFavourites((prev) => prev.filter((id) => id !== restaurantId));
         }
       } else {
         const res = await handleAddToFavourite(restaurantId);
@@ -91,36 +90,30 @@ export default function Page() {
 
   /* ---------------- FILTER ONLY FAVOURITES ---------------- */
   const favouriteRestaurants = restaurants.filter((restaurant) =>
-    favourites.includes(restaurant._id)
+    favourites.includes(restaurant._id),
   );
 
   return (
-    <div className="flex min-h-screen bg-[#F8F6F4]">
-      <Sidebar />
+    <div>
+      <Header />
 
-      <div className="flex-1 p-8">
-
-        {/* 🔥 HEADER */}
-        <div className="bg-linear-to-r from-[#E87A5D]/10 to-[#F6B88F]/20 
+      <div className="p-6">
+        <div
+          className="bg-linear-to-r from-[#E87A5D]/10 to-[#F6B88F]/20 
                         rounded-3xl px-10 py-10 mb-12 
-                        border border-[#E87A5D]/20">
+                        border border-[#E87A5D]/20"
+        >
           <h1 className="text-3xl font-bold text-gray-800 mb-3">
             Your Favourite Restaurants
           </h1>
-          <p className="text-gray-600">
-            Explore your current favourites 
-          </p>
+          <p className="text-gray-600">Explore your current favourites</p>
         </div>
 
         {/* Loading */}
-        {loading && (
-          <p className="text-gray-500">Loading favourites...</p>
-        )}
+        {loading && <p className="text-gray-500">Loading favourites...</p>}
 
         {/* Error */}
-        {error && (
-          <p className="text-red-500">{error}</p>
-        )}
+        {error && <p className="text-red-500">{error}</p>}
 
         {/* Empty State */}
         {!loading && favouriteRestaurants.length === 0 && (
@@ -174,31 +167,30 @@ export default function Page() {
 
               {/* CONTENT */}
               <div className="p-4 flex flex-col flex-1">
-                  <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
-                    {restaurant.name}
-                  </h3>
+                <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
+                  {restaurant.name}
+                </h3>
 
-                  {restaurant.category && (
-                    <span className="inline-block px-1.5 py-0.5 text-md text-[#D06D53] font-bold rounded tracking-tight w-fit mb-1 bg-[#FFF8F4]">
-                      {restaurant.category}
-                    </span>
-                  )}
+                {restaurant.category && (
+                  <span className="inline-block px-1.5 py-0.5 text-md text-[#D06D53] font-bold rounded tracking-tight w-fit mb-1 bg-[#FFF8F4]">
+                    {restaurant.category}
+                  </span>
+                )}
 
-                  <div className="flex items-center gap-1 mt-0.5 mb-1">
-                    <MapPin 
-                      size={15} 
-                      className="text-gray-400 shrink-0" 
-                      strokeWidth={2.5} 
-                    />
-                    <p className="text-md leading-tight text-gray-500 line-clamp-1">
-                      {restaurant.address}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-1 mt-0.5 mb-1">
+                  <MapPin
+                    size={15}
+                    className="text-gray-400 shrink-0"
+                    strokeWidth={2.5}
+                  />
+                  <p className="text-md leading-tight text-gray-500 line-clamp-1">
+                    {restaurant.address}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
