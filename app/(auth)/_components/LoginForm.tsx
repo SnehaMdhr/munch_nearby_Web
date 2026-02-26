@@ -9,9 +9,11 @@ import { Mail, Lock, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { handleLogin } from "@/lib/actions/auth-actions";
 import { toast } from "react-toastify";
+import { useAuth } from "@/context/AuthContext";
 
 export default function LoginForm() {
   const router = useRouter();
+  const { setIsAuthenticated, setUser, checkAuth } = useAuth();
   const {
     register,
     handleSubmit,
@@ -21,11 +23,7 @@ export default function LoginForm() {
   });
 
   const [error, setError] = useState("");
-      const [now, setNow] = useState<string>("");
-      useEffect(() => {
-          setNow(new Date().toLocaleString());
-      }, []);
-      const [pending, startTransition] = useTransition();
+  const [pending, startTransition] = useTransition();
   const submit = async (values: LoginData) => {
       setError("");
 
@@ -40,20 +38,23 @@ export default function LoginForm() {
           toast.success("Login successful 🎉");
 
           const role = response.data?.role?.toLowerCase();
+          const nextPath =
+            role === "admin"
+              ? "/admin/users"
+              : role === "customer"
+              ? "/customer/dashboard"
+              : role === "restaurant owner"
+              ? "/restaurantowner/onboarding"
+              : "/";
 
-          if (role === "admin") {
-            return router.replace("/admin/users");
-          }
+          setUser(response.data ?? null);
+          setIsAuthenticated(true);
+          await checkAuth();
 
-          if (role === "customer") {
-            return router.replace("/customer/dashboard");
-          }
+          router.replace(nextPath);
+          router.refresh();
+          return;
 
-          if (role === "restaurant owner") {
-            return router.replace("/restaurantowner/dashboard");
-          }
-
-          return router.replace("/");
         } catch (err: any) {
           const message = err.message || "Login failed";
           setError(message);

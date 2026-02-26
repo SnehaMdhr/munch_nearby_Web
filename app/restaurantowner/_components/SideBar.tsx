@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 import { Home, Menu, Star, User, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
-
 // -------- Types --------
 type MenuItemProps = {
   href: string;
@@ -22,7 +21,10 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 h-screen bg-white border-r border-gray-200 flex flex-col justify-between">
+    /* Added 'sticky top-0' to keep it pinned to the viewport.
+       Added 'shrink-0' to ensure the flex container doesn't compress the sidebar width.
+    */
+    <aside className="w-64 h-screen sticky top-0 bg-white border-r border-gray-200 flex flex-col justify-between shrink-0">
       {/* Top */}
       <div>
         {/* Logo */}
@@ -83,13 +85,13 @@ export default function Sidebar() {
           Logout
         </button>
       </div>
-
     </aside>
   );
 }
 
 // -------- Menu Item --------
 function MenuItem({ href, icon, label, pathname }: MenuItemProps) {
+  // Logic to keep the item active even on sub-pages
   const isActive = pathname === href || pathname.startsWith(href + "/");
 
   return (

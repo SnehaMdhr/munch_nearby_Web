@@ -27,4 +27,30 @@ export const API = {
       DELETE: "/restaurant/delete"
     }
   },
+  MENU: {
+    GET_ALL: "/menu",
+    GET_ONE: (id: string) => `/menu/${id}`,
+    GET_BY_RESTAURANT: (restaurantId: string) => `/menu/restaurant/${restaurantId}`,
+
+    OWNER: {
+      CREATE: "/menu/create",
+      UPDATE: (id: string) => `/menu/update/${id}`,
+      DELETE: (id: string) => `/menu/delete/${id}`
+    }
+  },
+  FAVOURITE: {
+    ADD: (restaurantId: string) => `/favourite/${restaurantId}`,
+    REMOVE: (restaurantId: string) => `/favourite/${restaurantId}`,
+    GET_MY: "/favourite/my",
+  },
+  REVIEW: {
+    GET_BY_RESTAURANT: (restaurantId: string) => `/review/restaurant/${restaurantId}`,
+    CREATE: (restaurantId: string) => `/review/restaurant/${restaurantId}`,
+    UPDATE: (id: string) => `/review/${id}`,
+    DELETE: (id: string) => `/review/${id}`,
+
+    OWNER: {
+    GET_MY: "/review/owner/my-reviews",
+  }
+  },
 };

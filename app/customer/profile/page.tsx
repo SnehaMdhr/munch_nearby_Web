@@ -12,9 +12,9 @@ export default async function Page() {
         notFound();
     }
   return (
-    <div className="flex">
+    <div className="flex ">
       <Sidebar />
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-1 bg-[#F3F4F6]">
         <ProfileForm user={result.data} />
       </div>
     </div>

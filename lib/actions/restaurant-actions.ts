@@ -106,7 +106,7 @@ export const handleUpdateRestaurant = async (formData: FormData) => {
 
     if (res.success) {
       revalidatePath("/");
-      revalidatePath("/restaurantowner/profile");
+      revalidatePath("/restaurantowner/dashboard");
 
       return {
         success: true,
