@@ -260,7 +260,7 @@ const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
 
                     )}
                     <Link
-                      href={`/customer/dashboard/${restaurant._id}`}
+                      href={`/customer/dashboard/${restaurant._id}/menu`}
                       className="flex-1 flex items-center justify-center gap-2 
                                py-3 text-white text-xs font-semibold 
                                rounded-xl transition shadow-sm
