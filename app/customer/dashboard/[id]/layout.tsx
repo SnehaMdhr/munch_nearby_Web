@@ -7,7 +7,7 @@ import Tabs from "./_components/Tab";
 import { useEffect, useState } from "react";
 import { Star, StarHalf, MapPin } from "lucide-react";
 import { useParams } from "next/navigation";
-import Header from "@/app/(public)/_components/Header";
+import Header from "../../_components/Header";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>();

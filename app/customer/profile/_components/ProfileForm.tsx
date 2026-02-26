@@ -40,9 +40,14 @@ interface ProfileFormProps {
     imageUrl?: string;
   };
   onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export default function ProfileForm({ user, onSuccess }: ProfileFormProps) {
+export default function ProfileForm({
+  user,
+  onSuccess,
+  onCancel,
+}: ProfileFormProps) {
   const {
     register,
     handleSubmit,
@@ -102,6 +107,16 @@ export default function ProfileForm({ user, onSuccess }: ProfileFormProps) {
     } catch (err: any) {
       toast.error(err?.message || "Profile update failed");
     }
+  };
+
+  const handleCancel = () => {
+    reset({
+      name: user?.name || "",
+      email: user?.email || "",
+      image: undefined,
+    });
+    removeImage();
+    onCancel?.();
   };
 
   return (
@@ -212,7 +227,8 @@ export default function ProfileForm({ user, onSuccess }: ProfileFormProps) {
           <input
             type="email"
             {...register("email")}
-            className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-5 pr-3 text-sm outline-none focus:border-[#E87A5D]"
+            readOnly
+            className="h-11 w-full rounded-lg border border-black/10 bg-gray-100 pl-5 pr-3 text-sm text-gray-500 outline-none cursor-not-allowed"
           />
           {errors.email && (
             <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
@@ -223,10 +239,7 @@ export default function ProfileForm({ user, onSuccess }: ProfileFormProps) {
         <div className="flex justify-end gap-4 pt-6 border-t">
           <button
             type="button"
-            onClick={() => {
-              reset();
-              setPreviewImage(null);
-            }}
+            onClick={handleCancel}
             className="px-6 py-2 rounded-xl border border-gray-300
                 text-gray-600 hover:bg-gray-100 transition"
           >

@@ -20,9 +20,6 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    /* Added 'sticky top-0' to keep it pinned to the viewport.
-       Added 'shrink-0' to ensure the flex container doesn't compress the sidebar width.
-    */
     <aside className="w-64 h-screen sticky top-0 bg-white border-r border-gray-200 flex flex-col justify-between shrink-0">
       {/* Top */}
       <div>

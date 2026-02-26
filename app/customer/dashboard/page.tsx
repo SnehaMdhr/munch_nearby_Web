@@ -13,7 +13,7 @@ import {
 import { MapIcon, MapPin, Search, Utensils, X } from "lucide-react";
 import Link from "next/link";
 import RestaurantMapSheet from "../map/_components/RestaurantMapSheet";
-import Header from "@/app/(public)/_components/Header";
+import Header from "../_components/Header";
 
 export default function Page() {
   const { user } = useAuth();

@@ -10,7 +10,7 @@ import {
   handleGetMyFavourites,
 } from "@/lib/actions/favourite-actions";
 import { MapPin } from "lucide-react";
-import Header from "@/app/(public)/_components/Header";
+import Header from "../_components/Header";
 
 export default function Page() {
   const { user } = useAuth();

@@ -1,7 +1,7 @@
 import { handleGetAllRestaurants } from "@/lib/actions/restaurant-actions";
 
 import MapWrapper from "./MapWrapper";
-import Header from "@/app/(public)/_components/Header";
+import Header from "../_components/Header";
 
 export default async function Page() {
   const res = await handleGetAllRestaurants();
