@@ -15,7 +15,7 @@ export type Restaurant = {
 
 type MapClientProps = {
   restaurantId: string | null;
-  restaurants: Restaurant[]; // ✅ keep list only for lookup
+  restaurants: Restaurant[]; 
 };
 
 const RestaurantMapClient = dynamic<MapClientProps>(
@@ -60,7 +60,7 @@ export default function RestaurantMapSheet({
       {open && (
         <>
           <motion.div
-            className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-[2px]"
+            className="fixed inset-0 z-999 bg-black/40 backdrop-blur-[2px]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -68,7 +68,7 @@ export default function RestaurantMapSheet({
           />
 
           <motion.aside
-            className="fixed right-0 top-0 z-[1000] h-[100dvh] w-full sm:w-[520px] lg:w-[640px] bg-white shadow-2xl border-l border-black/10 flex flex-col"
+            className="fixed right-0 top-0 z-1000 h-dvh w-full sm:w-130 lg:w-160 bg-white shadow-2xl border-l border-black/10 flex flex-col"
             initial={{ x: 80, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 80, opacity: 0 }}

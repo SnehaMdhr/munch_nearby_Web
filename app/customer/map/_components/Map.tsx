@@ -17,9 +17,6 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-routing-machine";
 
-/* ----------------------------------
-    🛠️ GLOBAL LEAFLET ASSET FIX
------------------------------------ */
 if (typeof window !== "undefined") {
   delete (L.Icon.Default.prototype as any)._getIconUrl;
   L.Icon.Default.mergeOptions({
@@ -32,9 +29,6 @@ if (typeof window !== "undefined") {
   });
 }
 
-/* ----------------------------------
-    🎯 ICONS
------------------------------------ */
 const restaurantIcon = L.divIcon({
   html: renderToStaticMarkup(
     <div
@@ -52,7 +46,7 @@ const restaurantIcon = L.divIcon({
       }}
     >
       <Utensils size={20} strokeWidth={2.5} />
-    </div>
+    </div>,
   ),
   className: "",
   iconSize: [36, 36],
@@ -79,7 +73,7 @@ const userIcon = L.divIcon({
         <MapPin size={32} fill="#E87A5D" fillOpacity={0.3} strokeWidth={2.5} />
       </div>
       <style>{`@keyframes ping { 75%, 100% { transform: scale(1.8); opacity: 0; } }`}</style>
-    </div>
+    </div>,
   ),
   className: "",
   iconSize: [32, 32],
@@ -87,9 +81,6 @@ const userIcon = L.divIcon({
   popupAnchor: [0, -35],
 });
 
-/* ----------------------------------
-    Types
------------------------------------ */
 type Restaurant = {
   _id: string;
   name: string;
@@ -97,9 +88,6 @@ type Restaurant = {
   location?: { type: "Point"; coordinates: [number, number] }; // [lng, lat]
 };
 
-/* ----------------------------------
-    Routing
------------------------------------ */
 function Routing({
   userLocation,
   destination,
@@ -153,9 +141,6 @@ function Routing({
   return null;
 }
 
-/* ----------------------------------
-    Fly to restaurant when selected
------------------------------------ */
 function FlyTo({ center }: { center: { lat: number; lng: number } | null }) {
   const map = useMap();
   useEffect(() => {
@@ -165,11 +150,15 @@ function FlyTo({ center }: { center: { lat: number; lng: number } | null }) {
   return null;
 }
 
-/* ----------------------------------
-    Main Component
------------------------------------ */
-export default function RestaurantMap({ restaurants }: { restaurants: Restaurant[] }) {
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+export default function RestaurantMap({
+  restaurants,
+}: {
+  restaurants: Restaurant[];
+}) {
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -187,20 +176,23 @@ export default function RestaurantMap({ restaurants }: { restaurants: Restaurant
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      (err) => console.error(err)
+      (pos) =>
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }),
+      (err) => console.error(err),
     );
   }, []);
 
   const validRestaurants = useMemo(
     () =>
       restaurants.filter(
-        (r) => r.location?.coordinates && r.location.coordinates.length === 2
+        (r) => r.location?.coordinates && r.location.coordinates.length === 2,
       ),
-    [restaurants]
+    [restaurants],
   );
 
-  // suggestions by name (google maps style)
   const suggestions = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return [];
@@ -215,7 +207,6 @@ export default function RestaurantMap({ restaurants }: { restaurants: Restaurant
     setSearchQuery(r.name);
     setShowSuggestions(false);
 
-    // open its popup (after marker exists)
     setTimeout(() => {
       const marker = popupRefs.current[r._id];
       marker?.openPopup?.();
@@ -228,13 +219,11 @@ export default function RestaurantMap({ restaurants }: { restaurants: Restaurant
 
   return (
     <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-[#E87A5D]/20">
-      {/* Floating header + search */}
-      <div className="absolute top-6 left-6 z-1000 w-[340px] bg-linear-to-r from-[#E87A5D]/10 to-[#F6B88F]/20 backdrop-blur-md rounded-2xl px-5 py-5 border border-[#E87A5D]/30 shadow-md">
+      <div className="absolute top-6 left-6 z-1000 w-85 bg-linear-to-r from-[#E87A5D]/10 to-[#F6B88F]/20 backdrop-blur-md rounded-2xl px-5 py-5 border border-[#E87A5D]/30 shadow-md">
         <h1 className="text-xl font-bold text-gray-800 mb-1">Restaurant Map</h1>
         <p className="text-[12px] text-gray-600 leading-relaxed mb-3">
           Search and tap a result to zoom like Google Maps.
         </p>
-
 
         {selectedRestaurant && (
           <button
@@ -244,64 +233,63 @@ export default function RestaurantMap({ restaurants }: { restaurants: Restaurant
             ✕ Clear Route
           </button>
         )}
-
-
-        
       </div>
 
       <div className="absolute top-5 left-200 right-10 bottom-0 z-500">
-          <input
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setShowSuggestions(true);
+        <input
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setShowSuggestions(true);
+          }}
+          onFocus={() => setShowSuggestions(true)}
+          placeholder="Search restaurant name..."
+          className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-5 pr-3 text-sm outline-none focus:border-[#E87A5D]"
+        />
+
+        {searchQuery && (
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              setShowSuggestions(false);
+              setSelectedRestaurant(null);
             }}
-            onFocus={() => setShowSuggestions(true)}
-            placeholder="Search restaurant name..."
-            className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-5 pr-3 text-sm outline-none focus:border-[#E87A5D]"
-          />
+            className="absolute right-3 mt-4 text-gray-500 hover:text-gray-700"
+            aria-label="Clear search"
+          >
+            <X size={16} />
+          </button>
+        )}
 
-          {searchQuery && (
-            <button
-              onClick={() => {
-                setSearchQuery("");
-                setShowSuggestions(false);
-                setSelectedRestaurant(null);
-              }}
-              className="absolute right-3 mt-4 text-gray-500 hover:text-gray-700"
-              aria-label="Clear search"
-            >
-              <X size={16} />
-            </button>
-          )}
+        {/* Suggestions dropdown */}
+        {showSuggestions && suggestions.length > 0 && (
+          <div className="absolute top-11.5 left-0 right-0 bg-[#FFF8F4] rounded-xl shadow-xl border border-black/10 overflow-hidden z-1100">
+            {suggestions.map((r) => (
+              <button
+                key={r._id}
+                onClick={() => handlePickRestaurant(r)}
+                className="w-full text-left px-4 py-3 hover:bg-gray-50 transition flex flex-col"
+              >
+                <span className="text-sm font-bold text-gray-900">
+                  {r.name}
+                </span>
+                {r.address && (
+                  <span className="text-xs text-gray-500 line-clamp-1">
+                    {r.address}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
 
-          {/* Suggestions dropdown */}
-          {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-[46px] left-0 right-0 bg-[#FFF8F4] rounded-xl shadow-xl border border-black/10 overflow-hidden z-[1100]">
-              {suggestions.map((r) => (
-                <button
-                  key={r._id}
-                  onClick={() => handlePickRestaurant(r)}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 transition flex flex-col"
-                >
-                  <span className="text-sm font-bold text-gray-900">{r.name}</span>
-                  {r.address && (
-                    <span className="text-xs text-gray-500 line-clamp-1">{r.address}</span>
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
+        {showSuggestions && searchQuery.trim() && suggestions.length === 0 && (
+          <div className="absolute top-11.5 left-0 right-0 bg-[#FFF8F4] rounded-xl shadow-xl border border-black/10 px-4 py-3 z-1100">
+            <p className="text-sm text-gray-500">No matches found.</p>
+          </div>
+        )}
+      </div>
 
-          {showSuggestions && searchQuery.trim() && suggestions.length === 0 && (
-            <div className="absolute top-[46px] left-0 right-0 bg-[#FFF8F4] rounded-xl shadow-xl border border-black/10 px-4 py-3 z-[1100]">
-              <p className="text-sm text-gray-500">No matches found.</p>
-            </div>
-          )}
-        </div>
-
-       {/* Search input */}
-        
       <MapContainer
         center={defaultCenter}
         zoom={14}
@@ -313,7 +301,6 @@ export default function RestaurantMap({ restaurants }: { restaurants: Restaurant
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
 
-        {/* fly to chosen result */}
         <FlyTo center={selectedCenter} />
 
         {validRestaurants.map((restaurant) => {
@@ -328,10 +315,11 @@ export default function RestaurantMap({ restaurants }: { restaurants: Restaurant
                 if (ref) popupRefs.current[restaurant._id] = ref as any;
               }}
               eventHandlers={{
-                click: () => userLocation && setSelectedRestaurant({ id: restaurant._id, lat, lng }),
+                click: () =>
+                  userLocation &&
+                  setSelectedRestaurant({ id: restaurant._id, lat, lng }),
               }}
             >
-              {/* ✅ Always-visible restaurant name */}
               <Tooltip
                 direction="top"
                 offset={[0, -10]}
@@ -346,7 +334,9 @@ export default function RestaurantMap({ restaurants }: { restaurants: Restaurant
                 <div className="p-1 text-center">
                   <h3 className="font-bold text-gray-800">{restaurant.name}</h3>
                   {restaurant.address && (
-                    <p className="text-xs text-gray-500 mt-1">{restaurant.address}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {restaurant.address}
+                    </p>
                   )}
                   <p className="text-xs text-[#E87A5D] mt-1 font-semibold flex items-center justify-center gap-1">
                     <Navigation size={12} /> Route Active
@@ -358,7 +348,10 @@ export default function RestaurantMap({ restaurants }: { restaurants: Restaurant
         })}
 
         {userLocation && (
-          <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
+          <Marker
+            position={[userLocation.lat, userLocation.lng]}
+            icon={userIcon}
+          >
             <Popup>
               <span className="font-bold text-[#E87A5D]">You are here</span>
             </Popup>
@@ -368,7 +361,10 @@ export default function RestaurantMap({ restaurants }: { restaurants: Restaurant
         {userLocation && selectedRestaurant && (
           <Routing
             userLocation={userLocation}
-            destination={{ lat: selectedRestaurant.lat, lng: selectedRestaurant.lng }}
+            destination={{
+              lat: selectedRestaurant.lat,
+              lng: selectedRestaurant.lng,
+            }}
           />
         )}
       </MapContainer>
