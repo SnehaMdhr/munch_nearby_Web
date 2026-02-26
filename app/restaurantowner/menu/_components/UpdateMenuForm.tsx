@@ -4,7 +4,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition, useRef } from "react";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { menuSchema } from "../schema";
 import { handleUpdateMenu } from "@/lib/actions/menu-actions";
@@ -12,16 +11,38 @@ import { handleUpdateMenu } from "@/lib/actions/menu-actions";
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
+const toBoolean = (value: unknown) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true") return true;
+    if (normalized === "false") return false;
+  }
+  return Boolean(value);
+};
+
+const normalizeIsAvailable = (menu: any) => {
+  if (typeof menu?.isAvailable !== "undefined") {
+    return toBoolean(menu.isAvailable);
+  }
+
+  if (typeof menu?.notAvailable !== "undefined") {
+    return !toBoolean(menu.notAvailable);
+  }
+
+  return true;
+};
+
 interface UpdateMenuProps {
   menu: any;
+  onSuccess?: () => void;
 }
 
-export default function UpdateMenuForm({ menu }: UpdateMenuProps) {
+export default function UpdateMenuForm({ menu, onSuccess }: UpdateMenuProps) {
   const [pending, startTransition] = useTransition();
-  const [preview, setPreview] = useState<string | null>(menu.imageUrl || null);
+  const [preview, setPreview] = useState<string | null>(menu.imageUrl || menu.image || null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
 
   const {
     register,
@@ -34,7 +55,7 @@ export default function UpdateMenuForm({ menu }: UpdateMenuProps) {
       price: menu.price ?? 0,
       category: menu.category ?? "",
       description: menu.description ?? "",
-      isAvailable: menu.isAvailable ? "true" : "false",
+      isAvailable: normalizeIsAvailable(menu) ? "true" : "false",
     },
   });
 
@@ -62,7 +83,7 @@ export default function UpdateMenuForm({ menu }: UpdateMenuProps) {
 
   const removeImage = () => {
     setSelectedFile(null);
-    setPreview(menu.imageUrl || null);
+    setPreview(menu.imageUrl || menu.image || null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -75,7 +96,9 @@ export default function UpdateMenuForm({ menu }: UpdateMenuProps) {
         formData.append("price", String(data.price ?? 0));
         formData.append("category", data.category ?? "");
         formData.append("description", data.description ?? "");
-        formData.append("isAvailable", data.isAvailable === "true" ? "true" : "false");
+        const isAvailable = toBoolean(data.isAvailable);
+        formData.append("isAvailable", isAvailable ? "true" : "false");
+        formData.append("notAvailable", isAvailable ? "false" : "true");
 
         // Append image only if new file selected
         if (selectedFile) {
@@ -89,8 +112,7 @@ export default function UpdateMenuForm({ menu }: UpdateMenuProps) {
         }
 
         toast.success("Menu updated successfully");
-        router.push("/restaurantowner/menu");
-        router.refresh();
+        if (onSuccess) onSuccess();
 
       } catch (err: any) {
         toast.error(err.message || "Update failed");
@@ -99,33 +121,75 @@ export default function UpdateMenuForm({ menu }: UpdateMenuProps) {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="max-w-xl bg-[#FFF8F4] border border-black/10 rounded-xl p-6 space-y-4 shadow-sm"
-    >
-      <h2 className="text-xl font-bold text-gray-800">Update Menu Item</h2>
 
-      {/* --- CURRENT IMAGE --- */}
-      {preview && (
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Current Image</label>
-          <div className="relative w-40 h-40 rounded-lg overflow-hidden border">
-            <Image
-              src={preview}
-              alt="Menu Image"
-              fill
-              className="object-cover"
-            />
-          </div>
-        </div>
+  <form
+    onSubmit={handleSubmit(onSubmit)}
+    className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 space-y-6 max-w-xl"
+  >
+    <h2 className="text-2xl font-bold text-gray-800">
+      Update Menu Item
+    </h2>
+
+    {/* NAME */}
+    <div>
+      <label className="text-sm font-medium text-gray-600">
+        Name
+      </label>
+      <input
+        {...register("name")}
+        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 text-sm outline-none focus:border-[#E87A5D]"
+      />
+      {errors.name && (
+        <p className="text-red-500 text-xs mt-1">
+          {errors.name.message as string}
+        </p>
       )}
+    </div>
 
-      {/* --- NEW IMAGE --- */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Change Image</label>
+    {/* PRICE */}
+    <div>
+      <label className="text-sm font-medium text-gray-600">
+        Price
+      </label>
+      <input
+        type="number"
+        step="0.01"
+        {...register("price")}
+        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 text-sm outline-none focus:border-[#E87A5D]"
+      />
+      {errors.price && (
+        <p className="text-red-500 text-xs mt-1">
+          {errors.price.message as string}
+        </p>
+      )}
+    </div>
+
+    {/* CATEGORY */}
+    <div>
+      <label className="text-sm font-medium text-gray-600">
+        Category
+      </label>
+      <input
+        {...register("category")}
+        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 text-sm outline-none focus:border-[#E87A5D]"
+      />
+      {errors.category && (
+        <p className="text-red-500 text-xs mt-1">
+          {errors.category.message as string}
+        </p>
+      )}
+    </div>
+
+    {/* IMAGE SECTION */}
+    <div>
+      <label className="text-sm font-medium text-gray-600">
+        Menu Image
+      </label>
+
+      <div className="bg-[#FFF8F4] p-6 rounded-2xl border border-[#E87A5D]/10 mt-2">
         {preview && (
-          <div className="mb-3 flex items-center gap-3">
-            <div className="relative w-20 h-20 rounded-lg overflow-hidden border">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="relative w-24 h-24 rounded-xl overflow-hidden border shadow-sm">
               <Image
                 src={preview}
                 alt="Preview"
@@ -133,87 +197,68 @@ export default function UpdateMenuForm({ menu }: UpdateMenuProps) {
                 className="object-cover"
               />
             </div>
+
             <button
               type="button"
               onClick={removeImage}
-              className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
+              className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
             >
               Remove
             </button>
           </div>
         )}
+
         <input
           ref={fileInputRef}
           type="file"
           accept="image/*"
           onChange={handleImageChange}
-          className="block w-full text-sm"
+          className="block w-full text-sm
+            file:mr-4 file:rounded-full file:border-0
+            file:bg-[#E87A5D] file:px-5 file:py-2
+            file:text-white hover:file:opacity-90 transition"
         />
       </div>
+    </div>
 
-      {/* --- NAME --- */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Name</label>
-        <input
-          {...register("name")}
-          className="h-11 w-full rounded-lg border border-black/10 bg-white px-3 text-sm outline-none focus:border-[#E87A5D]"
-        />
-        {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
-      </div>
+    {/* DESCRIPTION */}
+    <div>
+      <label className="text-sm font-medium text-gray-600">
+        Description
+      </label>
+      <textarea
+        rows={3}
+        {...register("description")}
+        className="w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 py-3 text-sm outline-none focus:border-[#E87A5D] resize-none"
+      />
+    </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        {/* PRICE */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Price</label>
-          <input
-            type="number"
-            step="0.01"
-            {...register("price")}
-            className="h-11 w-full rounded-lg border border-black/10 bg-white px-3 text-sm outline-none focus:border-[#E87A5D]"
-          />
-          {errors.price && <p className="text-xs text-red-600">{errors.price.message}</p>}
-        </div>
-
-        {/* CATEGORY */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Category</label>
-          <input
-            {...register("category")}
-            className="h-11 w-full rounded-lg border border-black/10 bg-white px-3 text-sm outline-none focus:border-[#E87A5D]"
-          />
-          {errors.category && <p className="text-xs text-red-600">{errors.category.message}</p>}
-        </div>
-      </div>
-
-      {/* DESCRIPTION */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Description</label>
-        <textarea
-          {...register("description")}
-          rows={3}
-          className="w-full rounded-lg border border-black/10 bg-white p-3 text-sm outline-none focus:border-[#E87A5D]"
-        />
-      </div>
-
-      {/* STATUS */}
-      <div className="space-y-1">
-        <label className="text-sm font-medium">Status</label>
-        <select
-          {...register("isAvailable")}
-          className="h-11 w-full rounded-lg border border-black/10 bg-white px-3 text-sm outline-none focus:border-[#E87A5D]"
-        >
-          <option value="true">Available</option>
-          <option value="false">Not Available</option>
-        </select>
-      </div>
-
-      <button
-        type="submit"
-        disabled={isSubmitting || pending}
-        className="h-11 w-full rounded-lg bg-[#E87A5D] text-white text-sm font-semibold hover:opacity-90 transition disabled:opacity-60"
+    {/* AVAILABILITY */}
+    <div>
+      <label className="text-sm font-medium text-gray-600">
+        Availability
+      </label>
+      <select
+        {...register("isAvailable")}
+        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 text-sm outline-none focus:border-[#E87A5D]"
       >
-        {isSubmitting || pending ? "Saving Changes..." : "Update Menu Item"}
-      </button>
-    </form>
-  );
+        <option value="true">Available</option>
+        <option value="false">Not Available</option>
+      </select>
+    </div>
+
+    {/* SUBMIT BUTTON */}
+    <button
+      type="submit"
+      disabled={isSubmitting || pending}
+      className="w-full h-10 px-5 rounded-xl text-white text-xs font-semibold transition shadow-sm
+                 bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
+                 hover:opacity-90 disabled:opacity-60"
+    >
+      {isSubmitting || pending
+        ? "Saving Changes..."
+        : "Update Menu"}
+    </button>
+  </form>
+);
 }
