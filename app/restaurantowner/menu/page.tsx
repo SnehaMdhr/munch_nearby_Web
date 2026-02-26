@@ -34,7 +34,7 @@ export default function Page() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
-const [selectedMenu, setSelectedMenu] = useState<any>(null);
+  const [selectedMenu, setSelectedMenu] = useState<any>(null);
 
   /* ---------------- FETCH MENUS ---------------- */
 
@@ -45,9 +45,7 @@ const [selectedMenu, setSelectedMenu] = useState<any>(null);
 
       const restaurant = restaurantRes.data;
 
-      const menuRes = await handleGetMenusByRestaurant(
-        restaurant._id
-      );
+      const menuRes = await handleGetMenusByRestaurant(restaurant._id);
       if (!menuRes.success) return;
 
       setMenus(menuRes.data);
@@ -80,9 +78,7 @@ const [selectedMenu, setSelectedMenu] = useState<any>(null);
     const res = await handleDeleteMenu(deleteId);
 
     if (res.success) {
-      setMenus((prev) =>
-        prev.filter((m) => m._id !== deleteId)
-      );
+      setMenus((prev) => prev.filter((m) => m._id !== deleteId));
       setIsOpen(false);
       setDeleteId(null);
     }
@@ -108,9 +104,9 @@ const [selectedMenu, setSelectedMenu] = useState<any>(null);
 
           <button
             onClick={() => {
-  setSelectedMenu(null);
-  setIsFormOpen(true);
-}}
+              setSelectedMenu(null);
+              setIsFormOpen(true);
+            }}
             className="px-5 py-2 rounded-xl 
         bg-linear-to-r from-[#E87A5D] to-[#F6B88F] 
         text-white font-medium shadow-md
@@ -125,40 +121,37 @@ const [selectedMenu, setSelectedMenu] = useState<any>(null);
         ) : menus.length === 0 ? (
           <p className="text-gray-500">No menus found.</p>
         ) : (
-          Object.entries(groupedMenus).map(
-            ([category, items]: any) => (
-              <div key={category} className="mb-14">
-                {/* Category Header */}
-                <div className="flex items-center gap-3 mb-8">
-                  <div className="h-6 w-1.5 bg-[#E87A5D] rounded-full"></div>
-                  <h2 className="text-xl font-bold text-gray-800">
-                    {category}
-                  </h2>
-                </div>
+          Object.entries(groupedMenus).map(([category, items]: any) => (
+            <div key={category} className="mb-14">
+              {/* Category Header */}
+              <div className="flex items-center gap-3 mb-8">
+                <div className="h-6 w-1.5 bg-[#E87A5D] rounded-full"></div>
+                <h2 className="text-xl font-bold text-gray-800">{category}</h2>
+              </div>
 
-                {/* Grid Layout */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {items.map((menu: any) => {
-                    const available = resolveIsAvailable(menu);
+              {/* Grid Layout */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {items.map((menu: any) => {
+                  const available = resolveIsAvailable(menu);
 
-                    return (
+                  return (
                     <div
                       key={menu._id}
                       className="bg-white rounded-3xl shadow-sm hover:shadow-md transition duration-300 p-6 flex flex-col"
                     >
                       <div className="relative w-full h-40 overflow-hidden">
-                  {menu.imageUrl ? (
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_BASE}${menu.imageUrl}`}
-                      alt={menu.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-                  </div>
+                        {menu.imageUrl ? (
+                          <img
+                            src={`${process.env.NEXT_PUBLIC_API_BASE}${menu.imageUrl}`}
+                            alt={menu.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                            No Image
+                          </div>
+                        )}
+                      </div>
 
                       {/* Top Section */}
                       <div className="flex justify-between items-start mt-5">
@@ -173,9 +166,7 @@ const [selectedMenu, setSelectedMenu] = useState<any>(null);
                               : "bg-red-100 text-red-500"
                           }`}
                         >
-                          {available
-                            ? "Available"
-                            : "Not Available"}
+                          {available ? "Available" : "Not Available"}
                         </span>
                       </div>
 
@@ -195,30 +186,27 @@ const [selectedMenu, setSelectedMenu] = useState<any>(null);
                       <div className="mt-6 flex gap-3">
                         <button
                           onClick={() => {
-  setSelectedMenu(menu);
-  setIsFormOpen(true);
-}}
+                            setSelectedMenu(menu);
+                            setIsFormOpen(true);
+                          }}
                           className="flex-1 py-2 rounded-xl border border-gray-200 hover:bg-gray-100 transition text-sm font-medium"
                         >
                           Update
                         </button>
 
                         <button
-                          onClick={() =>
-                            handleDeleteClick(menu._id)
-                          }
+                          onClick={() => handleDeleteClick(menu._id)}
                           className="flex-1 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition text-sm font-medium"
                         >
                           Delete
                         </button>
                       </div>
                     </div>
-                    );
-                  })}
-                </div>
+                  );
+                })}
               </div>
-            )
-          )
+            </div>
+          ))
         )}
 
         {/* Delete Modal */}
@@ -230,27 +218,24 @@ const [selectedMenu, setSelectedMenu] = useState<any>(null);
           description="Are you sure you want to delete this menu item?"
         />
 
-        <MenuModal
-  isOpen={isFormOpen}
-  onClose={() => setIsFormOpen(false)}
->
-  {selectedMenu ? (
-    <UpdateMenuForm
-      menu={selectedMenu}
-      onSuccess={() => {
-        setIsFormOpen(false);
-        window.location.reload(); // quick refresh
-      }}
-    />
-  ) : (
-    <CreateMenuForm
-      onSuccess={() => {
-        setIsFormOpen(false);
-        window.location.reload();
-      }}
-    />
-  )}
-</MenuModal>
+        <MenuModal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)}>
+          {selectedMenu ? (
+            <UpdateMenuForm
+              menu={selectedMenu}
+              onSuccess={() => {
+                setIsFormOpen(false);
+                window.location.reload(); // quick refresh
+              }}
+            />
+          ) : (
+            <CreateMenuForm
+              onSuccess={() => {
+                setIsFormOpen(false);
+                window.location.reload();
+              }}
+            />
+          )}
+        </MenuModal>
       </div>
     </div>
   );

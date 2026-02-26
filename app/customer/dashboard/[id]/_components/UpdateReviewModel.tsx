@@ -9,6 +9,7 @@ interface Props {
   reviewId: string | null;
   isOpen: boolean;
   onClose: () => void;
+  onSuccess: () => void;
   initialRating: number;
   initialComment: string;
 }
@@ -18,6 +19,7 @@ export default function UpdateReviewModal({
   reviewId,
   isOpen,
   onClose,
+  onSuccess,
   initialRating,
   initialComment,
 }: Props) {
@@ -55,14 +57,14 @@ export default function UpdateReviewModal({
     setSaving(true);
     setError(null);
 
-    const res = await handleUpdateReview(
-      reviewId,
-      restaurantId,
-      { rating, comment }
-    );
+    const res = await handleUpdateReview(reviewId, restaurantId, {
+      rating,
+      comment,
+    });
 
     if (res.success) {
       router.refresh(); // refresh page
+      onSuccess();
       onClose();
     } else {
       setError(res.message || "Update failed");
@@ -74,21 +76,15 @@ export default function UpdateReviewModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
       <div className="bg-white w-full max-w-lg rounded-3xl shadow-xl p-8">
-
-        <h2 className="text-2xl font-bold mb-6">
-          Update Review
-        </h2>
+        <h2 className="text-2xl font-bold mb-6">Update Review</h2>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-
           {/* Rating */}
           <div>
-            <label className="block font-medium mb-3">
-              Rating
-            </label>
+            <label className="block font-medium mb-3">Rating</label>
 
             <div className="flex gap-2 text-3xl">
-              {[1,2,3,4,5].map((star) => (
+              {[1, 2, 3, 4, 5].map((star) => (
                 <span
                   key={star}
                   onClick={() => setRating(star)}
@@ -108,25 +104,17 @@ export default function UpdateReviewModal({
 
           {/* Comment */}
           <div>
-            <label className="block font-medium mb-2">
-              Comment
-            </label>
+            <label className="block font-medium mb-2">Comment</label>
 
             <textarea
               value={comment}
-              onChange={(e) =>
-                setComment(e.target.value)
-              }
+              onChange={(e) => setComment(e.target.value)}
               rows={4}
               className="w-full rounded-2xl border border-gray-200 p-4 focus:ring-2 focus:ring-[#E87A5D]/30 focus:border-[#E87A5D] outline-none transition"
             />
           </div>
 
-          {error && (
-            <p className="text-red-500 text-sm">
-              {error}
-            </p>
-          )}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
 
           <div className="flex justify-end gap-4">
             <button
@@ -142,7 +130,8 @@ export default function UpdateReviewModal({
               disabled={saving}
               className="px-5 py-2 rounded-xl  text-white text-xs font-semibold transition shadow-sm
                                bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
-                               hover:opacity-90">
+                               hover:opacity-90"
+            >
               {saving ? "Updating..." : "Update"}
             </button>
           </div>
