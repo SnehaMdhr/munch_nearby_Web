@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { handleUpdateReview } from "@/lib/actions/review-actions";
+import { toast } from "react-toastify";
 
 interface Props {
   restaurantId: string;
@@ -65,9 +66,11 @@ export default function UpdateReviewModal({
     if (res.success) {
       router.refresh();
       onSuccess();
+      toast.success("Review Updated successfully!");
       onClose();
     } else {
       setError(res.message || "Update failed");
+      toast.error(res.message);
     }
 
     setSaving(false);

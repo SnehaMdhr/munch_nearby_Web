@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { handleCreateReview } from "@/lib/actions/review-actions";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 interface Props {
   restaurantId: string;
@@ -50,9 +51,11 @@ export default function AddReviewModal({
     if (res.success) {
       router.refresh();
       onSuccess();
+      toast.success("Review Added successfully!");
       onClose();
     } else {
       setError(res.message || "Failed to create review");
+      toast.error(res.message);
     }
 
     setLoading(false);

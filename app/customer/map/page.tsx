@@ -18,12 +18,9 @@ export default async function Page() {
   }
 
   return (
-    <div>
+    <div className="h-screen flex flex-col overflow-hidden">
       <Header />
-
-      {/* Main Content */}
-      <div className="p-0">
-        {/* Map Section */}
+      <div className="flex-1 min-h-0">
         <MapWrapper restaurants={res.data} />
       </div>
     </div>

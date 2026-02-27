@@ -82,7 +82,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="w-full sticky top-0 z-50 bg-white border-b border-gray-200">
+      <header className="w-full sticky top-0 z-3000 bg-white border-b border-gray-200">
         <div className="relative w-full px-8 py-2 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image
@@ -150,7 +150,7 @@ export default function Header() {
 
             {/* Dropdown */}
             {open && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+              <div className="absolute right-0 mt-2 z-3100 w-48 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
                 <button
                   onClick={() => {
                     setOpen(false);
@@ -178,7 +178,7 @@ export default function Header() {
       {/* PROFILE MODAL */}
       {showProfileModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-4000 flex items-center justify-center bg-black/40 backdrop-blur-sm"
           onClick={() => setShowProfileModal(false)}
         >
           <div

@@ -111,7 +111,7 @@ export default function ProfileForm({
           throw new Error(res?.message || "Update failed");
         }
 
-        toast.success("Profile updated successfully 🎉");
+        toast.success("Profile updated successfully!");
         onSuccess?.();
       } catch (err: any) {
         setError(err?.message || "Profile update failed");
