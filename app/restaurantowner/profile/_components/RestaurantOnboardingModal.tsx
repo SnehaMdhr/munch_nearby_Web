@@ -389,7 +389,7 @@ export default function RestaurantOnboardingModal({
                       onChange={(e) =>
                         updateOpeningHour(index, { open: e.target.value })
                       }
-                      className="w-full rounded-lg border border-amber-200 px-2 py-1.5 text-xs font-medium text-amber-700 accent-amber-500 [color-scheme:light] focus:ring-2 focus:ring-amber-200 focus:border-amber-400 outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 transition-all cursor-pointer"
+                      className="w-full rounded-lg border border-amber-200 px-2 py-1.5 text-xs font-medium text-amber-700 accent-amber-500 scheme-light focus:ring-2 focus:ring-amber-200 focus:border-amber-400 outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 transition-all cursor-pointer"
                     />
                     <span className="text-slate-400">-</span>
                     <input
@@ -399,8 +399,7 @@ export default function RestaurantOnboardingModal({
                       onChange={(e) =>
                         updateOpeningHour(index, { close: e.target.value })
                       }
-                      // Added text-amber-600, accent-amber-500, and border-amber-200
-                      className="w-full rounded-lg border border-amber-200 px-2 py-1.5 text-xs text-amber-700 accent-amber-500 [color-scheme:light] focus:ring-2 focus:ring-amber-200 outline-none disabled:bg-slate-200 disabled:text-slate-400 transition-all"
+                      className="w-full rounded-lg border border-amber-200 px-2 py-1.5 text-xs text-amber-700 accent-amber-500 scheme-light focus:ring-2 focus:ring-amber-200 outline-none disabled:bg-slate-200 disabled:text-slate-400 transition-all"
                     />
                   </div>
 

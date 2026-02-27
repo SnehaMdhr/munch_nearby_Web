@@ -294,14 +294,14 @@ export default function UpdateRestaurantModal({
                       type="time"
                       disabled={oh.isClosed}
                       {...register(`openingHours.${index}.open`)}
-                      className="w-full rounded-lg border border-amber-200 px-2 py-1.5 text-xs font-medium text-amber-700 accent-amber-500 [color-scheme:light] focus:ring-2 focus:ring-amber-200 focus:border-amber-400 outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 transition-all cursor-pointer"
+                      className="w-full rounded-lg border border-amber-200 px-2 py-1.5 text-xs font-medium text-amber-700 accent-amber-500 scheme-light focus:ring-2 focus:ring-amber-200 focus:border-amber-400 outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 transition-all cursor-pointer"
                     />
                     <span className="text-slate-400">-</span>
                     <input
                       type="time"
                       disabled={oh.isClosed}
                       {...register(`openingHours.${index}.close`)}
-                      className="w-full rounded-lg border border-amber-200 px-2 py-1.5 text-xs text-amber-700 accent-amber-500 [color-scheme:light] focus:ring-2 focus:ring-amber-200 outline-none disabled:bg-slate-200 disabled:text-slate-400 transition-all"
+                      className="w-full rounded-lg border border-amber-200 px-2 py-1.5 text-xs text-amber-700 accent-amber-500 scheme-light focus:ring-2 focus:ring-amber-200 outline-none disabled:bg-slate-200 disabled:text-slate-400 transition-all"
                     />
                   </div>
 

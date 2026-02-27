@@ -39,10 +39,13 @@ export const getMyRestaurant = async () => {
         const response = await axiosInstance.get(API.RESTAURANT.OWNER.GET_MY);
         return response.data;
     }catch(err: Error | any){
-        console.error("[getMyRestaurant] Error:", err.message);
+        const status = err?.response?.status;
         return {
             success: false,
-            message: err.response?.data?.message || err.message || "Get My Restaurant failed",
+            message:
+                err.response?.data?.message ||
+                (status ? `Request failed with status code ${status}` : err.message) ||
+                "Get My Restaurant failed",
             data: null
         };
     }
