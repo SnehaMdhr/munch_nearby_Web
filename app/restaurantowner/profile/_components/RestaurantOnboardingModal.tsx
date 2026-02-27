@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { handleCreateRestaurant } from "@/lib/actions/restaurant-actions";
+import { toast } from "react-toastify";
 
 type Props = {
   open: boolean;
@@ -232,6 +233,7 @@ export default function RestaurantOnboardingModal({
       });
       setErrors(fieldErrs);
       setSubmitting(false);
+
       return;
     }
 
@@ -240,10 +242,13 @@ export default function RestaurantOnboardingModal({
       const result = await handleCreateRestaurant(formData);
 
       if (!result?.success) {
-        setServerError(result?.message || "Failed to create restaurant.");
+        const message = result?.message || "Failed to create restaurant.";
+        setServerError(message);
+        toast.error(message);
         setSubmitting(false);
         return;
       }
+      toast.success("Restaurant created successfully!");
 
       onCreated?.(result?.data?.restaurant ?? result?.data);
       onClose();

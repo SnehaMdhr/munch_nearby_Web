@@ -99,7 +99,7 @@ export default function CreateMenuForm({
         const response = await handleCreateMenu(formData);
         if (!response.success) throw new Error(response.message);
 
-        toast.success("Menu Created successfully.");
+        toast.success("Menu Created successfully!");
         handleClose();
         if (onSuccess) {
           onSuccess();
@@ -110,6 +110,7 @@ export default function CreateMenuForm({
         router.refresh();
       } catch (err: any) {
         setError(err.message || "Menu Creation failed");
+        toast.error(err.message || "Menu Creation failed");
       }
     });
   };

@@ -139,7 +139,7 @@ export default function UpdateRestaurantModal({
       const res = await handleUpdateRestaurant(formData);
       if (!res.success) throw new Error(res.message);
 
-      toast.success("Restaurant updated successfully 🎉");
+      toast.success("Restaurant updated successfully!");
       onSuccess();
       onClose();
     } catch (err: any) {

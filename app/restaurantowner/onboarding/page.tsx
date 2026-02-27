@@ -1,4 +1,3 @@
-// app/restaurant/onboarding/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -23,12 +22,9 @@ export default function RestaurantOnboardingPage() {
       if (!mounted) return;
 
       if (result.success && result.data) {
-        // ✅ Restaurant exists → redirect
         router.replace("/restaurantowner/dashboard");
         return;
       }
-
-      // ❌ No restaurant → show onboarding
       setOpen(true);
       setLoading(false);
     })();
@@ -51,11 +47,9 @@ export default function RestaurantOnboardingPage() {
       <RestaurantOnboardingModal
         open={open}
         onClose={() => {
-          // 🔒 Force onboarding — don't allow close if no restaurant
           return;
         }}
         onCreated={() => {
-          // ✅ After creating → redirect to dashboard
           router.replace("/restaurantowner/dashboard");
         }}
       />

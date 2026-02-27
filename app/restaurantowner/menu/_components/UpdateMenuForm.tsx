@@ -127,7 +127,7 @@ export default function UpdateMenuForm({
         const response = await handleUpdateMenu(menu._id, formData);
         if (!response.success) throw new Error(response.message);
 
-        toast.success("Menu updated successfully");
+        toast.success("Menu updated successfully!");
         if (onSuccess) onSuccess();
         handleClose();
       } catch (err: any) {
