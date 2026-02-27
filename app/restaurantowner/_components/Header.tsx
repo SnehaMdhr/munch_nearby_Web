@@ -4,11 +4,11 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Home, Map, Heart, User, LogOut, ChevronDown } from "lucide-react";
+import { Home, Menu, Star, User, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import ProfileForm from "@/app/customer/profile/_components/ProfileForm";
 
-type NavItemProps = {
+type MenuItemProps = {
   href: string;
   icon: React.ReactNode;
   label: string;
@@ -22,7 +22,6 @@ export default function Header() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Convert image path to usable URL
   const getProfileImageSrc = (imageUrl?: string) => {
     if (!imageUrl) return null;
 
@@ -52,7 +51,6 @@ export default function Header() {
 
   const profileImageSrc = getProfileImageSrc(user?.imageUrl);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -87,8 +85,7 @@ export default function Header() {
   return (
     <>
       <header className="w-full sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="relative w-full px-8 py-4 flex items-center justify-between">
-          {/* LEFT - Logo */}
+        <div className="relative w-full px-8 py-2 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/images/logo_without_background.png"
@@ -100,33 +97,33 @@ export default function Header() {
             <h2 className="text-lg font-bold tracking-tight">MunchNearby</h2>
           </Link>
 
-          {/* CENTER - Navigation */}
-          <nav className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-6">
-            <NavItem
-              href="/customer/dashboard"
-              icon={<Home size={18} />}
+          {/* Menu */}
+          <nav className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-8">
+            <MenuItem
+              href="/restaurantowner/dashboard"
+              icon={<Home size={15} />}
               label="Home"
               pathname={pathname}
             />
-            <NavItem
-              href="/customer/map"
-              icon={<Map size={18} />}
-              label="Map"
+
+            <MenuItem
+              href="/restaurantowner/menu"
+              icon={<Menu size={15} />}
+              label="Menu"
               pathname={pathname}
             />
-            <NavItem
-              href="/customer/favourites"
-              icon={<Heart size={18} />}
-              label="Favorites"
+            <MenuItem
+              href="/restaurantowner/review"
+              icon={<Star size={15} />}
+              label="Review"
               pathname={pathname}
             />
           </nav>
 
-          {/* RIGHT - Profile */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setOpen(!open)}
-              className="flex items-center gap-3 bg-gray-100 hover:bg-gray-200 transition px-4 py-2 rounded-lg"
+              className="flex items-center gap-3 bg-gray-100 hover:bg-gray-200 transition px-2  rounded-lg"
             >
               {/* Avatar */}
               <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-[#E87A5D] text-white font-semibold">
@@ -134,8 +131,8 @@ export default function Header() {
                   <Image
                     src={profileImageSrc}
                     alt="Profile"
-                    width={40}
-                    height={40}
+                    width={25}
+                    height={25}
                     unoptimized
                     className="object-cover w-full h-full"
                   />
@@ -145,13 +142,13 @@ export default function Header() {
               </div>
 
               {/* First Name */}
-              <div className="text-left hidden sm:block">
+              <div className="text-left hidden sm:block ">
                 <p className="text-sm font-semibold text-gray-800">
                   {user?.name?.split(" ")[0] || "User"}
                 </p>
               </div>
 
-              <ChevronDown size={16} className="text-gray-600" />
+              <ChevronDown size={16} className="text-gray-600 " />
             </button>
 
             {/* Dropdown */}
@@ -181,7 +178,6 @@ export default function Header() {
         </div>
       </header>
 
-      {/* PROFILE MODAL */}
       {showProfileModal && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
@@ -205,7 +201,6 @@ export default function Header() {
                 await checkAuth();
                 setShowProfileModal(false);
               }}
-              onCancel={() => setShowProfileModal(false)}
             />
           </div>
         </div>
@@ -214,15 +209,18 @@ export default function Header() {
   );
 }
 
-function NavItem({ href, icon, label, pathname }: NavItemProps) {
+function MenuItem({ href, icon, label, pathname }: MenuItemProps) {
   const isActive = pathname === href || pathname.startsWith(href + "/");
 
   return (
     <Link
       href={href}
-      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-        isActive ? "bg-[#E87A5D] text-white" : "text-gray-600 hover:bg-gray-100"
-      }`}
+      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200
+        ${
+          isActive
+            ? "bg-[#E87A5D] text-white"
+            : "text-gray-600 hover:bg-gray-100"
+        }`}
     >
       {icon}
       {label}
