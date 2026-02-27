@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Home, Menu, Star, User, LogOut, ChevronDown } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import ProfileForm from "@/app/customer/profile/_components/ProfileForm";
+import ProfileForm from "../../customer/profile/_components/ProfileForm";
 
 type MenuItemProps = {
   href: string;
@@ -65,12 +65,10 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close dropdown when route changes
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Close modal on ESC key
   useEffect(() => {
     function handleEsc(event: KeyboardEvent) {
       if (event.key === "Escape") {
@@ -201,6 +199,7 @@ export default function Header() {
                 await checkAuth();
                 setShowProfileModal(false);
               }}
+              onCancel={() => setShowProfileModal(false)}
             />
           </div>
         </div>
