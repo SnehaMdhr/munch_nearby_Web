@@ -17,7 +17,7 @@ export default function AddReviewModal({
   onClose,
   onSuccess,
 }: Props) {
-    const router = useRouter();
+  const router = useRouter();
   const [rating, setRating] = useState<number>(0);
   const [hover, setHover] = useState<number>(0);
   const [comment, setComment] = useState<string>("");
@@ -48,7 +48,7 @@ export default function AddReviewModal({
     });
 
     if (res.success) {
-        router.refresh();
+      router.refresh();
       onSuccess();
       onClose();
     } else {
@@ -59,76 +59,99 @@ export default function AddReviewModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-      <div className="bg-white w-full max-w-lg rounded-3xl shadow-xl p-8 animate-scaleIn">
-        
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          Add Review
-        </h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+      {/* Click outside to close */}
+      <div className="absolute inset-0" onClick={onClose} />
+
+      <div className="relative bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-orange-100 p-8 animate-scaleIn">
+        {/* Header with Cross Symbol */}
+        <div className="flex justify-between items-start mb-6">
+          <div className="space-y-1">
+            <h2 className="text-2xl font-black text-slate-800">
+              Add <span className="text-orange-500">Review</span>
+            </h2>
+            <p className="text-sm text-slate-500">
+              Share your experience with the community.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 transition-colors text-xl p-1"
+          >
+            ✕
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          
-          {/* Rating */}
-          <div>
-            <label className="block font-medium mb-3">
-              Rating
+          {/* Rating Section */}
+          <section className="rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/50 p-6 flex flex-col items-center">
+            <label className="text-sm font-bold text-slate-700 mb-3">
+              How was your meal?
             </label>
-
-            <div className="flex gap-2 text-3xl">
+            <div className="flex gap-2 text-4xl">
               {[1, 2, 3, 4, 5].map((star) => (
                 <span
                   key={star}
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHover(star)}
                   onMouseLeave={() => setHover(0)}
-                  className={`cursor-pointer transition ${
+                  className={`cursor-pointer transition-transform hover:scale-110 ${
                     star <= (hover || rating)
-                      ? "text-[#E87A5D]"
-                      : "text-gray-300"
+                      ? "text-orange-500"
+                      : "text-orange-200"
                   }`}
                 >
                   ★
                 </span>
               ))}
             </div>
-          </div>
+            {rating > 0 && (
+              <p className="mt-2 text-xs font-bold text-orange-600">
+                {rating === 5
+                  ? "Excellent!"
+                  : rating === 1
+                    ? "Disappointing"
+                    : "Good"}
+              </p>
+            )}
+          </section>
 
-          {/* Comment */}
-          <div>
-            <label className="block font-medium mb-2">
-              Comment
+          {/* Comment Area */}
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold text-slate-700">
+              Comment *
             </label>
-
             <textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               rows={4}
               placeholder="Write your review here..."
-              className="w-full rounded-2xl border border-gray-200 p-4 focus:ring-2 focus:ring-[#E87A5D]/30 focus:border-[#E87A5D] outline-none transition"
+              className="w-full rounded-xl border-2 border-orange-50 px-4 py-3 text-sm focus:border-orange-400 outline-none transition-all resize-none"
             />
           </div>
 
           {error && (
-            <p className="text-red-500 text-sm">{error}</p>
+            <p className="p-3 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100">
+              {error}
+            </p>
           )}
 
           {/* Buttons */}
-          <div className="flex justify-end gap-4">
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition"
+              className="flex-1 py-3 border-2 border-slate-100 text-slate-500 font-bold rounded-xl hover:bg-slate-50 transition-all"
             >
               Cancel
-              </button>
+            </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 rounded-xl  text-white text-xs font-semibold transition shadow-sm
-                               bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
-                               hover:opacity-90"
+              className="flex-1 py-3 bg-linear-to-r from-[#E87A5D] to-[#F6B88F] text-white font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-orange-200"
             >
-              {loading ? "Submitting..." : "Submit"}
+              {loading ? "Submitting..." : "Submit Review"}
             </button>
           </div>
         </form>
