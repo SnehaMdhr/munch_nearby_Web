@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "../../_components/SideBar";
 import { Star, MessageCircle, Utensils } from "lucide-react";
 import { useRouter } from "next/navigation";
 import UpdateRestaurantModal from "../../profile/_components/UpdateRestaurantModel";
+import Header from "../../_components/Header";
 
 interface DashboardProps {
   restaurant: any;
   menuCount: number;
-  reviews: any[]; // Added this prop
+  reviews: any[];
 }
 export default function DashboardClient({
   restaurant,
@@ -25,20 +25,16 @@ export default function DashboardClient({
     reviews: restaurant?.totalReviews || 0,
     menuItems: restaurant?.menu?.length || 0,
     views: restaurant?.views || 0,
-    name: restaurant?.name || "Chef",
   };
 
   return (
-    <div className="flex bg-gray-50 min-h-screen">
-      <Sidebar />
-
-      <div className="flex-1 p-8">
+    <div>
+      <Header />
+      <div className="p-12 bg-[#FFF7ED]">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-2xl font-bold">
-              Welcome back, {stats.name}! 🍕
-            </h1>
+            <h1 className="text-2xl font-bold">Welcome back!🍕</h1>
             <p className="text-gray-500">Your kitchen is looking busy today.</p>
           </div>
         </div>

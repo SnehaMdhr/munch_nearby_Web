@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { handleGetMyRestaurant } from "@/lib/actions/restaurant-actions";
@@ -9,10 +9,9 @@ import {
   handleGetMenusByRestaurant,
 } from "@/lib/actions/menu-actions";
 import DeleteModal from "@/app/_components/DeleteModel";
-import Sidebar from "../_components/SideBar";
 import UpdateMenuForm from "./_components/UpdateMenuForm";
 import CreateMenuForm from "./_components/CreateMenuForm";
-import MenuModal from "./_components/MenuModel";
+import Header from "../_components/Header";
 
 export default function Page() {
   const router = useRouter();
@@ -21,39 +20,44 @@ export default function Page() {
     if (typeof menu?.isAvailable !== "undefined") {
       return Boolean(menu.isAvailable);
     }
-
     if (typeof menu?.notAvailable !== "undefined") {
       return !Boolean(menu.notAvailable);
     }
-
     return true;
   };
 
   const [menus, setMenus] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // Delete Modal State
+  const [isFormOpen, setIsFormOpen] = useState(false); // Create Form State
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false); // Update Form State
   const [selectedMenu, setSelectedMenu] = useState<any>(null);
 
   /* ---------------- FETCH MENUS ---------------- */
 
-  useEffect(() => {
-    const fetchMenus = async () => {
-      const restaurantRes = await handleGetMyRestaurant();
-      if (!restaurantRes.success) return;
-
-      const restaurant = restaurantRes.data;
-
-      const menuRes = await handleGetMenusByRestaurant(restaurant._id);
-      if (!menuRes.success) return;
-
-      setMenus(menuRes.data);
+  const fetchMenus = useCallback(async () => {
+    setLoading(true);
+    const restaurantRes = await handleGetMyRestaurant();
+    if (!restaurantRes.success) {
       setLoading(false);
-    };
+      return;
+    }
 
-    fetchMenus();
+    const restaurant = restaurantRes.data;
+    const menuRes = await handleGetMenusByRestaurant(restaurant._id);
+    if (!menuRes.success) {
+      setLoading(false);
+      return;
+    }
+
+    setMenus(menuRes.data);
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    fetchMenus();
+  }, [fetchMenus]);
 
   /* ---------------- GROUP BY CATEGORY ---------------- */
 
@@ -74,9 +78,7 @@ export default function Page() {
 
   const handleConfirmDelete = async () => {
     if (!deleteId) return;
-
     const res = await handleDeleteMenu(deleteId);
-
     if (res.success) {
       setMenus((prev) => prev.filter((m) => m._id !== deleteId));
       setIsOpen(false);
@@ -87,10 +89,10 @@ export default function Page() {
   /* ---------------- UI ---------------- */
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+    <div>
+      <Header />
 
-      <div className="flex-1 p-10">
+      <div className="p-12">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <div>
@@ -107,10 +109,7 @@ export default function Page() {
               setSelectedMenu(null);
               setIsFormOpen(true);
             }}
-            className="px-5 py-2 rounded-xl 
-        bg-linear-to-r from-[#E87A5D] to-[#F6B88F] 
-        text-white font-medium shadow-md
-        hover:scale-105 transition"
+            className="px-5 py-2 rounded-xl bg-linear-to-r from-[#E87A5D] to-[#F6B88F] text-white font-medium shadow-md hover:scale-105 transition"
           >
             + Add Menu Item
           </button>
@@ -187,7 +186,7 @@ export default function Page() {
                         <button
                           onClick={() => {
                             setSelectedMenu(menu);
-                            setIsFormOpen(true);
+                            setIsUpdateOpen(true);
                           }}
                           className="flex-1 py-2 rounded-xl border border-gray-200 hover:bg-gray-100 transition text-sm font-medium"
                         >
@@ -209,7 +208,25 @@ export default function Page() {
           ))
         )}
 
-        {/* Delete Modal */}
+        {/* --- MODALS --- */}
+
+        <CreateMenuForm
+          isOpen={isFormOpen}
+          onClose={() => setIsFormOpen(false)}
+          onSuccess={fetchMenus}
+        />
+
+        <UpdateMenuForm
+          key={selectedMenu?._id} // Reset state when ID changes
+          isOpen={isUpdateOpen}
+          onClose={() => setIsUpdateOpen(false)}
+          onSuccess={() => {
+            setIsUpdateOpen(false);
+            fetchMenus();
+          }}
+          menu={selectedMenu}
+        />
+
         <DeleteModal
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
@@ -217,25 +234,6 @@ export default function Page() {
           title="Delete Menu Item"
           description="Are you sure you want to delete this menu item?"
         />
-
-        <MenuModal isOpen={isFormOpen} onClose={() => setIsFormOpen(false)}>
-          {selectedMenu ? (
-            <UpdateMenuForm
-              menu={selectedMenu}
-              onSuccess={() => {
-                setIsFormOpen(false);
-                window.location.reload(); // quick refresh
-              }}
-            />
-          ) : (
-            <CreateMenuForm
-              onSuccess={() => {
-                setIsFormOpen(false);
-                window.location.reload();
-              }}
-            />
-          )}
-        </MenuModal>
       </div>
     </div>
   );
