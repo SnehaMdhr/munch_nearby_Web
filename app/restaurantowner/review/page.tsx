@@ -2,8 +2,8 @@
 
 import { handleGetReviewsForOwner } from "@/lib/actions/review-actions";
 import { z } from "zod";
-import Sidebar from "../_components/SideBar";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Header from "../_components/Header";
 
 /* ---------------- ZOD SCHEMA ---------------- */
 
@@ -60,13 +60,10 @@ const normalizeOwnerReviews = (payload: unknown): Review[] | null => {
         ? "Anonymous"
         : actor?.name?.trim() || "Anonymous";
 
-    const actorEmail =
-      typeof actor === "string" ? undefined : actor?.email;
+    const actorEmail = typeof actor === "string" ? undefined : actor?.email;
 
     const parsedRating =
-      typeof review.rating === "number"
-        ? review.rating
-        : Number(review.rating);
+      typeof review.rating === "number" ? review.rating : Number(review.rating);
 
     const createdAt =
       review.createdAt instanceof Date
@@ -164,7 +161,8 @@ export default function Page() {
       }
     });
 
-    const avg = total > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / total : 0;
+    const avg =
+      total > 0 ? reviews.reduce((acc, r) => acc + r.rating, 0) / total : 0;
 
     return {
       totalReviews: total,
@@ -178,10 +176,10 @@ export default function Page() {
     totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0;
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+    <div className="bg-[#FFF7ED]">
+      <Header />
 
-      <div className="flex-1 p-10">
+      <div className="p-12 ">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-800">
@@ -194,13 +192,11 @@ export default function Page() {
 
         {loading && <p className="text-gray-500 mt-8">Loading reviews...</p>}
 
-        {!loading && error && (
-          <p className="text-red-500 mt-8">{error}</p>
-        )}
+        {!loading && error && <p className="text-red-500 mt-8">{error}</p>}
 
         {/* Rating Summary */}
         {!loading && !error && totalReviews > 0 && (
-          <div className="mt-8 bg-linear-to-r from-orange-100 to-orange-50 p-10 rounded-3xl w-full">
+          <div className="mt-8 bg-orange-100 p-10 rounded-3xl w-full">
             <div className="flex flex-col md:flex-row gap-12">
               {/* Left */}
               <div>
@@ -233,7 +229,7 @@ export default function Page() {
               <div className="flex-1 space-y-4">
                 {[5, 4, 3, 2, 1].map((star) => {
                   const percentage = getPercentage(
-                    ratingCounts[star as 1 | 2 | 3 | 4 | 5]
+                    ratingCounts[star as 1 | 2 | 3 | 4 | 5],
                   );
 
                   return (
@@ -247,9 +243,7 @@ export default function Page() {
                         />
                       </div>
 
-                      <span className="w-12 text-sm">
-                        {percentage}%
-                      </span>
+                      <span className="w-12 text-sm">{percentage}%</span>
                     </div>
                   );
                 })}
@@ -260,27 +254,38 @@ export default function Page() {
 
         {/* REVIEW CARDS */}
         {!loading && !error && totalReviews === 0 ? (
-          <p className="text-gray-500 mt-8">No reviews yet.</p>
+          <div className="flex flex-col items-center justify-center py-20 bg-white/50 rounded-4xl border-2 border-dashed border-gray-200 mt-10">
+            <p className="text-gray-400 font-medium">No reviews found yet.</p>
+          </div>
         ) : !loading && !error ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
             {reviews.map((review) => (
               <div
                 key={review._id}
-                className="bg-white rounded-3xl shadow-sm hover:shadow-md transition p-6 border border-[#E87A5D]/20"
+                className="group relative bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-orange-100/50"
               >
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-lg text-gray-800">
-                    {review.user.name}
-                  </h2>
+                {/* Top Row: User & Rating */}
+                <div className="flex justify-between items-start mb-5">
+                  <div className="flex items-center gap-3">
+                    {/* User Avatar Circle */}
+                    <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-sm border border-orange-100">
+                      {review.user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-gray-900 group-hover:text-[#E87A5D] transition-colors leading-tight">
+                        {review.user.name}
+                      </h2>
+                    </div>
+                  </div>
 
-                  <div>
+                  <div className="flex bg-orange-50/50 px-2.5 py-1 rounded-full border border-orange-100">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <span
                         key={star}
-                        className={`text-xl ${
+                        className={`text-sm ${
                           star <= review.rating
                             ? "text-[#E87A5D]"
-                            : "text-gray-300"
+                            : "text-gray-200"
                         }`}
                       >
                         ★
@@ -289,13 +294,30 @@ export default function Page() {
                   </div>
                 </div>
 
-                <p className="text-gray-600">
-                  {review.comment || "No comment provided."}
-                </p>
+                {/* Comment Body */}
+                <div className="relative">
+                  <p className="text-gray-600 leading-relaxed italic pr-4">
+                    {review.comment ? (
+                      `"${review.comment}"`
+                    ) : (
+                      <span className="text-gray-300 not-italic">
+                        No comment provided.
+                      </span>
+                    )}
+                  </p>
+                </div>
 
-                <p className="text-xs text-gray-400 mt-4">
-                  {new Date(review.createdAt).toLocaleDateString()}
-                </p>
+                {/* Footer: Date */}
+                <div className="mt-1 pt-5 border-t border-gray-50 flex justify-between items-center">
+                  <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-tight">
+                    Posted on{" "}
+                    {new Date(review.createdAt).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
