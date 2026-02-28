@@ -10,11 +10,7 @@ import { Lock } from "lucide-react";
 import { ResetPasswordData, resetPasswordSchema } from "../schema";
 import { handleResetPassword } from "@/lib/actions/auth-actions";
 
-export default function ResetPasswordForm({
-  token,
-}: {
-  token: string;
-}) {
+export default function ResetPasswordForm({ token }: { token: string }) {
   const router = useRouter();
 
   const {
@@ -30,23 +26,16 @@ export default function ResetPasswordForm({
   const submit = (values: ResetPasswordData) => {
     startTransition(async () => {
       try {
-        const result = await handleResetPassword(
-          token,
-          values.newPassword
-        );
+        const result = await handleResetPassword(token, values.newPassword);
 
         if (result.success) {
-          toast.success("Password has been reset successfully.");
+          toast.success("Password has been reset successfully!");
           router.push("/login");
         } else {
-          throw new Error(
-            result.message || "Failed to reset password"
-          );
+          throw new Error(result.message || "Failed to reset password");
         }
       } catch (err: any) {
-        toast.error(
-          err.message || "Failed to reset password"
-        );
+        toast.error(err.message || "Failed to reset password");
       }
     });
   };
@@ -83,9 +72,7 @@ export default function ResetPasswordForm({
         </div>
 
         {errors.newPassword && (
-          <p className="text-xs text-red-600">
-            {errors.newPassword.message}
-          </p>
+          <p className="text-xs text-red-600">{errors.newPassword.message}</p>
         )}
       </div>
 
@@ -140,9 +127,7 @@ export default function ResetPasswordForm({
           disabled:opacity-60
         "
       >
-        {isSubmitting || pending
-          ? "Resetting password..."
-          : "Reset Password"}
+        {isSubmitting || pending ? "Resetting password..." : "Reset Password"}
       </button>
 
       {/* Back to Login */}
