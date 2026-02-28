@@ -14,6 +14,13 @@ export const API = {
             CREATE: "/admin/users/create",
             UPDATE: (id: string) => `/admin/users/${id}`,
             DELETE: (id: string) => `/admin/users/${id}`
+        },
+        RESTAURANTS: {
+          GET_ALL: "restaurant/admin/restaurants",
+          APPROVE: (id: string) => `restaurant/admin/restaurants/${id}/approve`,
+          REJECT: (id: string) => `restaurant/admin/restaurants/${id}/reject`,
+          SUSPEND: (id: string) => `restaurant/admin/restaurants/${id}/suspend`,
+          DELETE: (id: string) => `restaurant/admin/restaurants/${id}`,
         }
     },
    RESTAURANT: {

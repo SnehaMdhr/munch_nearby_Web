@@ -115,3 +115,51 @@ export const deleteRestaurant = async () => {
     }
 };
 
+export const getAdminRestaurants = async () => {
+    try {
+        const response = await axiosInstance.get(API.ADMIN.RESTAURANTS.GET_ALL);
+        return response.data;
+    } catch (err: any) {
+        throw new Error(err.response?.data?.message || "Admin fetch failed");
+    }
+};
+
+// 2. Approve a restaurant
+export const approveRestaurant = async (id: string) => {
+    try {
+        const response = await axiosInstance.patch(API.ADMIN.RESTAURANTS.APPROVE(id));
+        return response.data;
+    } catch (err: any) {
+        throw new Error(err.response?.data?.message || "Approval failed");
+    }
+};
+
+// 3. Reject a restaurant
+export const rejectRestaurant = async (id: string) => {
+    try {
+        const response = await axiosInstance.patch(API.ADMIN.RESTAURANTS.REJECT(id));
+        return response.data;
+    } catch (err: any) {
+        throw new Error(err.response?.data?.message || "Rejection failed");
+    }
+};
+
+// 4. Suspend a restaurant
+export const suspendRestaurant = async (id: string) => {
+    try {
+        const response = await axiosInstance.patch(API.ADMIN.RESTAURANTS.SUSPEND(id));
+        return response.data;
+    } catch (err: any) {
+        throw new Error(err.response?.data?.message || "Suspension failed");
+    }
+};
+
+// 5. Admin Delete (Hard Delete)
+export const deleteRestaurantByAdmin = async (id: string) => {
+    try {
+        const response = await axiosInstance.delete(API.ADMIN.RESTAURANTS.DELETE(id));
+        return response.data;
+    } catch (err: any) {
+        throw new Error(err.response?.data?.message || "Admin deletion failed");
+    }
+};

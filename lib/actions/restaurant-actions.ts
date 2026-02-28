@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createRestaurant, deleteRestaurant, getAllRestaurants, getMyRestaurant, getRestaurantById, updateRestaurant } from "../api/restaurant";
+import { approveRestaurant, createRestaurant, deleteRestaurant, deleteRestaurantByAdmin, getAdminRestaurants, getAllRestaurants, getMyRestaurant, getRestaurantById, rejectRestaurant, suspendRestaurant, updateRestaurant } from "../api/restaurant";
 
 
 // Get all restaurants
@@ -142,5 +142,73 @@ export const handleDeleteRestaurant = async () => {
 
   } catch (err: Error | any) {
     return { success: false, message: err.message || "Delete failed" };
+  }
+};
+
+
+export const handleGetAdminRestaurants = async () => {
+  try {
+    const res = await getAdminRestaurants();
+    return res.success 
+      ? { success: true, data: res.data } 
+      : { success: false, message: res.message || "Failed to fetch admin list" };
+  } catch (err: any) {
+    return { success: false, message: err.message || "Server error fetching admin list" };
+  }
+};
+
+// Approve restaurant
+export const handleApproveRestaurant = async (id: string) => {
+  try {
+    const res = await approveRestaurant(id);
+    if (res.success) {
+      revalidatePath("/admin/approvals");
+      return { success: true, message: "Restaurant approved successfully" };
+    }
+    return { success: false, message: res.message || "Approval failed" };
+  } catch (err: any) {
+    return { success: false, message: err.message || "Approval error" };
+  }
+};
+
+// Reject restaurant
+export const handleRejectRestaurant = async (id: string) => {
+  try {
+    const res = await rejectRestaurant(id);
+    if (res.success) {
+      revalidatePath("/admin/approvals");
+      return { success: true, message: "Restaurant rejected" };
+    }
+    return { success: false, message: res.message || "Rejection failed" };
+  } catch (err: any) {
+    return { success: false, message: err.message || "Rejection error" };
+  }
+};
+
+// Suspend restaurant
+export const handleSuspendRestaurant = async (id: string) => {
+  try {
+    const res = await suspendRestaurant(id);
+    if (res.success) {
+      revalidatePath("/admin/approvals");
+      return { success: true, message: "Restaurant suspended" };
+    }
+    return { success: false, message: res.message || "Suspension failed" };
+  } catch (err: any) {
+    return { success: false, message: err.message || "Suspension error" };
+  }
+};
+
+// Admin-level Delete
+export const handleDeleteRestaurantByAdmin = async (id: string) => {
+  try {
+    const res = await deleteRestaurantByAdmin(id);
+    if (res.success) {
+      revalidatePath("/admin/approvals");
+      return { success: true, message: "Restaurant deleted by admin" };
+    }
+    return { success: false, message: res.message || "Deletion failed" };
+  } catch (err: any) {
+    return { success: false, message: err.message || "Deletion error" };
   }
 };
