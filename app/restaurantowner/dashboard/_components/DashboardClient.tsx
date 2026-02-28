@@ -112,11 +112,11 @@ export default function DashboardClient({
         </div>
 
         {/* Reviews Section */}
-        <div className="bg-white p-6 rounded-2xl shadow max-w-xl">
+        <div className="bg-white p-6 rounded-2xl shadow w-full">
           <h2 className="font-semibold text-lg mb-4">Latest Love 🧡</h2>
 
           {latestTwoReviews.length > 0 ? (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {latestTwoReviews.map((review, index) => {
                 const rating = Math.max(
                   0,
@@ -128,19 +128,28 @@ export default function DashboardClient({
                 return (
                   <div
                     key={review?._id ?? index}
-                    className="border-l-4 border-orange-400 pl-4"
+                    className="border-l-4 border-orange-400 pl-4 flex flex-col justify-between"
                   >
-                    <div className="text-yellow-500 text-sm mb-2">
-                      {"★".repeat(rating)}{" "}
-                      {review?.createdAt &&
-                        new Date(review.createdAt).toLocaleDateString()}
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="text-yellow-500 text-sm">
+                          {"★".repeat(rating)}
+                          {"☆".repeat(5 - rating)}
+                        </div>
+                        <span className="text-gray-400 text-xs">
+                          {review?.createdAt &&
+                            new Date(review.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <p className="text-gray-600 text-sm mb-4 italic leading-relaxed">
+                        "{review?.comment}"
+                      </p>
                     </div>
 
-                    <p className="text-gray-600 text-sm mb-2">
-                      "{review?.comment}"
+                    <p className="text-gray-500 font-medium text-xs mt-auto">
+                      — {userName}
                     </p>
-
-                    <p className="text-gray-400 text-xs">— {userName}</p>
                   </div>
                 );
               })}
