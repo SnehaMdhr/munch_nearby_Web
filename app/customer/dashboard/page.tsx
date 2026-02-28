@@ -109,7 +109,10 @@ export default function Page() {
     return (
       restaurant.name?.toLowerCase().includes(query) ||
       restaurant.category?.toLowerCase().includes(query) ||
-      restaurant.address?.toLowerCase().includes(query)
+      restaurant.address?.toLowerCase().includes(query) ||
+      restaurant.openingHours?.some((oh: any) =>
+        oh.day.toLowerCase().includes(query),
+      )
     );
   });
 
@@ -181,94 +184,112 @@ export default function Page() {
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredRestaurants.map((restaurant) => (
-              <div
-                key={restaurant._id}
-                className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition flex flex-col group"
-              >
-                {/* Image Container with Absolute Favourite Icon */}
-                <div className="relative w-full h-40 overflow-hidden">
-                  {restaurant.imageUrl ? (
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_BASE}${restaurant.imageUrl}`}
-                      alt={restaurant.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
-                      No Image
-                    </div>
-                  )}
-                  {/* Top Right Favourite Button */}
-                  <button
-                    onClick={() => handleToggleFavourite(restaurant._id)}
-                    disabled={favLoading === restaurant._id}
-                    className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur shadow-md rounded-full hover:scale-110 transition active:scale-95 disabled:opacity-50"
-                  >
-                    {favLoading === restaurant._id ? (
-                      <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 animate-spin rounded-full" />
-                    ) : favourites.includes(restaurant._id) ? (
-                      <span className="text-xl leading-none">❤️</span>
+            {filteredRestaurants.map((restaurant) => {
+              const status = getRestaurantStatus(restaurant.openingHours || []);
+              return (
+                <div
+                  key={restaurant._id}
+                  className="bg-white shadow-md rounded-xl overflow-hidden hover:shadow-lg transition flex flex-col group"
+                >
+                  {/* Image Container with Absolute Favourite Icon */}
+                  <div className="relative w-full h-40 overflow-hidden">
+                    {restaurant.imageUrl ? (
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_API_BASE}${restaurant.imageUrl}`}
+                        alt={restaurant.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
                     ) : (
-                      <span className="text-xl leading-none">🤍</span>
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400">
+                        No Image
+                      </div>
                     )}
-                  </button>
-                </div>
-
-                <div className="p-4 flex flex-col flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
-                      {restaurant.name}
-                    </h3>
-                    {restaurant.category && (
-                      <span className=" py-0.5 text-sm text-[#D06D53] font-bold rounded tracking-tight w-fit bg-[#FFF8F4]">
-                        {restaurant.category}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1 mt-0.5 mb-1">
-                    <MapPin
-                      size={15}
-                      className="text-gray-400 shrink-0"
-                      strokeWidth={2.5}
-                    />
-                    <p className="text-sm leading-tight text-gray-500 line-clamp-1">
-                      {restaurant.address}
-                    </p>
-                  </div>
-
-                  <div className="mt-auto pt-4 flex w-full items-center gap-2">
-                    {restaurant.mapLink && (
-                      <a
-                        onClick={() => {
-                          setMapRestaurantId(restaurant._id);
-
-                          setMapOpen(true);
-                        }}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 text-gray-600 text-[11px] font-bold rounded-xl border border-gray-200 hover:bg-gray-100 transition-all"
-                      >
-                        <MapIcon size={14} strokeWidth={2.5} />
-                        <span>Map</span>
-                      </a>
-                    )}
-                    <Link
-                      href={`/customer/dashboard/${restaurant._id}/menu`}
-                      className="flex-1 flex items-center justify-center gap-2 
-                               py-3 text-white text-xs font-semibold 
-                               rounded-xl transition shadow-sm
-                               bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
-                               hover:opacity-90"
+                    {/* Top Right Favourite Button */}
+                    <button
+                      onClick={() => handleToggleFavourite(restaurant._id)}
+                      disabled={favLoading === restaurant._id}
+                      className="absolute top-2 right-2 p-1.5 bg-white/90 backdrop-blur shadow-md rounded-full hover:scale-110 transition active:scale-95 disabled:opacity-50"
                     >
-                      <Utensils size={14} strokeWidth={2.5} />
-                      <span>Details</span>
-                    </Link>
+                      {favLoading === restaurant._id ? (
+                        <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 animate-spin rounded-full" />
+                      ) : favourites.includes(restaurant._id) ? (
+                        <span className="text-xl leading-none">❤️</span>
+                      ) : (
+                        <span className="text-xl leading-none">🤍</span>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="p-4 flex flex-col flex-1">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-gray-800 line-clamp-1">
+                        {restaurant.name}
+                      </h3>
+                      {restaurant.category && (
+                        <span className=" py-0.5 text-sm text-[#D06D53] font-bold rounded tracking-tight w-fit bg-[#FFF8F4]">
+                          {restaurant.category}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1 mt-0.5 mb-1">
+                      <MapPin
+                        size={15}
+                        className="text-gray-400 shrink-0"
+                        strokeWidth={2.5}
+                      />
+                      <p className="text-sm leading-tight text-gray-500 line-clamp-1">
+                        {restaurant.address}
+                      </p>
+                    </div>
+
+                    {/* Opening Status */}
+                    <div className="mb-2">
+                      <span
+                        className={
+                          status === "Open"
+                            ? "text-green-600 font-bold text-xs"
+                            : status.startsWith("Opens in")
+                              ? "text-amber-600 font-bold text-xs"
+                              : "text-red-600 font-bold text-xs"
+                        }
+                      >
+                        {status}
+                      </span>
+                    </div>
+
+                    <div className="mt-auto pt-4 flex w-full items-center gap-2">
+                      {restaurant.mapLink && (
+                        <a
+                          onClick={() => {
+                            setMapRestaurantId(restaurant._id);
+
+                            setMapOpen(true);
+                          }}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 text-gray-600 text-[11px] font-bold rounded-xl border border-gray-200 hover:bg-gray-100 transition-all"
+                        >
+                          <MapIcon size={14} strokeWidth={2.5} />
+                          <span>Map</span>
+                        </a>
+                      )}
+                      <Link
+                        href={`/customer/dashboard/${restaurant._id}/menu`}
+                        className="flex-1 flex items-center justify-center gap-2 
+                                 py-3 text-white text-xs font-semibold 
+                                 rounded-xl transition shadow-sm
+                                 bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
+                                 hover:opacity-90"
+                      >
+                        <Utensils size={14} strokeWidth={2.5} />
+                        <span>Details</span>
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -281,4 +302,38 @@ export default function Page() {
       />
     </div>
   );
+}
+
+type OpeningHour = { day: string; open: string; close: string };
+function getRestaurantStatus(openingHours: OpeningHour[]) {
+  const now = new Date();
+  const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
+  const today = openingHours.find((d) => d.day === dayName);
+  if (!today || !today.open || !today.close) return "Closed";
+
+  const [openHour, openMin] = today.open.split(":").map(Number);
+  const [closeHour, closeMin] = today.close.split(":").map(Number);
+
+  const openTime = new Date(now);
+  openTime.setHours(openHour, openMin, 0, 0);
+  const closeTime = new Date(now);
+  closeTime.setHours(closeHour, closeMin, 0, 0);
+
+  if (now >= openTime && now < closeTime) {
+    return "Open";
+  } else if (now < openTime) {
+    const diffMs = openTime.getTime() - now.getTime();
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    if (diffHours < 4) {
+      if (diffHours >= 1) {
+        return `Opens in ${diffHours} hour${diffHours !== 1 ? "s" : ""}`;
+      } else {
+        return `Opens in ${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""}`;
+      }
+    }
+    return "Closed";
+  } else {
+    return "Closed";
+  }
 }

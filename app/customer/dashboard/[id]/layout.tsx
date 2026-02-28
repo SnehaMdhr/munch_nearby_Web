@@ -5,7 +5,7 @@ import { handleGetReviewsByRestaurant } from "@/lib/actions/review-actions";
 
 import Tabs from "./_components/Tab";
 import { useEffect, useState } from "react";
-import { Star, StarHalf, MapPin } from "lucide-react";
+import { Star, StarHalf, MapPin, Phone } from "lucide-react";
 import { useParams } from "next/navigation";
 import Header from "../../_components/Header";
 
@@ -163,6 +163,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <MapPin size={16} />
               <p className="text-sm font-medium">
                 {restaurant.address || "Location detail available"}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-1 text-gray-500 mt-3">
+              <Phone size={16} />
+              <p className="text-sm font-medium">
+                {restaurant.contactNumber || "Contact details available"}
               </p>
             </div>
 
