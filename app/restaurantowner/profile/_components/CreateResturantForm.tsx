@@ -9,84 +9,81 @@ import { RestaurantData, restaurantSchema } from "../restaurantschema";
 import { toast } from "react-toastify";
 
 export default function CreateRestaurantForm() {
- const router = useRouter();
-   const [pending, startTransition] = useTransition();
- 
-   const {
-     register,
-     handleSubmit,
-     control,
-     reset,
-     formState: { errors, isSubmitting },
-   } = useForm<RestaurantData>({
-     resolver: zodResolver(restaurantSchema),
-   });
- 
-   const [error, setError] = useState<string | null>(null);
-   const [previewImage, setPreviewImage] = useState<string | null>(null);
-   const fileInputRef = useRef<HTMLInputElement>(null);
- 
-   const handleImageChange = (
-     file: File | undefined,
-     onChange: (file: File | undefined) => void
-   ) => {
-     if (file) {
-       const reader = new FileReader();
-       reader.onloadend = () =>
-         setPreviewImage(reader.result as string);
-       reader.readAsDataURL(file);
-     } else {
-       setPreviewImage(null);
-     }
-     onChange(file);
-   };
- 
-   const handleDismissImage = (
-     onChange?: (file: File | undefined) => void
-   ) => {
-     setPreviewImage(null);
-     onChange?.(undefined);
-     if (fileInputRef.current) {
-       fileInputRef.current.value = "";
-     }
-   };
- 
-   const onSubmit = async (data: RestaurantData) => {
-     setError(null);
- 
-     startTransition(async () => {
-       try {
-         const formData = new FormData();
-         if (data.name) formData.append("name", data.name);
-         if (data.address) formData.append("address", data.address);
-         if (data.contactNumber) formData.append("contactNumber", data.contactNumber);
-         if (data.mapLink) formData.append("mapLink", data.mapLink);
-         if (data.category) formData.append("category", data.category);
-         if (data.description) formData.append("description", data.description);
-         if (data.imageUrl) formData.append("imageUrl", data.imageUrl);
- 
-         const response = await handleCreateRestaurant(formData);
- 
-         if (!response.success) {
-           throw new Error(response.message || "Create profile failed");
-         }
- 
-         reset();
-         handleDismissImage();
-         toast.success("Profile Created successfully 🎉");
- 
-         // 👉 redirect to users list
-         router.push("/restaurantowner/profile");
-       } catch (error: Error | any) {
-         toast.error(error.message || "Create profile failed");
-         setError(error.message || "Create profile failed");
-       }
-     });
-   };
- 
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  const {
+    register,
+    handleSubmit,
+    control,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<RestaurantData>({
+    resolver: zodResolver(restaurantSchema),
+  });
+
+  const [error, setError] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (
+    file: File | undefined,
+    onChange: (file: File | undefined) => void,
+  ) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviewImage(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewImage(null);
+    }
+    onChange(file);
+  };
+
+  const handleDismissImage = (onChange?: (file: File | undefined) => void) => {
+    setPreviewImage(null);
+    onChange?.(undefined);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const onSubmit = async (data: RestaurantData) => {
+    setError(null);
+
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
+        if (data.name) formData.append("name", data.name);
+        if (data.address) formData.append("address", data.address);
+        if (data.contactNumber)
+          formData.append("contactNumber", data.contactNumber);
+        if (data.mapLink) formData.append("mapLink", data.mapLink);
+        if (data.category) formData.append("category", data.category);
+        if (data.description) formData.append("description", data.description);
+        if (data.imageUrl) formData.append("imageUrl", data.imageUrl);
+
+        const response = await handleCreateRestaurant(formData);
+
+        if (!response.success) {
+          throw new Error(response.message || "Create profile failed");
+        }
+
+        reset();
+        handleDismissImage();
+        toast.success("Profile Created successfully!");
+
+        // 👉 redirect to users list
+        router.push("/restaurantowner/profile");
+      } catch (error: Error | any) {
+        toast.error(error.message || "Create profile failed");
+        setError(error.message || "Create profile failed");
+      }
+    });
+  };
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
       {/* Name */}
       <div>
         <label className="text-sm font-medium">Name</label>
@@ -208,10 +205,8 @@ export default function CreateRestaurantForm() {
       </div>
 
       {/* Image Upload */}
-     <div>
-        <label className="text-sm font-medium mb-1 block">
-          Profile Image
-        </label>
+      <div>
+        <label className="text-sm font-medium mb-1 block">Profile Image</label>
         <Controller
           name="imageUrl"
           control={control}
@@ -220,9 +215,7 @@ export default function CreateRestaurantForm() {
               ref={fileInputRef}
               type="file"
               accept=".jpg,.jpeg,.png,.webp"
-              onChange={(e) =>
-                handleImageChange(e.target.files?.[0], onChange)
-              }
+              onChange={(e) => handleImageChange(e.target.files?.[0], onChange)}
               className="
                 block w-full text-sm
                 file:h-11 file:px-4
@@ -237,9 +230,7 @@ export default function CreateRestaurantForm() {
           )}
         />
         {errors.imageUrl && (
-          <p className="text-xs text-red-600 mt-1">
-            {errors.imageUrl.message}
-          </p>
+          <p className="text-xs text-red-600 mt-1">{errors.imageUrl.message}</p>
         )}
       </div>
 
@@ -255,9 +246,7 @@ export default function CreateRestaurantForm() {
           disabled:opacity-60
         "
       >
-        {isSubmitting || pending
-          ? "Creating account..."
-          : "Create Restaurant"}
+        {isSubmitting || pending ? "Creating account..." : "Create Restaurant"}
       </button>
     </form>
   );

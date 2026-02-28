@@ -96,8 +96,8 @@ export default function Page() {
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">
-              Menu Management
+            <h1 className="text-3xl font-black text-gray-800">
+              Menu <span className="text-orange-500">Management</span>
             </h1>
             <p className="text-gray-500 mt-2">
               Organize and manage your restaurant's digital menu

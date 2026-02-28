@@ -3,7 +3,36 @@
 import { handleGetReviewsForOwner } from "@/lib/actions/review-actions";
 import { z } from "zod";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Header from "../_components/Header";
+
+/* ---------------- helpers ---------------- */
+
+const resolveImageSrc = (imageValue?: string) => {
+  if (!imageValue) return null;
+
+  const normalizedPath = imageValue.replace(/\\/g, "/");
+  if (
+    normalizedPath.startsWith("http://") ||
+    normalizedPath.startsWith("https://")
+  ) {
+    return normalizedPath;
+  }
+
+  const apiBase =
+    process.env.NEXT_PUBLIC_API_BASE ||
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    "";
+
+  if (!apiBase) return normalizedPath;
+
+  const base = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
+  const path = normalizedPath.startsWith("/")
+    ? normalizedPath
+    : `/${normalizedPath}`;
+
+  return `${base}${path}`;
+};
 
 /* ---------------- ZOD SCHEMA ---------------- */
 
@@ -19,6 +48,7 @@ const RawReviewSchema = z.object({
         _id: z.string().optional(),
         name: z.string().optional(),
         email: z.string().optional(),
+        imageUrl: z.string().optional(),
       }),
     ])
     .optional(),
@@ -29,6 +59,7 @@ const RawReviewSchema = z.object({
         _id: z.string().optional(),
         name: z.string().optional(),
         email: z.string().optional(),
+        imageUrl: z.string().optional(),
       }),
     ])
     .optional(),
@@ -44,6 +75,7 @@ type Review = {
   user: {
     name: string;
     email?: string;
+    imageUrl?: string;
   };
 };
 
@@ -62,6 +94,8 @@ const normalizeOwnerReviews = (payload: unknown): Review[] | null => {
 
     const actorEmail = typeof actor === "string" ? undefined : actor?.email;
 
+    const actorImageUrl = typeof actor === "string" ? undefined : actor?.imageUrl;
+
     const parsedRating =
       typeof review.rating === "number" ? review.rating : Number(review.rating);
 
@@ -78,6 +112,7 @@ const normalizeOwnerReviews = (payload: unknown): Review[] | null => {
       user: {
         name: actorName,
         email: actorEmail,
+        imageUrl: actorImageUrl,
       },
     };
   });
@@ -181,14 +216,12 @@ export default function Page() {
 
       <div className="p-12 ">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">
-            My Restaurant Reviews
-          </h1>
-          <p className="text-gray-500 mt-2">
-            View and manage reviews for your restaurant
-          </p>
-        </div>
+        <h1 className="text-3xl font-black text-gray-800">
+          My Restaurant <span className="text-orange-500">Reviews</span>
+        </h1>
+        <p className="text-gray-500 mt-2">
+          View and manage feedback from your customers
+        </p>
 
         {loading && <p className="text-gray-500 mt-8">Loading reviews...</p>}
 
@@ -268,8 +301,18 @@ export default function Page() {
                 <div className="flex justify-between items-start mb-5">
                   <div className="flex items-center gap-3">
                     {/* User Avatar Circle */}
-                    <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-sm border border-orange-100">
-                      {review.user.name.charAt(0).toUpperCase()}
+                    <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-sm border border-orange-100 overflow-hidden">
+                      {resolveImageSrc(review.user.imageUrl) ? (
+                        <Image
+                          src={resolveImageSrc(review.user.imageUrl)!}
+                          alt={review.user.name}
+                          width={40}
+                          height={40}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        review.user.name.charAt(0).toUpperCase()
+                      )}
                     </div>
                     <div>
                       <h2 className="font-bold text-gray-900 group-hover:text-[#E87A5D] transition-colors leading-tight">
