@@ -80,3 +80,16 @@ export const resetPassword = async (token: string, newPassword: string) => {
         throw new Error(error.response?.data?.message || error.message || 'Reset password failed');
     }
 }
+
+export const googleLogin = async (token: string) => {
+  try {
+    const response = await axios.post(API.AUTH.GOOGLE_LOGIN, { token });
+    return response.data;
+  } catch (err: Error | any) {
+    throw new Error(
+      err.response?.data?.message ||
+      err.message ||
+      "Google login failed"
+    );
+  }
+};

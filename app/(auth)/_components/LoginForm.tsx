@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { handleLogin } from "@/lib/actions/auth-actions";
 import { toast } from "react-toastify";
 import { useAuth } from "@/context/AuthContext";
+import { handleGoogleLogin } from "@/lib/actions/auth-actions";
 
 interface LoginFormProps {
   isModal?: boolean;
@@ -92,6 +93,55 @@ export default function LoginForm({
     });
   };
 
+  const handleGoogleClick = () => {
+    if (!window.google?.accounts?.id) {
+      toast.error("Google sign-in is still loading. Please try again.");
+      return;
+    }
+
+    window.google.accounts.id.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
+      callback: handleGoogleLoginCallback,
+    });
+
+    window.google.accounts.id.prompt();
+  };
+
+  const handleGoogleLoginCallback = async (response: any) => {
+    startTransition(async () => {
+      try {
+        const result = await handleGoogleLogin(response.credential);
+
+        if (!result.success) {
+          throw new Error(result.message);
+        }
+
+        toast.success("Google login successful!");
+
+        const role = result.data?.role?.toLowerCase();
+
+        const nextPath =
+          role === "admin"
+            ? "/admin"
+            : role === "customer"
+              ? "/customer/dashboard"
+              : role === "restaurant owner"
+                ? "/restaurantowner/onboarding"
+                : "/";
+
+        setUser(result.data ?? null);
+        setIsAuthenticated(true);
+        await checkAuth();
+
+        if (isModal) onClose?.();
+
+        router.replace(nextPath);
+        router.refresh();
+      } catch (err: any) {
+        toast.error(err.message || "Google login failed");
+      }
+    });
+  };
   const handleGoToRegister = () => {
     if (isModal && switchToRegister) {
       switchToRegister();
@@ -192,6 +242,7 @@ export default function LoginForm({
       <div className="flex justify-center">
         <button
           type="button"
+          onClick={handleGoogleClick}
           className="flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
         >
           <img src="/images/google.png" alt="Google" className="h-5 w-5" />

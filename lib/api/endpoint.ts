@@ -3,6 +3,7 @@ export const API = {
     REGISTER: "/auth/register",
     LOGIN: "/auth/login",
     WHOAMI: '/auth/whoami',
+    GOOGLE_LOGIN: "/auth/google-login",
     UPDATEPROFILE: "/auth/update-profile",
     REQUEST_PASSWORD_RESET: '/auth/request-password-reset',
     RESET_PASSWORD: (token: string) => `/auth/reset-password/${token}`
