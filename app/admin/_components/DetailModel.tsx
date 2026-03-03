@@ -7,10 +7,12 @@ import {
   Mail,
   MapPin,
   Phone,
+  Utensils,
   UtensilsCrossed,
   X,
 } from "lucide-react";
-import { Activity, useState } from "react";
+import { useState } from "react";
+import MenuModel from "./MenuModel";
 
 interface OpeningHour {
   day: string;
@@ -51,6 +53,7 @@ export default function DetailModal({
   getStatusStyle: (status: string) => string;
 }) {
   const [isMapOpen, setIsMapOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -217,6 +220,14 @@ export default function DetailModal({
                   <MapPin size={14} />
                   View Map
                 </button>
+
+                <button
+                  onClick={() => setIsMenuOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-50 text-[#E87A5D] text-xs font-bold rounded-xl border border-orange-100 hover:bg-orange-100 transition mt-3"
+                >
+                  <Utensils size={14} />
+                  View Menu
+                </button>
               </div>
             </section>
           </div>
@@ -276,6 +287,11 @@ export default function DetailModal({
         restaurantId={restaurant._id || null}
         // We pass the current restaurant as an array of one
         restaurants={restaurant._id ? [restaurant as any] : []}
+      />
+      <MenuModel
+        open={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        restaurantId={restaurant._id || ""}
       />
     </div>
   );

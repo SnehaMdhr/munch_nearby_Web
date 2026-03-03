@@ -1,6 +1,6 @@
 import AdminTabSwitcher from "./_components/AdminTabSwitcher";
-import UsersPage from "./users/page";
 import ApprovalPage from "./approvals/page";
+import UsersPage from "./users/page";
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 

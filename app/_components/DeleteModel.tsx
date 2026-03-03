@@ -16,7 +16,7 @@ export default function DeleteModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-100">
       <div className="bg-white rounded-xl p-6 shadow-xl w-[320px] border border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900 mb-2">{title}</h2>
 
