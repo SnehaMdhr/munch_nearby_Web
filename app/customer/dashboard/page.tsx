@@ -39,6 +39,13 @@ export default function Page() {
   const [mapOpen, setMapOpen] = useState(false);
   const [mapRestaurantId, setMapRestaurantId] = useState<string | null>(null);
 
+  // Real-time clock: updates every 60s so open/closed status stays current
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentTime(Date.now()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
+
   // ---------------- FETCH RESTAURANTS ----------------
   useEffect(() => {
     const fetchRestaurants = async () => {
@@ -122,7 +129,10 @@ export default function Page() {
       selectedCategory === "All" || restaurant.category === selectedCategory;
 
     // 3. Open Now Logic
-    const status = getRestaurantStatus(restaurant.openingHours || []);
+    const status = getRestaurantStatus(
+      restaurant.openingHours || [],
+      new Date(currentTime),
+    );
     const matchesOpenNow = !onlyOpenNow || status === "Open";
 
     return matchesSearch && matchesCategory && matchesOpenNow;
@@ -256,7 +266,10 @@ export default function Page() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredRestaurants.map((restaurant) => {
-            const status = getRestaurantStatus(restaurant.openingHours || []);
+            const status = getRestaurantStatus(
+              restaurant.openingHours || [],
+              new Date(currentTime),
+            );
             const isOpen = status === "Open";
 
             return (
@@ -282,7 +295,9 @@ export default function Page() {
                     className={`absolute bottom-4 left-4 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider shadow-sm ${
                       isOpen
                         ? "bg-[#22C55E] text-white"
-                        : "bg-gray-500 text-white"
+                        : status === "Closed"
+                          ? "bg-red-500 text-white"
+                          : "bg-gray-500 text-white"
                     }`}
                   >
                     {isOpen ? "Open Now" : status}
@@ -350,13 +365,17 @@ export default function Page() {
   );
 }
 
-type OpeningHour = { day: string; open: string; close: string };
-function getRestaurantStatus(openingHours: OpeningHour[]) {
-  const now = new Date();
+type OpeningHour = {
+  day: string;
+  open: string;
+  close: string;
+  isClosed?: boolean;
+};
+function getRestaurantStatus(openingHours: OpeningHour[], now: Date) {
   const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
   const today = openingHours.find((d) => d.day === dayName);
 
-  if (!today || !today.open || !today.close) return "Closed";
+  if (!today || today.isClosed || !today.open || !today.close) return "Closed";
 
   const getCurrentMinutes = () => now.getHours() * 60 + now.getMinutes();
   const getTimeMinutes = (timeStr: string) => {
