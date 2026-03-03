@@ -205,7 +205,7 @@ export default function Header() {
       {/* PROFILE MODAL */}
       {showProfileModal && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-60 flex items-center justify-center bg-black/40 backdrop-blur-sm"
           onClick={() => setShowProfileModal(false)}
         >
           <div

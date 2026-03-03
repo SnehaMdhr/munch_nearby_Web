@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import MenuModel from "./MenuModel";
+import ReviewModal from "./ReviewModel";
 
 interface OpeningHour {
   day: string;
@@ -54,10 +55,10 @@ export default function DetailModal({
 }) {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
-        {/* Header Banner */}
         <div className="relative h-32 bg-linear-to-r from-[#E87A5D] to-[#F6B88F] flex items-center px-10 shrink-0">
           <button
             onClick={onClose}
@@ -75,7 +76,6 @@ export default function DetailModal({
           </div>
         </div>
 
-        {/* Scrollable Content */}
         <div className="p-10 overflow-y-auto custom-scrollbar">
           {restaurant.imageUrl && (
             <div className="mb-10 w-full h-72 rounded-4xl overflow-hidden border border-gray-100 shadow-md">
@@ -156,7 +156,6 @@ export default function DetailModal({
               )}
             </section>
 
-            {/* Right Column */}
             <section className="space-y-6 border-l border-gray-100 pl-0 md:pl-10">
               <div>
                 <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] transition-colors group-hover:text-[#E87A5D]">
@@ -228,11 +227,16 @@ export default function DetailModal({
                   <Utensils size={14} />
                   View Menu
                 </button>
+                <button
+                  onClick={() => setIsReviewOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 text-xs font-bold rounded-xl border border-purple-100 hover:bg-purple-100 transition mt-3"
+                >
+                  View Reviews
+                </button>
               </div>
             </section>
           </div>
 
-          {/* Description Box */}
           {restaurant.description && (
             <div className="mt-10 pt-8 border-t border-gray-100">
               <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">
@@ -244,7 +248,6 @@ export default function DetailModal({
             </div>
           )}
 
-          {/* Opening Hours Section */}
           {restaurant.openingHours && restaurant.openingHours.length > 0 && (
             <div className="mt-8 pt-8 border-t border-gray-100">
               <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">
@@ -271,7 +274,6 @@ export default function DetailModal({
           )}
         </div>
 
-        {/* Footer */}
         <div className="px-10 py-6 bg-gray-50 border-t border-gray-100 flex justify-end shrink-0">
           <button
             onClick={onClose}
@@ -285,12 +287,17 @@ export default function DetailModal({
         open={isMapOpen}
         onOpenChange={setIsMapOpen}
         restaurantId={restaurant._id || null}
-        // We pass the current restaurant as an array of one
         restaurants={restaurant._id ? [restaurant as any] : []}
       />
       <MenuModel
         open={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
+        restaurantId={restaurant._id || ""}
+      />
+
+      <ReviewModal
+        open={isReviewOpen}
+        onClose={() => setIsReviewOpen(false)}
         restaurantId={restaurant._id || ""}
       />
     </div>

@@ -7,14 +7,9 @@ import {
   updateReview,
   deleteReview,
   getReviewsForOwner,
+  adminDeleteReview,
 } from "../api/review";
-
-
-/* ---------------- GET REVIEWS BY RESTAURANT ---------------- */
-
-export const handleGetReviewsByRestaurant = async (
-  restaurantId: string
-) => {
+export const handleGetReviewsByRestaurant = async (restaurantId: string) => {
   try {
     const res = await getReviewsByRestaurant(restaurantId);
 
@@ -37,21 +32,17 @@ export const handleGetReviewsByRestaurant = async (
   }
 };
 
-
-/* ---------------- CREATE REVIEW ---------------- */
-
 export const handleCreateReview = async (
   restaurantId: string,
   reviewData: {
     rating: number;
     comment: string;
-  }
+  },
 ) => {
   try {
     const res = await createReview(restaurantId, reviewData);
 
     if (res.success) {
-      // Revalidate restaurant page
       revalidatePath(`/customer/dashboard/${restaurantId}`);
       revalidatePath(`/customer/dashboard/${restaurantId}/reviews`);
 
@@ -74,16 +65,13 @@ export const handleCreateReview = async (
   }
 };
 
-
-/* ---------------- UPDATE REVIEW ---------------- */
-
 export const handleUpdateReview = async (
   reviewId: string,
   restaurantId: string,
   reviewData: {
     rating?: number;
     comment?: string;
-  }
+  },
 ) => {
   try {
     const res = await updateReview(reviewId, reviewData);
@@ -111,12 +99,9 @@ export const handleUpdateReview = async (
   }
 };
 
-
-/* ---------------- DELETE REVIEW ---------------- */
-
 export const handleDeleteReview = async (
   reviewId: string,
-  restaurantId: string
+  restaurantId: string,
 ) => {
   try {
     const res = await deleteReview(reviewId);
@@ -143,8 +128,6 @@ export const handleDeleteReview = async (
   }
 };
 
-/* ---------------- GET REVIEWS FOR OWNER ---------------- */
-
 export const handleGetReviewsForOwner = async () => {
   try {
     const res = await getReviewsForOwner();
@@ -164,6 +147,31 @@ export const handleGetReviewsForOwner = async () => {
     return {
       success: false,
       message: err.message || "Failed to fetch owner reviews",
+    };
+  }
+};
+
+export const handleAdminDeleteReview = async (reviewId: string) => {
+  try {
+    const res = await adminDeleteReview(reviewId);
+
+    if (res.success) {
+      revalidatePath("/admin/dashboard");
+
+      return {
+        success: true,
+        message: "Review deleted successfully",
+      };
+    }
+
+    return {
+      success: false,
+      message: res.message || "Deleting review failed",
+    };
+  } catch (err: Error | any) {
+    return {
+      success: false,
+      message: err.message || "Deleting review failed",
     };
   }
 };

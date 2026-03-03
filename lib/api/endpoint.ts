@@ -27,6 +27,9 @@ export const API = {
     MENUS: {
       DELETE: (id: string) => `/menu/admin/delete/${id}`,
     },
+    REVIEWS: {
+      DELETE: (id: string) => `/review/admin/delete/${id}`,
+    },
   },
   RESTAURANT: {
     GET_ALL: "/restaurant",
