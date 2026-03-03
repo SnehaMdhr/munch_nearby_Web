@@ -1,13 +1,25 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import RegisterForm from "../_components/RegisterForm";
 
 export default function Page() {
-    return (
-        <div className="space-y-6 w-full">
-            <div className="text-center">
-                <h1 className="text-2xl text-[#E87A5D] font-semibold ">MunchNearby</h1>
-                <h2 className="text-2xl mt-6 font-semibold">Create Your Account</h2>
-            </div>
-            <RegisterForm/>
-        </div>
-    );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    setIsModalOpen(true);
+  }, []);
+
+  return (
+    <div>
+      <RegisterForm
+        isModal={true}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        switchToLogin={() => {
+          setIsModalOpen(false);
+        }}
+      />
+    </div>
+  );
 }

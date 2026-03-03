@@ -63,24 +63,38 @@ export const updateProfile = async(profileData: any) => {
     }
 }
 
+
 export const requestPasswordReset = async (email: string) => {
-    try {
-        const response = await axios.post(API.AUTH.REQUEST_PASSWORD_RESET, { email });
-        return response.data;
-    } catch (error: Error | any) {
-        throw new Error(error.response?.data?.message || error.message || 'Request password reset failed');
-    }
+  try {
+    const response = await axios.post(API.AUTH.REQUEST_PASSWORD_RESET, { email });
+    return response.data;
+  } catch (err: Error | any) {
+    throw new Error(
+      err.response?.data?.message || 
+      err.message ||                
+      "Request password reset failed" 
+    );
+  }
 };
 
-export const resetPassword = async (token: string, newPassword: string) => {
-    try {
-        const response = await axios.post(API.AUTH.RESET_PASSWORD(token), { newPassword: newPassword });
-        return response.data;
-    } catch (error: Error | any) {
-        throw new Error(error.response?.data?.message || error.message || 'Reset password failed');
-    }
-}
-
+// Reset password
+export const resetPassword = async (data: {
+  email: string;
+  otp: string;
+  newPassword: string;
+  confirmPassword: string;
+}) => {
+  try {
+    const response = await axios.post(API.AUTH.RESET_PASSWORD, data);
+    return response.data; 
+  } catch (err: Error | any) {
+    throw new Error(
+      err.response?.data?.message || 
+      err.message ||                
+      "Reset password failed"       
+    );
+  }
+};
 export const googleLogin = async (token: string) => {
   try {
     const response = await axios.post(API.AUTH.GOOGLE_LOGIN, { token });

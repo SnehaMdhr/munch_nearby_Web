@@ -5,22 +5,12 @@ import Image from "next/image";
 import { useState } from "react";
 import LoginForm from "@/app/(auth)/_components/LoginForm";
 import RegisterForm from "@/app/(auth)/_components/RegisterForm";
-import ForgetPasswordForm from "@/app/(auth)/_components/ForgetPasswordForm";
+import ResetPasswordModal from "@/app/(auth)/_components/ResetPasswordModal";
 
 export default function Header() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  const [isForgetPasswordOpen, setIsForgetPasswordOpen] = useState(false);
-
-  const openRegister = () => {
-    setIsLoginOpen(false);
-    setIsRegisterOpen(true);
-  };
-
-  const openLogin = () => {
-    setIsRegisterOpen(false);
-    setIsLoginOpen(true);
-  };
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
 
   return (
     <>
@@ -56,8 +46,6 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Login Modal */}
-
       <LoginForm
         isModal={true}
         isOpen={isLoginOpen}
@@ -66,30 +54,34 @@ export default function Header() {
           setIsLoginOpen(false);
           setIsRegisterOpen(true);
         }}
-        switchTOForgetPassword={() => {
+        switchToResetPassword={() => {
           setIsLoginOpen(false);
-          setIsForgetPasswordOpen(true);
+          setIsResetPasswordOpen(true);
         }}
       />
-
-      {/* Register Modal */}
       <RegisterForm
         isModal={true}
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
+        onSuccess={() => {
+          setIsRegisterOpen(false);
+          setIsLoginOpen(true);
+        }}
         switchToLogin={() => {
           setIsRegisterOpen(false);
           setIsLoginOpen(true);
         }}
       />
 
-      {/* Forget Password Modal */}
-      <ForgetPasswordForm
-        isModal={true}
-        isOpen={isForgetPasswordOpen}
-        onClose={() => setIsForgetPasswordOpen(false)}
+      <ResetPasswordModal
+        isOpen={isResetPasswordOpen}
+        onClose={() => setIsResetPasswordOpen(false)}
+        onSuccess={() => {
+          setIsResetPasswordOpen(false);
+          setIsLoginOpen(true);
+        }}
         switchToLogin={() => {
-          setIsForgetPasswordOpen(false);
+          setIsResetPasswordOpen(false);
           setIsLoginOpen(true);
         }}
       />

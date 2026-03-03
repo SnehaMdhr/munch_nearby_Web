@@ -14,13 +14,15 @@ interface RegisterFormProps {
   isModal?: boolean;
   isOpen?: boolean;
   onClose?: () => void;
-  switchToLogin?: () => void; // Prop to switch modals
+  onSuccess?: () => void;
+  switchToLogin?: () => void;
 }
 
 export default function RegisterForm({
   isModal = false,
   isOpen,
   onClose,
+  onSuccess,
   switchToLogin,
 }: RegisterFormProps) {
   const router = useRouter();
@@ -37,7 +39,6 @@ export default function RegisterForm({
     resolver: zodResolver(registerSchema),
   });
 
-  // Handle body scroll locking
   useEffect(() => {
     if (isModal && isOpen) {
       document.body.style.overflow = "hidden";
@@ -60,8 +61,12 @@ export default function RegisterForm({
 
         toast.success("Registered successfully!");
 
-        if (isModal) onClose?.();
-        router.push("/login");
+        if (isModal) {
+          onClose?.();
+          onSuccess?.();
+        } else {
+          router.push("/login");
+        }
       } catch (err: any) {
         const message = err.message || "Registration failed";
         setError(message);
@@ -229,10 +234,11 @@ export default function RegisterForm({
         >
           <X className="w-5 h-5" />
         </button>
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl font-black text-gray-800">
+        <div className="mb-8 text-center">
+          <h2 className="text-3xl font-black text-gray-800">
             Sign <span className="text-[#E87A5D]">Up</span>
           </h2>
+          <p className="text-sm text-gray-500 mt-2">Create Your Account</p>
         </div>
         {formContent}
       </div>

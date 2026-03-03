@@ -2,7 +2,6 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { LoginData, loginSchema } from "../schema";
 import { Mail, Lock, EyeOff, Eye, X } from "lucide-react";
@@ -17,7 +16,7 @@ interface LoginFormProps {
   isOpen?: boolean;
   onClose?: () => void;
   switchToRegister?: () => void;
-  switchTOForgetPassword?: () => void;
+  switchToResetPassword?: () => void;
 }
 
 export default function LoginForm({
@@ -25,16 +24,13 @@ export default function LoginForm({
   isOpen,
   onClose,
   switchToRegister,
-  switchTOForgetPassword,
+  switchToResetPassword,
 }: LoginFormProps) {
   const router = useRouter();
   const { setIsAuthenticated, setUser, checkAuth } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [pending, startTransition] = useTransition();
-  const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  const [isForgetPasswordOpen, setIsForgetPasswordOpen] = useState(false);
 
   const {
     register,
@@ -142,22 +138,6 @@ export default function LoginForm({
       }
     });
   };
-  const handleGoToRegister = () => {
-    if (isModal && switchToRegister) {
-      switchToRegister();
-      return;
-    }
-
-    if (isModal) onClose?.();
-    router.push("/register");
-  };
-
-  const handleGoToForgetPassword = () => {
-    if (isModal && switchTOForgetPassword) {
-      switchTOForgetPassword();
-      return;
-    }
-  };
 
   const formContent = (
     <form onSubmit={handleSubmit(submit)} className="space-y-5">
@@ -206,12 +186,11 @@ export default function LoginForm({
           <button
             type="button"
             onClick={() => {
-              if (isModal && switchTOForgetPassword) {
-                switchTOForgetPassword();
-                onClose?.();
+              if (isModal && switchToResetPassword) {
+                switchToResetPassword();
               } else {
                 onClose?.();
-                router.push("/forgetpassword");
+                router.push("/reset-password");
               }
             }}
             className="text-xs text-[#E87A5D] font-medium hover:underline"

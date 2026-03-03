@@ -4,19 +4,17 @@ import { useState } from "react";
 import { ArrowRight, MapPin, Utensils, Star } from "lucide-react";
 import LoginForm from "../(auth)/_components/LoginForm";
 import RegisterForm from "../(auth)/_components/RegisterForm";
-import ForgetPasswordForm from "../(auth)/_components/ForgetPasswordForm";
+import ResetPasswordModal from "../(auth)/_components/ResetPasswordModal";
 
 export default function Page() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
-  const [isForgetPasswordOpen, setIsForgetPasswordOpen] = useState(false);
+  const [isResetPasswordOpen, setIsResetPasswordOpen] = useState(false);
 
   return (
-    <main className="bg-gradient-to-b from-white to-[#fffaf5]">
-      {/* Hero Section */}
+    <main className="bg-linear-to-b from-white to-[#fffaf5]">
       <section className="max-w-7xl mx-auto px-4 md:px-10 py-16 md:py-24">
         <div className="flex flex-col-reverse lg:flex-row gap-16 items-center">
-          {/* Text */}
           <div className="flex-1 text-center lg:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
               Discover Local <span className="text-[#E87A5D]">Flavors</span> at
@@ -39,9 +37,8 @@ export default function Page() {
             </div>
           </div>
 
-          {/* Image Placeholder */}
           <div className="flex-1 relative w-full">
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-2xl">
               <div
                 className="absolute inset-0 bg-cover bg-center bg-gray-100"
                 style={{
@@ -53,8 +50,7 @@ export default function Page() {
           </div>
         </div>
       </section>
-
-      {/* Features Section */}
+      \
       <section className="bg-white py-20">
         <div className="max-w-7xl mx-auto px-4 md:px-10">
           <div className="text-center mb-14">
@@ -100,8 +96,7 @@ export default function Page() {
           </div>
         </div>
       </section>
-
-      {/* Login Modal */}
+      \
       <LoginForm
         isModal={true}
         isOpen={isLoginOpen}
@@ -110,30 +105,34 @@ export default function Page() {
           setIsLoginOpen(false);
           setIsRegisterOpen(true);
         }}
-        switchTOForgetPassword={() => {
+        switchToResetPassword={() => {
           setIsLoginOpen(false);
-          setIsForgetPasswordOpen(true);
+          setIsResetPasswordOpen(true);
         }}
       />
-
-      {/* Register Modal */}
+      \
       <RegisterForm
         isModal={true}
         isOpen={isRegisterOpen}
         onClose={() => setIsRegisterOpen(false)}
+        onSuccess={() => {
+          setIsRegisterOpen(false);
+          setIsLoginOpen(true);
+        }}
         switchToLogin={() => {
           setIsRegisterOpen(false);
           setIsLoginOpen(true);
         }}
       />
-
-      {/* Forget Password Modal */}
-      <ForgetPasswordForm
-        isModal={true}
-        isOpen={isForgetPasswordOpen}
-        onClose={() => setIsForgetPasswordOpen(false)}
+      <ResetPasswordModal
+        isOpen={isResetPasswordOpen}
+        onClose={() => setIsResetPasswordOpen(false)}
+        onSuccess={() => {
+          setIsResetPasswordOpen(false);
+          setIsLoginOpen(true);
+        }}
         switchToLogin={() => {
-          setIsForgetPasswordOpen(false);
+          setIsResetPasswordOpen(false);
           setIsLoginOpen(true);
         }}
       />

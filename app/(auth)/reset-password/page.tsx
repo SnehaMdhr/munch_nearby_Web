@@ -1,24 +1,41 @@
-import ResetPasswordForm from "../_components/ResetPasswordForm";
+"use client";
 
+import { useEffect, useState } from "react";
+import ResetPasswordModal from "../_components/ResetPasswordModal";
 
-export default async function Page({
-    searchParams
+export default function Page({
+  searchParams,
 }: {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  searchParams: { [key: string]: string | string[] | undefined };
 }) {
-    const query = await searchParams;
-    const token = query.token as string | undefined;
-    if(!token){
-        throw new Error('Invalid or missing token');
-    }
+  const token = searchParams.token as string | undefined;
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  useEffect(() => {
+    if (token) {
+      setIsModalOpen(true);
+    }
+  }, [token]);
+
+  if (!token) {
     return (
-        <div>
-            <div className="text-center">
-                <h1 className="text-2xl text-[#E87A5D] font-semibold ">MunchNearby</h1>
-                <h2 className="text-2xl mt-6 font-semibold">Enter New Password</h2>
-            </div>
-            <ResetPasswordForm token={token} />
-        </div>
+      <div className="text-center p-8">
+        <h1 className="text-xl text-red-500 font-semibold">
+          Invalid or missing token
+        </h1>
+      </div>
     );
+  }
+
+  return (
+    <div>
+      <ResetPasswordModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => {
+          setIsModalOpen(false);
+        }}
+      />
+    </div>
+  );
 }

@@ -69,37 +69,6 @@ export const handleUpdateProfile = async(formData: any)=>{
     }
 }
 
-export const handleRequestPasswordReset = async (email: string) => {
-    try {
-        const response = await requestPasswordReset(email);
-        if (response.success) {
-            return {
-                success: true,
-                message: 'Password reset email sent successfully'
-            }
-        }
-        return { success: false, message: response.message || 'Request password reset failed' }
-    } catch (error: Error | any) {
-        return { success: false, message: error.message || 'Request password reset action failed' }
-    }
-};
-
-export const handleResetPassword = async (token: string, newPassword: string) => {
-    try {
-        const response = await resetPassword(token, newPassword);
-        if (response.success) {
-            return {
-                success: true,
-                message: 'Password has been reset successfully'
-            }
-        }
-        return { success: false, message: response.message || 'Reset password failed' }
-    } catch (error: Error | any) {
-        return { success: false, message: error.message || 'Reset password action failed' }
-    }
-};
-
-
 export const handleGoogleLogin = async (googleToken: string) => {
   try {
     const res = await googleLogin(googleToken);
@@ -119,5 +88,34 @@ export const handleGoogleLogin = async (googleToken: string) => {
 
   } catch (err: Error | any) {
     return { success: false, message: err.message || "Google login failed" };
+  }
+};
+
+export const handleRequestPasswordReset = async (email: string) => {
+  try {
+    const res = await requestPasswordReset(email);
+    if (res.success) {
+      return { success: true, message: "Password reset email sent successfully" };
+    }
+    return { success: false, message: res.message || "Request password reset failed" };
+  } catch (err: Error | any) {
+    return { success: false, message: err.message || "Request password reset failed" };
+  }
+};
+
+export const handleResetPassword = async (data: {
+  email: string;
+  otp: string;
+  newPassword: string;
+  confirmPassword: string;
+}) => {
+  try {
+    const res = await resetPassword(data);
+    if (res.success) {
+      return { success: true, message: "Password has been reset successfully" };
+    }
+    return { success: false, message: res.message || "Reset password failed" };
+  } catch (err: Error | any) {
+    return { success: false, message: err.message || "Reset password failed" };
   }
 };
