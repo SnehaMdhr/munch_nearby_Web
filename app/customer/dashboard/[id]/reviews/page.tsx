@@ -9,9 +9,10 @@ import {
 } from "@/lib/actions/review-actions";
 import DeleteModal from "@/app/_components/DeleteModel";
 import { useAuth } from "@/context/AuthContext";
-import AddReviewModel from "../_components/AddReviewModel";
-import UpdateReviewModel from "../_components/UpdateReviewModel";
+import AddReviewModel from "../menu/_components/AddReviewModel";
+import UpdateReviewModel from "../menu/_components/UpdateReviewModel";
 import Image from "next/image";
+import { Edit2, Trash2 } from "lucide-react";
 
 /* -------------------- ZOD SCHEMA -------------------- */
 
@@ -241,16 +242,19 @@ export default function Page() {
                 setSelectedReview(review);
                 setIsUpdateOpen(true);
               }}
-              className="text-sm font-medium text-[#E87A5D] hover:underline"
+              className="p-2 rounded-full hover:bg-gray-100 transition"
+              title="Update"
             >
-              Update
+              <Edit2 size={20} className="text-[#E87A5D]" />
             </button>
 
+            {/* Delete Button */}
             <button
               onClick={() => openDeleteModal(review._id)}
-              className="text-sm font-medium text-red-500 hover:underline"
+              className="p-2 rounded-full hover:bg-red-50 transition"
+              title="Delete"
             >
-              Delete
+              <Trash2 size={20} className="text-red-500" />
             </button>
           </div>
         )}

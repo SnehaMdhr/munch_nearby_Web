@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { handleGetMyRestaurant } from "@/lib/actions/restaurant-actions";
 import {
@@ -12,6 +11,7 @@ import DeleteModal from "@/app/_components/DeleteModel";
 import UpdateMenuForm from "./_components/UpdateMenuForm";
 import CreateMenuForm from "./_components/CreateMenuForm";
 import Header from "../_components/Header";
+import { Edit2, Trash2 } from "lucide-react";
 
 export default function Page() {
   const router = useRouter();
@@ -92,7 +92,7 @@ export default function Page() {
     <div>
       <Header />
 
-      <div className="p-12">
+      <div className="p-12 ml-20 mr-20">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
           <div>
@@ -188,16 +188,19 @@ export default function Page() {
                             setSelectedMenu(menu);
                             setIsUpdateOpen(true);
                           }}
-                          className="flex-1 py-2 rounded-xl border border-gray-200 hover:bg-gray-100 transition text-sm font-medium"
+                          className="flex-1 py-2 rounded-xl border border-gray-200 hover:bg-gray-100 transition flex items-center justify-center"
+                          title="Update"
                         >
-                          Update
+                          <Edit2 size={16} className="text-[#E87A5D]" />
                         </button>
 
+                        {/* Delete Icon Button */}
                         <button
                           onClick={() => handleDeleteClick(menu._id)}
-                          className="flex-1 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition text-sm font-medium"
+                          className="flex-1 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition flex items-center justify-center"
+                          title="Delete"
                         >
-                          Delete
+                          <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
@@ -217,7 +220,7 @@ export default function Page() {
         />
 
         <UpdateMenuForm
-          key={selectedMenu?._id} // Reset state when ID changes
+          key={selectedMenu?._id}
           isOpen={isUpdateOpen}
           onClose={() => setIsUpdateOpen(false)}
           onSuccess={() => {

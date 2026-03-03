@@ -76,7 +76,6 @@ export default function UserTable({
     return queryString ? `${basePath}?${queryString}` : basePath;
   };
 
-  // Debounced search logic
   useEffect(() => {
     if (isInitialMount.current) {
       isInitialMount.current = false;

@@ -18,7 +18,7 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
-import RestaurantMapSheet from "../map/_components/RestaurantMapSheet";
+import RestaurantMapSheet from "../../_components/RestaurantMapSheet";
 import Header from "../_components/Header";
 
 export default function Page() {
@@ -191,7 +191,7 @@ export default function Page() {
             {onlyOpenNow ? "Showing Open" : "Open Now"}
           </button>
 
-          <div className="h-6 w-[1px] bg-gray-200 mx-2 shrink-0" />
+          <div className="h-6 w-px bg-gray-200 mx-2 shrink-0" />
 
           {/* Category Filters */}
           {categories.map((cat) => (
@@ -350,33 +350,39 @@ export default function Page() {
   );
 }
 
-// Logic helpers (Keeping your exact time-checking logic)
 type OpeningHour = { day: string; open: string; close: string };
 function getRestaurantStatus(openingHours: OpeningHour[]) {
   const now = new Date();
   const dayName = now.toLocaleDateString("en-US", { weekday: "long" });
   const today = openingHours.find((d) => d.day === dayName);
+
   if (!today || !today.open || !today.close) return "Closed";
 
-  const [openHour, openMin] = today.open.split(":").map(Number);
-  const [closeHour, closeMin] = today.close.split(":").map(Number);
+  const getCurrentMinutes = () => now.getHours() * 60 + now.getMinutes();
+  const getTimeMinutes = (timeStr: string) => {
+    const [h, m] = timeStr.split(":").map(Number);
+    return h * 60 + m;
+  };
 
-  const openTime = new Date(now);
-  openTime.setHours(openHour, openMin, 0, 0);
-  const closeTime = new Date(now);
-  closeTime.setHours(closeHour, closeMin, 0, 0);
+  const currentMins = getCurrentMinutes();
+  const openMins = getTimeMinutes(today.open);
+  let closeMins = getTimeMinutes(today.close);
 
-  if (now >= openTime && now < closeTime) {
-    return "Open";
-  } else if (now < openTime) {
-    const diffMs = openTime.getTime() - now.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    if (diffHours < 4) {
-      if (diffHours >= 1) return `Opens in ${diffHours}h`;
-      return `Opens in ${diffMinutes}m`;
-    }
-    return "Closed";
+  if (closeMins <= openMins) {
+    closeMins += 24 * 60;
   }
+
+  if (currentMins >= openMins && currentMins < closeMins) {
+    return "Open";
+  }
+  if (currentMins < openMins) {
+    const diff = openMins - currentMins;
+    if (diff < 240) {
+      const h = Math.floor(diff / 60);
+      const m = diff % 60;
+      return h >= 1 ? `Opens in ${h}h` : `Opens in ${m}m`;
+    }
+  }
+
   return "Closed";
 }

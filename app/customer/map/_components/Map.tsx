@@ -525,30 +525,6 @@ export default function RestaurantMap({
           />
         </div>
       )}
-
-      <style jsx global>{`
-        .restaurant-label {
-          background: rgba(255, 255, 255, 0.92) !important;
-          border: 1px solid rgba(0, 0, 0, 0.08) !important;
-          box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12) !important;
-          border-radius: 10px !important;
-          padding: 2px 6px !important;
-          white-space: nowrap !important;
-        }
-        .restaurant-label::before {
-          display: none !important;
-        }
-        @keyframes pulse-ring {
-          0% {
-            opacity: 0.4;
-            transform: scale(0.8);
-          }
-          100% {
-            opacity: 0;
-            transform: scale(1.8);
-          }
-        }
-      `}</style>
     </div>
   );
 }

@@ -6,8 +6,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Header from "../_components/Header";
 
-/* ---------------- helpers ---------------- */
-
 const resolveImageSrc = (imageValue?: string) => {
   if (!imageValue) return null;
 
@@ -33,8 +31,6 @@ const resolveImageSrc = (imageValue?: string) => {
 
   return `${base}${path}`;
 };
-
-/* ---------------- ZOD SCHEMA ---------------- */
 
 const RawReviewSchema = z.object({
   _id: z.string(),
@@ -215,7 +211,7 @@ export default function Page() {
     <div className="bg-[#FFF7ED]">
       <Header />
 
-      <div className="p-12 ">
+      <div className="p-12 ml-20 mr-20">
         {/* Header */}
         <h1 className="text-3xl font-black text-gray-800">
           My Restaurant <span className="text-orange-500">Reviews</span>
@@ -298,10 +294,8 @@ export default function Page() {
                 key={review._id}
                 className="group relative bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-orange-100/50"
               >
-                {/* Top Row: User & Rating */}
                 <div className="flex justify-between items-start mb-5">
                   <div className="flex items-center gap-3">
-                    {/* User Avatar Circle */}
                     <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center text-orange-600 font-bold text-sm border border-orange-100 overflow-hidden">
                       {resolveImageSrc(review.user.imageUrl) ? (
                         <Image
@@ -337,8 +331,6 @@ export default function Page() {
                     ))}
                   </div>
                 </div>
-
-                {/* Comment Body */}
                 <div className="relative">
                   <p className="text-gray-600 leading-relaxed italic pr-4">
                     {review.comment ? (
@@ -350,8 +342,6 @@ export default function Page() {
                     )}
                   </p>
                 </div>
-
-                {/* Footer: Date */}
                 <div className="mt-1 pt-5 border-t border-gray-50 flex justify-between items-center">
                   <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-tight">
                     Posted on{" "}

@@ -140,7 +140,6 @@ export default function Page() {
             )}
           </div>
 
-          {/* Slim Sort Dropdown */}
           <div className="flex items-center gap-3 w-full lg:w-auto shrink-0">
             <div className="relative w-full lg:w-56">
               <ArrowUpDown
@@ -163,7 +162,6 @@ export default function Page() {
             </div>
           </div>
         </div>
-        {/* Loading / Error / Empty States (Keep your existing logic) */}
         {loading && (
           <div className="flex justify-center py-20">
             <div className="w-8 h-8 border-4 border-gray-200 border-t-[#E87A5D] animate-spin rounded-full" />

@@ -11,7 +11,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import "leaflet-routing-machine";
 
-import type { Restaurant } from "./RestaurantMapSheet";
+import type { Restaurant } from "../../../_components/RestaurantMapSheet";
 
 if (typeof window !== "undefined") {
   delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -43,7 +43,7 @@ function makeRestaurantIcon() {
         }}
       >
         <Utensils size={20} strokeWidth={2.5} />
-      </div>
+      </div>,
     ),
     className: "",
     iconSize: [36, 36],
@@ -69,10 +69,15 @@ function makeUserIcon() {
           }}
         />
         <div style={{ position: "relative", color: "#E87A5D" }}>
-          <MapPin size={32} fill="#E87A5D" fillOpacity={0.3} strokeWidth={2.5} />
+          <MapPin
+            size={32}
+            fill="#E87A5D"
+            fillOpacity={0.3}
+            strokeWidth={2.5}
+          />
         </div>
         <style>{`@keyframes ping { 75%, 100% { transform: scale(1.8); opacity: 0; } }`}</style>
-      </div>
+      </div>,
     ),
     className: "",
     iconSize: [32, 32],
@@ -151,7 +156,10 @@ export default function RestaurantMapClient({
   restaurantId: string | null;
   restaurants: Restaurant[];
 }) {
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const restaurantIcon = useMemo(() => makeRestaurantIcon(), []);
   const userIcon = useMemo(() => makeUserIcon(), []);
@@ -172,8 +180,12 @@ export default function RestaurantMapClient({
   useEffect(() => {
     if (!navigator.geolocation) return;
     navigator.geolocation.getCurrentPosition(
-      (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      (err) => console.error(err)
+      (pos) =>
+        setUserLocation({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+        }),
+      (err) => console.error(err),
     );
   }, []);
 
@@ -205,7 +217,10 @@ export default function RestaurantMapClient({
         <FitToSelection center={destination} />
 
         {/* ✅ Only one restaurant marker */}
-        <Marker position={[destination.lat, destination.lng]} icon={restaurantIcon}>
+        <Marker
+          position={[destination.lat, destination.lng]}
+          icon={restaurantIcon}
+        >
           <Popup>
             <div className="p-1 text-center">
               <h3 className="font-bold text-gray-800">{selected.name}</h3>
@@ -219,7 +234,10 @@ export default function RestaurantMapClient({
 
         {/* user marker */}
         {userLocation && (
-          <Marker position={[userLocation.lat, userLocation.lng]} icon={userIcon}>
+          <Marker
+            position={[userLocation.lat, userLocation.lng]}
+            icon={userIcon}
+          >
             <Popup>
               <span className="font-bold text-[#E87A5D]">You are here</span>
             </Popup>

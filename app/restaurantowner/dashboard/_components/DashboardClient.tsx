@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Star, MessageCircle, Utensils } from "lucide-react";
 import { useRouter } from "next/navigation";
-import UpdateRestaurantModal from "../../profile/_components/UpdateRestaurantModel";
+import UpdateRestaurantModal from "./UpdateRestaurantModel";
 import Header from "../../_components/Header";
 
 interface Review {
@@ -61,7 +61,6 @@ export default function DashboardClient({
           </div>
         </div>
 
-        {/* Highlight Card */}
         <div className="bg-orange-100 border-2 border-dashed border-orange-300 rounded-2xl p-8 text-center mb-8">
           <h2 className="text-xl font-semibold mb-2">
             Keep your flavor fresh!
@@ -79,7 +78,6 @@ export default function DashboardClient({
           </button>
         </div>
 
-        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-white p-6 rounded-2xl shadow">
             <div className="flex items-center gap-2 text-yellow-500 mb-2">

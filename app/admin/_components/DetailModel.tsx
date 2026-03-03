@@ -1,6 +1,6 @@
 "use client";
 
-import RestaurantMapSheet from "@/app/customer/map/_components/RestaurantMapSheet";
+import RestaurantMapSheet from "@/app/_components/RestaurantMapSheet";
 import {
   ActivityIcon,
   Calendar,

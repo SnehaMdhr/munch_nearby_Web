@@ -285,7 +285,6 @@ export default function RestaurantOnboardingModal({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
-          {/* Section 1: Visual Identity */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/50 p-6 flex flex-col items-center text-center">
               <div
@@ -351,7 +350,6 @@ export default function RestaurantOnboardingModal({
             </div>
           </section>
 
-          {/* Section 2: Details */}
           <section className="space-y-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-slate-700">
@@ -430,7 +428,6 @@ export default function RestaurantOnboardingModal({
             </div>
           </section>
 
-          {/* Section 4: Contact & Location */}
           <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-sm font-bold text-slate-700">
