@@ -4,9 +4,18 @@ import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Home, Menu, Star, User, LogOut, ChevronDown } from "lucide-react";
+import {
+  Home,
+  Menu,
+  Star,
+  User,
+  LogOut,
+  ChevronDown,
+  KeyRound,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import ProfileForm from "../../customer/profile/_components/ProfileForm";
+import ChangePasswordModal from "@/app/_components/ChangePasswordModel";
 
 type MenuItemProps = {
   href: string;
@@ -21,6 +30,8 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   const getProfileImageSrc = (imageUrl?: string) => {
     if (!imageUrl) return null;
@@ -73,6 +84,7 @@ export default function Header() {
     function handleEsc(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setShowProfileModal(false);
+        setShowChangePasswordModal(false);
       }
     }
 
@@ -83,7 +95,8 @@ export default function Header() {
   return (
     <>
       <header className="w-full sticky top-0 z-50 bg-white border-b border-gray-200">
-        <div className="relative w-full px-8 py-2 flex items-center justify-between">
+        <div className="w-full px-8 py-2 flex items-center justify-between">
+          {/* LEFT - Logo */}
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/images/logo_without_background.png"
@@ -95,97 +108,110 @@ export default function Header() {
             <h2 className="text-lg font-bold tracking-tight">MunchNearby</h2>
           </Link>
 
-          {/* Menu */}
-          <nav className="absolute left-1/2 transform -translate-x-1/2 flex items-center gap-8">
-            <MenuItem
-              href="/restaurantowner/dashboard"
-              icon={<Home size={15} />}
-              label="Home"
-              pathname={pathname}
-            />
+          {/* RIGHT SECTION - Navigation + Profile */}
+          <div className="flex items-center gap-6 ml-auto">
+            <nav className="flex items-center gap-4">
+              <MenuItem
+                href="/restaurantowner/dashboard"
+                icon={<Home size={15} />}
+                label="Home"
+                pathname={pathname}
+              />
+              <MenuItem
+                href="/restaurantowner/menu"
+                icon={<Menu size={15} />}
+                label="Menu"
+                pathname={pathname}
+              />
+              <MenuItem
+                href="/restaurantowner/review"
+                icon={<Star size={15} />}
+                label="Review"
+                pathname={pathname}
+              />
+            </nav>
 
-            <MenuItem
-              href="/restaurantowner/menu"
-              icon={<Menu size={15} />}
-              label="Menu"
-              pathname={pathname}
-            />
-            <MenuItem
-              href="/restaurantowner/review"
-              icon={<Star size={15} />}
-              label="Review"
-              pathname={pathname}
-            />
-          </nav>
+            <div className="h-8 w-px bg-gray-200 mx-2 hidden sm:block" />
 
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setOpen(!open)}
-              className="flex items-center gap-3 bg-gray-100 hover:bg-gray-200 transition px-2  rounded-lg"
-            >
-              {/* Avatar */}
-              <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-[#E87A5D] text-white font-semibold">
-                {profileImageSrc ? (
-                  <Image
-                    src={profileImageSrc}
-                    alt="Profile"
-                    width={25}
-                    height={25}
-                    unoptimized
-                    className="object-cover w-full h-full"
-                  />
-                ) : (
-                  user?.name?.charAt(0).toUpperCase() || "U"
-                )}
-              </div>
+            {/* Profile Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setOpen(!open)}
+                className="flex items-center gap-3 bg-gray-100 hover:bg-gray-200 transition px-2 py-1 rounded-lg"
+              >
+                <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-[#E87A5D] text-white font-semibold">
+                  {profileImageSrc ? (
+                    <Image
+                      src={profileImageSrc}
+                      alt="Profile"
+                      width={40}
+                      height={40}
+                      unoptimized
+                      className="object-cover w-full h-full"
+                    />
+                  ) : (
+                    user?.name?.charAt(0).toUpperCase() || "U"
+                  )}
+                </div>
 
-              {/* First Name */}
-              <div className="text-left hidden sm:block ">
-                <p className="text-sm font-semibold text-gray-800">
-                  {user?.name?.split(" ")[0] || "User"}
-                </p>
-              </div>
+                <div className="text-left hidden sm:block">
+                  <p className="text-sm font-semibold text-gray-800">
+                    {user?.name?.split(" ")[0] || "User"}
+                  </p>
+                </div>
 
-              <ChevronDown size={16} className="text-gray-600 " />
-            </button>
+                <ChevronDown size={16} className="text-gray-600" />
+              </button>
 
-            {/* Dropdown */}
-            {open && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                <button
-                  onClick={() => {
-                    setOpen(false);
-                    setShowProfileModal(true);
-                  }}
-                  className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-gray-100"
-                >
-                  <User size={16} />
-                  Profile
-                </button>
+              {/* Dropdown Menu */}
+              {open && (
+                <div className="absolute right-0 mt-2 z-50 w-48 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      setShowProfileModal(true);
+                    }}
+                    className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-gray-100 text-gray-700"
+                  >
+                    <User size={16} />
+                    Profile
+                  </button>
 
-                <button
-                  onClick={logout}
-                  className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-500 hover:bg-gray-100"
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
-              </div>
-            )}
+                  <button
+                    onClick={() => {
+                      setOpen(false);
+                      setShowChangePasswordModal(true);
+                    }}
+                    className="flex items-center gap-2 w-full px-4 py-3 text-sm hover:bg-gray-100 text-gray-700"
+                  >
+                    <KeyRound size={16} />
+                    Change Password
+                  </button>
+
+                  <button
+                    onClick={logout}
+                    className="flex items-center gap-2 w-full px-4 py-3 text-sm text-red-500 hover:bg-gray-100 border-t border-gray-100"
+                  >
+                    <LogOut size={16} />
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
 
+      {/* PROFILE MODAL */}
       {showProfileModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm"
           onClick={() => setShowProfileModal(false)}
         >
           <div
             className="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-xl relative p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Close Button */}
             <button
               onClick={() => setShowProfileModal(false)}
               className="absolute top-4 right-4 text-gray-500 hover:text-black text-lg"
@@ -204,6 +230,12 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      {/* CHANGE PASSWORD MODAL */}
+      <ChangePasswordModal
+        isOpen={showChangePasswordModal}
+        onClose={() => setShowChangePasswordModal(false)}
+      />
     </>
   );
 }
@@ -214,7 +246,7 @@ function MenuItem({ href, icon, label, pathname }: MenuItemProps) {
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors duration-200
+      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-200
         ${
           isActive
             ? "bg-[#E87A5D] text-white"

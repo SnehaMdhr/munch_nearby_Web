@@ -1,6 +1,6 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { googleLogin, loginuser, registerUser, requestPasswordReset, resetPassword, updateProfile, whoami } from "../api/auth";
+import { changePassword, googleLogin, loginuser, registerUser, requestPasswordReset, resetPassword, updateProfile, whoami } from "../api/auth";
 import { setAuthToken, setUserData } from "../cookie";
 export const handleRegister = async (formData: any) => {
   try {
@@ -117,5 +117,33 @@ export const handleResetPassword = async (data: {
     return { success: false, message: res.message || "Reset password failed" };
   } catch (err: Error | any) {
     return { success: false, message: err.message || "Reset password failed" };
+  }
+};
+
+export const handleChangePassword = async (data: {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}) => {
+  try {
+    const res = await changePassword(data);
+
+    if (res.success) {
+      return {
+        success: true,
+        message: "Password changed successfully",
+      };
+    }
+
+    return {
+      success: false,
+      message: res.message || "Change password failed",
+    };
+
+  } catch (err: Error | any) {
+    return {
+      success: false,
+      message: err.message || "Change password failed",
+    };
   }
 };

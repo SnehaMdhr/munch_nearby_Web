@@ -107,3 +107,25 @@ export const googleLogin = async (token: string) => {
     );
   }
 };
+
+export const changePassword = async (data: {
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}) => {
+  try {
+    const response = await axios.post(
+      API.AUTH.CHANGE_PASSWORD,
+      data
+    );
+
+    return response.data;
+
+  } catch (err: Error | any) {
+    throw new Error(
+      err.response?.data?.message ||
+      err.message ||
+      "Change password failed"
+    );
+  }
+};
