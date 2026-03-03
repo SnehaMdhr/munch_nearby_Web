@@ -94,7 +94,8 @@ const normalizeOwnerReviews = (payload: unknown): Review[] | null => {
 
     const actorEmail = typeof actor === "string" ? undefined : actor?.email;
 
-    const actorImageUrl = typeof actor === "string" ? undefined : actor?.imageUrl;
+    const actorImageUrl =
+      typeof actor === "string" ? undefined : actor?.imageUrl;
 
     const parsedRating =
       typeof review.rating === "number" ? review.rating : Number(review.rating);
@@ -229,7 +230,7 @@ export default function Page() {
 
         {/* Rating Summary */}
         {!loading && !error && totalReviews > 0 && (
-          <div className="mt-8 bg-orange-100 p-10 rounded-3xl w-full">
+          <div className="mt-8 bg-orange-100 p-10 rounded-3xl ml-30 mr-30">
             <div className="flex flex-col md:flex-row gap-12">
               {/* Left */}
               <div>
@@ -291,7 +292,7 @@ export default function Page() {
             <p className="text-gray-400 font-medium">No reviews found yet.</p>
           </div>
         ) : !loading && !error ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
             {reviews.map((review) => (
               <div
                 key={review._id}
