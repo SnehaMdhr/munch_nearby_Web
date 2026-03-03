@@ -13,6 +13,7 @@ import {
   handleRejectRestaurant,
   handleSuspendRestaurant,
 } from "@/lib/actions/restaurant-actions";
+import { handleGetAllUsers } from "@/lib/actions/admin/user-actions";
 import DetailModal from "../_components/DetailModel";
 
 interface Restaurant {
@@ -20,10 +21,14 @@ interface Restaurant {
   _id?: string;
   name: string;
   ownerName?: string;
+  ownerImageUrl?: string;
+  ownerProfileImage?: string;
   email?: string;
   owner?: {
     name?: string;
     email?: string;
+    imageUrl?: string;
+    profileImage?: string;
   } | null;
   status: string;
   createdAt: string;
@@ -34,6 +39,12 @@ interface Restaurant {
   imageUrl?: string;
   mapLink?: string;
   openingHours?: any[];
+}
+
+interface AdminUser {
+  email?: string;
+  imageUrl?: string;
+  profileImage?: string;
 }
 
 const STATUS_OPTIONS = [
@@ -62,13 +73,54 @@ export default function ApprovalPage() {
     const res = adminRes.success ? adminRes : await handleGetAllRestaurants();
 
     if (res.success) {
-      // Debug: log the data to check for imageUrl
+      let userImageByEmail = new Map<string, string>();
+
+      try {
+        const usersRes = await handleGetAllUsers(1, 500);
+        if (usersRes.success && Array.isArray(usersRes.users)) {
+          userImageByEmail = new Map(
+            usersRes.users
+              .map((user: AdminUser) => {
+                const email = user.email?.toLowerCase().trim();
+                const image = user.imageUrl || user.profileImage;
+                if (!email || !image) return null;
+                return [email, image] as const;
+              })
+              .filter((entry): entry is readonly [string, string] =>
+                Boolean(entry),
+              ),
+          );
+        }
+      } catch {}
+
       console.log("Fetched restaurants:", res.data);
       const normalized = Array.isArray(res.data)
         ? res.data.map((item: Restaurant) => ({
             ...item,
             ownerName: item.ownerName || item.owner?.name || "N/A",
             email: item.email || item.owner?.email || "N/A",
+            owner:
+              item.owner && typeof item.owner === "object"
+                ? {
+                    ...item.owner,
+                    imageUrl:
+                      item.owner.imageUrl ||
+                      item.owner.profileImage ||
+                      item.ownerImageUrl ||
+                      item.ownerProfileImage ||
+                      userImageByEmail.get(
+                        (item.email || item.owner?.email || "")
+                          .toLowerCase()
+                          .trim(),
+                      ),
+                  }
+                : item.owner,
+            ownerImageUrl:
+              item.ownerImageUrl ||
+              item.owner?.imageUrl ||
+              userImageByEmail.get(
+                (item.email || item.owner?.email || "").toLowerCase().trim(),
+              ),
           }))
         : [];
       setRestaurants(normalized);
@@ -166,7 +218,6 @@ export default function ApprovalPage() {
           </div>
         </div>
 
-        {/* TABLE CARD */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -308,7 +359,6 @@ export default function ApprovalPage() {
         </div>
       </div>
 
-      {/* DETAIL MODAL */}
       {selectedRestaurant && (
         <DetailModal
           restaurant={selectedRestaurant}

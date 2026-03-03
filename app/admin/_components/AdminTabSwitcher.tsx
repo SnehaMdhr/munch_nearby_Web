@@ -23,32 +23,12 @@ export default function AdminTabSwitcher({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  // Destructure logout if your context provides it,
-  // otherwise we use setIsAuthenticated/setUser manually.
   const { setIsAuthenticated, setUser, logout } = useAuth();
 
   const tabTitle = useMemo(
     () => (activeTab === "users" ? "User Management" : "Restaurant Management"),
     [activeTab],
   );
-
-  const onLogout = () => {
-    startTransition(async () => {
-      try {
-        if (logout) {
-          await logout();
-        } else {
-          setIsAuthenticated(false);
-          setUser(null);
-        }
-
-        router.push("/");
-        router.refresh();
-      } catch (error: any) {
-        console.error("Logout Error:", error);
-      }
-    });
-  };
 
   return (
     <div className="min-h-screen bg-[#FFF7ED] p-12">
@@ -64,16 +44,12 @@ export default function AdminTabSwitcher({
             </p>
           </div>
 
-          {/* RIGHT SIDE LOGOUT BUTTON */}
           <button
-            onClick={onLogout}
-            disabled={isPending}
+            onClick={logout}
             className="group flex items-center gap-2 px-5 py-2.5 rounded-full border border-red-100 bg-white text-red-600 font-bold text-sm hover:bg-red-600 hover:text-white transition-all shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <LogOut
-              className={`w-4 h-4 transition-transform group-hover:-translate-x-1 ${isPending ? "animate-pulse" : ""}`}
-            />
-            {isPending ? "Logging out..." : "Logout"}
+            <LogOut size={16} />
+            Logout
           </button>
         </div>
 

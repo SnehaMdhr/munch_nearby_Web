@@ -1,5 +1,17 @@
 "use client";
 
+import RestaurantMapSheet from "@/app/customer/map/_components/RestaurantMapSheet";
+import {
+  ActivityIcon,
+  Calendar,
+  Mail,
+  MapPin,
+  Phone,
+  UtensilsCrossed,
+  X,
+} from "lucide-react";
+import { Activity, useState } from "react";
+
 interface OpeningHour {
   day: string;
   open: string;
@@ -38,6 +50,7 @@ export default function DetailModal({
   onClose: () => void;
   getStatusStyle: (status: string) => string;
 }) {
+  const [isMapOpen, setIsMapOpen] = useState(false);
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="bg-white rounded-[2.5rem] shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -46,7 +59,9 @@ export default function DetailModal({
           <button
             onClick={onClose}
             className="absolute top-6 right-6 p-2 bg-white/20 hover:bg-white/40 rounded-full text-white transition"
-          ></button>
+          >
+            <X size={20} />
+          </button>
           <div>
             <h2 className="text-3xl font-black text-white">
               {restaurant.name}
@@ -59,6 +74,19 @@ export default function DetailModal({
 
         {/* Scrollable Content */}
         <div className="p-10 overflow-y-auto custom-scrollbar">
+          {restaurant.imageUrl && (
+            <div className="mb-10 w-full h-72 rounded-4xl overflow-hidden border border-gray-100 shadow-md">
+              <img
+                src={restaurant.imageUrl}
+                alt={restaurant.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).parentElement!.style.display =
+                    "none";
+                }}
+              />
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             {/* Left Column */}
             <section className="space-y-6">
@@ -71,16 +99,34 @@ export default function DetailModal({
                 </p>
               </div>
               <div>
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                  Email Address
+                <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] transition-colors group-hover:text-[#E87A5D]">
+                  <div className="p-1.5 bg-gray-50 rounded-lg group-hover:bg-orange-50 transition-colors">
+                    <Mail
+                      size={14}
+                      className="transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110"
+                    />
+                  </div>
+                  <span className="relative">
+                    Email
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E87A5D]/30 transition-all duration-500 group-hover:w-full" />
+                  </span>
                 </h4>
                 <p className="text-lg font-bold text-[#E87A5D] underline">
                   {restaurant.email || restaurant.owner?.email || "N/A"}
                 </p>
               </div>
               <div>
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                  Contact Phone
+                <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] transition-colors group-hover:text-[#E87A5D]">
+                  <div className="p-1.5 bg-gray-50 rounded-lg group-hover:bg-orange-50 transition-colors">
+                    <Phone
+                      size={14}
+                      className="transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110"
+                    />
+                  </div>
+                  <span className="relative">
+                    Contact
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E87A5D]/30 transition-all duration-500 group-hover:w-full" />
+                  </span>
                 </h4>
                 <p className="text-lg font-bold text-gray-800">
                   {restaurant.contactNumber || "Not Provided"}
@@ -88,8 +134,17 @@ export default function DetailModal({
               </div>
               {restaurant.category && (
                 <div>
-                  <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                    Category
+                  <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] transition-colors group-hover:text-[#E87A5D]">
+                    <div className="p-1.5 bg-gray-50 rounded-lg group-hover:bg-orange-50 transition-colors">
+                      <UtensilsCrossed
+                        size={14}
+                        className="transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110"
+                      />
+                    </div>
+                    <span className="relative">
+                      Category
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E87A5D]/30 transition-all duration-500 group-hover:w-full" />
+                    </span>
                   </h4>
                   <span className="px-3 py-1 bg-orange-50 text-[#E87A5D] text-xs font-bold rounded-lg border border-orange-100">
                     {restaurant.category}
@@ -101,8 +156,17 @@ export default function DetailModal({
             {/* Right Column */}
             <section className="space-y-6 border-l border-gray-100 pl-0 md:pl-10">
               <div>
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                  Registration Date
+                <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] transition-colors group-hover:text-[#E87A5D]">
+                  <div className="p-1.5 bg-gray-50 rounded-lg group-hover:bg-orange-50 transition-colors">
+                    <Calendar
+                      size={14}
+                      className="transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110"
+                    />
+                  </div>
+                  <span className="relative">
+                    Registeration Date
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E87A5D]/30 transition-all duration-500 group-hover:w-full" />
+                  </span>
                 </h4>
                 <p className="text-lg font-bold text-gray-800">
                   {new Date(restaurant.createdAt).toLocaleDateString(
@@ -112,8 +176,17 @@ export default function DetailModal({
                 </p>
               </div>
               <div>
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                  Current Status
+                <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] transition-colors group-hover:text-[#E87A5D]">
+                  <div className="p-1.5 bg-gray-50 rounded-lg group-hover:bg-orange-50 transition-colors">
+                    <ActivityIcon
+                      size={14}
+                      className="transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110"
+                    />
+                  </div>
+                  <span className="relative">
+                    Current Status
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E87A5D]/30 transition-all duration-500 group-hover:w-full" />
+                  </span>
                 </h4>
                 <span
                   className={`mt-1 inline-block px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${getStatusStyle(restaurant.status.toLowerCase())}`}
@@ -122,22 +195,28 @@ export default function DetailModal({
                 </span>
               </div>
               <div>
-                <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
-                  Location
+                <h4 className="flex items-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] transition-colors group-hover:text-[#E87A5D]">
+                  <div className="p-1.5 bg-gray-50 rounded-lg group-hover:bg-orange-50 transition-colors">
+                    <MapPin
+                      size={14}
+                      className="transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110"
+                    />
+                  </div>
+                  <span className="relative">
+                    Location
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-[#E87A5D]/30 transition-all duration-500 group-hover:w-full" />
+                  </span>
                 </h4>
                 <p className="text-sm font-medium text-gray-600 italic leading-relaxed mb-2">
                   {restaurant.address || "Address not available."}
                 </p>
-                {restaurant.mapLink && (
-                  <a
-                    href={restaurant.mapLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-bold text-blue-500 hover:underline"
-                  >
-                    View on Google Maps ↗
-                  </a>
-                )}
+                <button
+                  onClick={() => setIsMapOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 text-xs font-bold rounded-xl border border-blue-100 hover:bg-blue-100 transition"
+                >
+                  <MapPin size={14} />
+                  View Map
+                </button>
               </div>
             </section>
           </div>
@@ -191,6 +270,13 @@ export default function DetailModal({
           </button>
         </div>
       </div>
+      <RestaurantMapSheet
+        open={isMapOpen}
+        onOpenChange={setIsMapOpen}
+        restaurantId={restaurant._id || null}
+        // We pass the current restaurant as an array of one
+        restaurants={restaurant._id ? [restaurant as any] : []}
+      />
     </div>
   );
 }

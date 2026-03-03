@@ -482,6 +482,10 @@ export default function RestaurantMap({
                   style={{ color: "#E87A5D" }}
                 >
                   {routeDistance} &middot; {routeDuration}
+                  <span className="ml-1 opacity-80 font-normal">
+                    {" "}
+                    (by driving)
+                  </span>
                 </span>
               </div>
             )}
