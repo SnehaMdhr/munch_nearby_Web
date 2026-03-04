@@ -1,115 +1,101 @@
 import axiosInstance from "./axios";
 import { API } from "./endpoint";
 
-
-// ✅ Get all menus
 export const getAllMenus = async () => {
   try {
     const response = await axiosInstance.get(API.MENU.GET_ALL);
     return response.data;
   } catch (err: Error | any) {
     throw new Error(
-      err.response?.data?.message ||
-      err.message ||
-      "Fetching menus failed"
+      err.response?.data?.message || err.message || "Fetching menus failed",
     );
   }
 };
 
-
-// ✅ Get menu by ID
 export const getMenuById = async (id: string) => {
   try {
     const response = await axiosInstance.get(API.MENU.GET_ONE(id));
     return response.data;
   } catch (err: Error | any) {
     throw new Error(
-      err.response?.data?.message ||
-      err.message ||
-      "Fetching menu failed"
+      err.response?.data?.message || err.message || "Fetching menu failed",
     );
   }
 };
 
-
-// ✅ Get menus by restaurant
 export const getMenusByRestaurant = async (restaurantId: string) => {
   try {
     const response = await axiosInstance.get(
-      API.MENU.GET_BY_RESTAURANT(restaurantId)
+      API.MENU.GET_BY_RESTAURANT(restaurantId),
     );
     return response.data;
   } catch (err: Error | any) {
     throw new Error(
       err.response?.data?.message ||
-      err.message ||
-      "Fetching restaurant menus failed"
+        err.message ||
+        "Fetching restaurant menus failed",
     );
   }
 };
 
-
-// ✅ Create menu
 export const createMenu = async (menuData: FormData | object) => {
   try {
-    const response = await axiosInstance.post(
-      API.MENU.OWNER.CREATE,
-      menuData,
-      {
-        headers: menuData instanceof FormData 
+    const response = await axiosInstance.post(API.MENU.OWNER.CREATE, menuData, {
+      headers:
+        menuData instanceof FormData
           ? { "Content-Type": "multipart/form-data" }
-          : { "Content-Type": "application/json" }
-      }
-    );
+          : { "Content-Type": "application/json" },
+    });
 
     return response.data;
   } catch (err: Error | any) {
     throw new Error(
-      err.response?.data?.message ||
-      err.message ||
-      "Menu creation failed"
+      err.response?.data?.message || err.message || "Menu creation failed",
     );
   }
 };
 
-
-// ✅ Update menu
 export const updateMenu = async (id: string, menuData: FormData | object) => {
   try {
     const response = await axiosInstance.put(
       API.MENU.OWNER.UPDATE(id),
       menuData,
       {
-        headers: menuData instanceof FormData 
-          ? { "Content-Type": "multipart/form-data" }
-          : { "Content-Type": "application/json" }
-      }
+        headers:
+          menuData instanceof FormData
+            ? { "Content-Type": "multipart/form-data" }
+            : { "Content-Type": "application/json" },
+      },
     );
 
     return response.data;
   } catch (err: Error | any) {
     throw new Error(
-      err.response?.data?.message ||
-      err.message ||
-      "Menu update failed"
+      err.response?.data?.message || err.message || "Menu update failed",
     );
   }
 };
 
-
-// ✅ Delete menu
 export const deleteMenu = async (id: string) => {
   try {
-    const response = await axiosInstance.delete(
-      API.MENU.OWNER.DELETE(id)
-    );
+    const response = await axiosInstance.delete(API.MENU.OWNER.DELETE(id));
 
     return response.data;
   } catch (err: Error | any) {
     throw new Error(
-      err.response?.data?.message ||
-      err.message ||
-      "Menu delete failed"
+      err.response?.data?.message || err.message || "Menu delete failed",
+    );
+  }
+};
+
+export const adminDeleteMenu = async (id: string) => {
+  try {
+    const response = await axiosInstance.delete(API.ADMIN.MENUS.DELETE(id));
+
+    return response.data;
+  } catch (err: Error | any) {
+    throw new Error(
+      err.response?.data?.message || err.message || "Admin menu delete failed",
     );
   }
 };

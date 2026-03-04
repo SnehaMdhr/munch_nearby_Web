@@ -8,248 +8,265 @@ import { toast } from "react-toastify";
 import { menuSchema } from "../schema";
 import { handleCreateMenu } from "@/lib/actions/menu-actions";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
 
 const toBoolean = (value: unknown) => {
-    if (typeof value === "boolean") return value;
-    if (typeof value === "string") {
-        const normalized = value.trim().toLowerCase();
-        if (normalized === "true") return true;
-        if (normalized === "false") return false;
-    }
-    return Boolean(value);
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true") return true;
+    if (normalized === "false") return false;
+  }
+  return Boolean(value);
 };
 
 interface CreateMenuFormProps {
-    onSuccess?: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  onSuccess?: () => void;
 }
 
-export default function CreateMenuForm({ onSuccess }: CreateMenuFormProps) {
-    const router = useRouter();
-    const [error, setError] = useState("");
-    const [pending, startTransition] = useTransition();
-    const [previewImage, setPreviewImage] = useState<string | null>(null);
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+export default function CreateMenuForm({
+  onSuccess,
+  isOpen,
+  onClose,
+}: CreateMenuFormProps) {
+  const isModalMode = typeof isOpen === "boolean";
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const [pending, startTransition] = useTransition();
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting },
-    } = useForm({
-        resolver: zodResolver(menuSchema),
-        defaultValues: {
-            isAvailable: "true",
-        },
-    });
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm({
+    resolver: zodResolver(menuSchema),
+    defaultValues: { isAvailable: "true" },
+  });
 
-    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        
-        if (file) {
-            // Validate file
-            if (file.size > MAX_FILE_SIZE) {
-                toast.error("File size must be less than 5MB");
-                return;
-            }
-            
-            if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-                toast.error("Only JPG, JPEG, PNG or WEBP formats are supported");
-                return;
-            }
+  if (isModalMode && !isOpen) return null;
 
-            setSelectedFile(file);
-            const reader = new FileReader();
-            reader.onloadend = () => setPreviewImage(reader.result as string);
-            reader.readAsDataURL(file);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast.error("File size must be less than 5MB");
+        return;
+      }
+      if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
+        toast.error("Only JPG, JPEG, PNG or WEBP formats are supported");
+        return;
+      }
+      setSelectedFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviewImage(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleClose = () => {
+    reset();
+    setPreviewImage(null);
+    setSelectedFile(null);
+    onClose?.();
+  };
+
+  const submit = async (data: any) => {
+    startTransition(async () => {
+      setError("");
+      try {
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("price", data.price.toString());
+        formData.append("category", data.category);
+        formData.append("description", data.description || "");
+        const isAvailable = toBoolean(data.isAvailable);
+        formData.append("isAvailable", isAvailable ? "true" : "false");
+
+        if (selectedFile) formData.append("imageUrl", selectedFile);
+
+        const response = await handleCreateMenu(formData);
+        if (!response.success) throw new Error(response.message);
+
+        toast.success("Menu Created successfully!");
+        handleClose();
+        if (onSuccess) {
+          onSuccess();
+        } else if (!isModalMode) {
+          router.push("/restaurantowner/menu");
         }
-    };
 
-    const removeImage = () => {
-        setSelectedFile(null);
-        setPreviewImage(null);
-        if (fileInputRef.current) fileInputRef.current.value = "";
-    };
+        router.refresh();
+      } catch (err: any) {
+        setError(err.message || "Menu Creation failed");
+        toast.error(err.message || "Menu Creation failed");
+      }
+    });
+  };
 
-    const submit = async (data: any) => {
-        startTransition(async () => {
-            setError("");
-            try {
-                // Create FormData for file upload
-                const formData = new FormData();
-                formData.append("name", data.name);
-                formData.append("price", data.price.toString());
-                formData.append("category", data.category);
-                formData.append("description", data.description || "");
-                const isAvailable = toBoolean(data.isAvailable);
-                formData.append("isAvailable", isAvailable ? "true" : "false");
-                formData.append("notAvailable", isAvailable ? "false" : "true");
+  const formContent = (
+    <form
+      onSubmit={handleSubmit(submit)}
+      className="bg-white rounded-3xl shadow-2xl border border-orange-100 p-8 space-y-6"
+    >
+      <div className="flex justify-between items-start">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black text-slate-800">
+            Create <span className="text-orange-500">Menu Item</span>
+          </h2>
+          <p className="text-sm text-slate-500">
+            Add a new dish to your restaurant.
+          </p>
+        </div>
 
-                if (selectedFile) {
-                    formData.append("imageUrl", selectedFile);
-                }
-
-                const response = await handleCreateMenu(formData);
-
-                if (!response.success) {
-                    throw new Error(response.message);
-                }
-
-                toast.success("Menu Created successfully.");
-                if (onSuccess) {
-                    onSuccess();
-                } else {
-                    router.push("/restaurantowner/menu");
-                }
-
-            } catch (err: any) {
-                const msg = err.message || "Menu Creation failed";
-                setError(msg);
-                toast.error(msg);
-            }
-        });
-    };
-
-    return (
-  <form
-    onSubmit={handleSubmit(submit)}
-    className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 space-y-6 max-w-xl"
-  >
-    <h2 className="text-2xl font-bold text-gray-800">
-      Create Menu Item
-    </h2>
-
-    {/* NAME */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Name
-      </label>
-      <input
-        type="text"
-        {...register("name")}
-        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-10 pr-3 text-sm outline-none focus:border-[#E87A5D]"
-      />
-      {errors.name && (
-        <p className="text-red-500 text-xs mt-1">
-          {errors.name.message as string}
-        </p>
-      )}
-    </div>
-
-    {/* PRICE */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Price
-      </label>
-      <input
-        type="number"
-        step="0.01"
-        {...register("price")}
-        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-10 pr-3 text-sm outline-none focus:border-[#E87A5D]"
-      />
-      {errors.price && (
-        <p className="text-red-500 text-xs mt-1">
-          {errors.price.message as string}
-        </p>
-      )}
-    </div>
-
-    {/* CATEGORY */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Category
-      </label>
-      <input
-        type="text"
-        {...register("category")}
-        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-10 pr-3 text-sm outline-none focus:border-[#E87A5D]"
-      />
-      {errors.category && (
-        <p className="text-red-500 text-xs mt-1">
-          {errors.category.message as string}
-        </p>
-      )}
-    </div>
-
-    {/* IMAGE UPLOAD */}
-
-    <label className="text-sm font-medium text-gray-600">
-        Menu Image
-      </label>
-    <div className="bg-[#FFF8F4] p-6 rounded-2xl border border-[#E87A5D]/10">
-      
-
-      {previewImage && (
-        <div className="mt-4 flex items-center gap-4">
-          <img
-            src={previewImage}
-            alt="Preview"
-            className="w-24 h-24 rounded-xl object-cover border shadow-sm"
-          />
+        {isModalMode && (
           <button
             type="button"
-            onClick={removeImage}
-            className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+            onClick={handleClose}
+            className="text-slate-400 hover:text-slate-600 text-xl"
           >
-            Remove
+            ✕
           </button>
+        )}
+      </div>
+
+      <section
+        className="rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/50 p-6 flex flex-col items-center cursor-pointer"
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <div className="size-20 rounded-full bg-white border-2 border-orange-100 overflow-hidden flex items-center justify-center">
+          {previewImage ? (
+            <img
+              src={previewImage}
+              className="w-full h-full object-cover"
+              alt="Preview"
+            />
+          ) : (
+            <span className="text-3xl">📸</span>
+          )}
         </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          accept="image/*"
+          onChange={handleImageChange}
+        />
+        <p className="mt-2 text-xs font-bold text-orange-600">
+          {previewImage ? "Change Photo" : "Upload Photo"}
+        </p>
+      </section>
+
+      <div className="space-y-4">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-bold text-slate-700">Name *</label>
+          <input
+            {...register("name")}
+            className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm focus:border-orange-400 outline-none transition-all"
+          />
+          {errors.name && (
+            <p className="text-xs text-red-500">
+              {errors.name.message as string}
+            </p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold text-slate-700">Price *</label>
+            <input
+              type="number"
+              step="0.01"
+              {...register("price")}
+              className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm focus:border-orange-400 outline-none"
+            />
+            {errors.price && (
+              <p className="text-xs text-red-500">
+                {errors.price.message as string}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold text-slate-700">
+              Category *
+            </label>
+            <input
+              {...register("category")}
+              className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm focus:border-orange-400 outline-none"
+            />
+            {errors.category && (
+              <p className="text-xs text-red-500">
+                {errors.category.message as string}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-bold text-slate-700">
+            Description
+          </label>
+          <input
+            {...register("description")}
+            className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm focus:border-orange-400 outline-none transition-all"
+          />
+          {errors.description && (
+            <p className="text-xs text-red-500">
+              {errors.description.message as string}
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-bold text-slate-700">
+            Availability
+          </label>
+          <select
+            {...register("isAvailable")}
+            className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm outline-none"
+          >
+            <option value="true">Available</option>
+            <option value="false">Not Available</option>
+          </select>
+        </div>
+      </div>
+
+      {error && (
+        <p className="p-3 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100">
+          {error}
+        </p>
       )}
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="image/*"
-        onChange={handleImageChange}
-        className="mt-4 block w-full text-sm
-          file:mr-4 file:rounded-full file:border-0
-          file:bg-[#E87A5D] file:px-5 file:py-2
-          file:text-white hover:file:opacity-90 transition"
-      />
-    </div>
-
-    {/* DESCRIPTION */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Description
-      </label>
-      <textarea
-        rows={3}
-        {...register("description")}
-        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-10 pr-3 px-4 py-3 resize-none text-sm outline-none focus:border-[#E87A5D]"
-      />
-    </div>
-
-    {/* AVAILABILITY */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Availability
-      </label>
-      <select
-        {...register("isAvailable")}
-        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-10 pr-3 text-sm outline-none focus:border-[#E87A5D]"
+      <button
+        type="submit"
+        disabled={isSubmitting || pending}
+        className="w-full py-3 bg-linear-to-r from-[#E87A5D] to-[#F6B88F] text-white font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-orange-200"
       >
-        <option value="true">Available</option>
-        <option value="false">Not Available</option>
-      </select>
+        {isSubmitting || pending ? "Processing..." : "Create Menu Item"}
+      </button>
+    </form>
+  );
+
+  if (!isModalMode) {
+    return <div className="w-full max-w-xl">{formContent}</div>;
+  }
+
+  return (
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+      <div className="absolute inset-0" onClick={handleClose} />
+      <div className="relative w-full max-w-xl my-auto">{formContent}</div>
     </div>
-
-    {/* ERROR MESSAGE */}
-    {error && (
-      <p className="text-sm text-red-500">{error}</p>
-    )}
-
-    {/* SUBMIT BUTTON */}
-    <button
-      type="submit"
-      disabled={isSubmitting || pending}
-      className="w-full h-10 px-5 rounded-xl  text-white text-xs font-semibold transition shadow-sm
-                               bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
-                               hover:opacity-90"
-    >
-      {isSubmitting || pending ? "Creating..." : "Create Menu"}
-    </button>
-  </form>
-);
+  );
 }

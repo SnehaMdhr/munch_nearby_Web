@@ -4,12 +4,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition, useRef } from "react";
 import { toast } from "react-toastify";
-import Image from "next/image";
 import { menuSchema } from "../schema";
 import { handleUpdateMenu } from "@/lib/actions/menu-actions";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
 
 const toBoolean = (value: unknown) => {
   if (typeof value === "boolean") return value;
@@ -22,243 +26,275 @@ const toBoolean = (value: unknown) => {
 };
 
 const normalizeIsAvailable = (menu: any) => {
-  if (typeof menu?.isAvailable !== "undefined") {
+  if (typeof menu?.isAvailable !== "undefined")
     return toBoolean(menu.isAvailable);
-  }
-
-  if (typeof menu?.notAvailable !== "undefined") {
+  if (typeof menu?.notAvailable !== "undefined")
     return !toBoolean(menu.notAvailable);
-  }
-
   return true;
 };
 
 interface UpdateMenuProps {
   menu: any;
   onSuccess?: () => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
-export default function UpdateMenuForm({ menu, onSuccess }: UpdateMenuProps) {
+export default function UpdateMenuForm({
+  menu,
+  onSuccess,
+  isOpen,
+  onClose,
+}: UpdateMenuProps) {
   const [pending, startTransition] = useTransition();
-  const [preview, setPreview] = useState<string | null>(menu.imageUrl || menu.image || null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  // Initial Preview Logic
+  const getInitialPreview = () => {
+    if (!menu) return null;
+    const path = menu.imageUrl || menu.image;
+    if (!path) return null;
+    return path.startsWith("http") || path.startsWith("data:")
+      ? path
+      : `${process.env.NEXT_PUBLIC_API_BASE}${path}`;
+  };
+
+  const [previewImage, setPreviewImage] = useState<string | null>(
+    getInitialPreview(),
+  );
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm({
     resolver: zodResolver(menuSchema),
     defaultValues: {
-      name: menu.name ?? "",
-      price: menu.price ?? 0,
-      category: menu.category ?? "",
-      description: menu.description ?? "",
+      name: menu?.name ?? "",
+      price: menu?.price ?? 0,
+      category: menu?.category ?? "",
+      description: menu?.description ?? "",
       isAvailable: normalizeIsAvailable(menu) ? "true" : "false",
     },
   });
 
+  if (!isOpen || !menu) return null;
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    
     if (file) {
-      // Validate file
       if (file.size > MAX_FILE_SIZE) {
         toast.error("File size must be less than 5MB");
         return;
       }
-      
       if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
         toast.error("Only JPG, JPEG, PNG or WEBP formats are supported");
         return;
       }
-
       setSelectedFile(file);
       const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result as string);
+      reader.onloadend = () => setPreviewImage(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const removeImage = () => {
-    setSelectedFile(null);
-    setPreview(menu.imageUrl || menu.image || null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  const handleClose = () => {
+    setError("");
+    onClose?.();
   };
 
-  const onSubmit = async (data: any) => {
+  const submit = async (data: any) => {
     startTransition(async () => {
+      setError("");
       try {
         const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("price", String(data.price));
+        formData.append("category", data.category);
+        formData.append("description", data.description || "");
 
-        formData.append("name", data.name ?? "");
-        formData.append("price", String(data.price ?? 0));
-        formData.append("category", data.category ?? "");
-        formData.append("description", data.description ?? "");
-        const isAvailable = toBoolean(data.isAvailable);
-        formData.append("isAvailable", isAvailable ? "true" : "false");
-        formData.append("notAvailable", isAvailable ? "false" : "true");
+        const isAvail = toBoolean(data.isAvailable);
+        formData.append("isAvailable", String(isAvail));
+        formData.append("notAvailable", String(!isAvail));
 
-        // Append image only if new file selected
         if (selectedFile) {
           formData.append("imageUrl", selectedFile);
         }
 
         const response = await handleUpdateMenu(menu._id, formData);
+        if (!response.success) throw new Error(response.message);
 
-        if (!response.success) {
-          throw new Error(response.message || "Update failed");
-        }
-
-        toast.success("Menu updated successfully");
+        toast.success("Menu updated successfully!");
         if (onSuccess) onSuccess();
-
+        handleClose();
       } catch (err: any) {
-        toast.error(err.message || "Update failed");
+        setError(err.message || "Update failed");
       }
     });
   };
 
-  return (
+  const formContent = (
+    <form
+      onSubmit={handleSubmit(submit)}
+      className="bg-white rounded-3xl shadow-2xl border border-orange-100 p-8 space-y-6"
+    >
+      {/* Header */}
+      <div className="flex justify-between items-start">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black text-slate-800">
+            Update <span className="text-orange-500">Menu Item</span>
+          </h2>
+          <p className="text-sm text-slate-500">
+            Modify the details of your existing dish.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleClose}
+          className="text-slate-400 hover:text-slate-600 text-xl"
+        >
+          ✕
+        </button>
+      </div>
 
-  <form
-    onSubmit={handleSubmit(onSubmit)}
-    className="bg-white rounded-3xl shadow-sm border border-black/5 p-8 space-y-6 max-w-xl"
-  >
-    <h2 className="text-2xl font-bold text-gray-800">
-      Update Menu Item
-    </h2>
-
-    {/* NAME */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Name
-      </label>
-      <input
-        {...register("name")}
-        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 text-sm outline-none focus:border-[#E87A5D]"
-      />
-      {errors.name && (
-        <p className="text-red-500 text-xs mt-1">
-          {errors.name.message as string}
-        </p>
-      )}
-    </div>
-
-    {/* PRICE */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Price
-      </label>
-      <input
-        type="number"
-        step="0.01"
-        {...register("price")}
-        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 text-sm outline-none focus:border-[#E87A5D]"
-      />
-      {errors.price && (
-        <p className="text-red-500 text-xs mt-1">
-          {errors.price.message as string}
-        </p>
-      )}
-    </div>
-
-    {/* CATEGORY */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Category
-      </label>
-      <input
-        {...register("category")}
-        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 text-sm outline-none focus:border-[#E87A5D]"
-      />
-      {errors.category && (
-        <p className="text-red-500 text-xs mt-1">
-          {errors.category.message as string}
-        </p>
-      )}
-    </div>
-
-    {/* IMAGE SECTION */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Menu Image
-      </label>
-
-      <div className="bg-[#FFF8F4] p-6 rounded-2xl border border-[#E87A5D]/10 mt-2">
-        {preview && (
-          <div className="flex items-center gap-4 mb-4">
-            <div className="relative w-24 h-24 rounded-xl overflow-hidden border shadow-sm">
-              <Image
-                src={preview}
-                alt="Preview"
-                fill
-                className="object-cover"
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={removeImage}
-              className="px-4 py-2 text-sm bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
-            >
-              Remove
-            </button>
-          </div>
-        )}
-
+      {/* Image Upload Area */}
+      <section
+        className="rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/50 p-6 flex flex-col items-center cursor-pointer"
+        onClick={() => fileInputRef.current?.click()}
+      >
+        <div className="size-24 rounded-full bg-white border-2 border-orange-100 overflow-hidden flex items-center justify-center shadow-inner">
+          {previewImage ? (
+            <img
+              src={previewImage}
+              className="w-full h-full object-cover"
+              alt="Preview"
+            />
+          ) : (
+            <span className="text-3xl">📸</span>
+          )}
+        </div>
         <input
           ref={fileInputRef}
           type="file"
+          className="hidden"
           accept="image/*"
           onChange={handleImageChange}
-          className="block w-full text-sm
-            file:mr-4 file:rounded-full file:border-0
-            file:bg-[#E87A5D] file:px-5 file:py-2
-            file:text-white hover:file:opacity-90 transition"
         />
+        <p className="mt-2 text-xs font-bold text-orange-600">
+          {previewImage ? "Change Photo" : "Upload Photo"}
+        </p>
+      </section>
+
+      {/* Inputs */}
+      <div className="space-y-4">
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-bold text-slate-700">Name *</label>
+          <input
+            {...register("name")}
+            className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm focus:border-orange-400 outline-none transition-all"
+          />
+          {errors.name && (
+            <p className="text-xs text-red-500">
+              {errors.name.message as string}
+            </p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold text-slate-700">Price *</label>
+            <input
+              type="number"
+              step="0.01"
+              {...register("price", { valueAsNumber: true })}
+              className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm focus:border-orange-400 outline-none transition-all"
+            />
+            {errors.price && (
+              <p className="text-xs text-red-500">
+                {errors.price.message as string}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold text-slate-700">
+              Category *
+            </label>
+            <input
+              {...register("category")}
+              className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm focus:border-orange-400 outline-none transition-all"
+            />
+            {errors.category && (
+              <p className="text-xs text-red-500">
+                {errors.category.message as string}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-bold text-slate-700">
+            Description
+          </label>
+          <textarea
+            {...register("description")}
+            rows={2}
+            className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm focus:border-orange-400 outline-none transition-all resize-none"
+          />
+          {errors.description && (
+            <p className="text-xs text-red-500">
+              {errors.description.message as string}
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-bold text-slate-700">
+            Availability
+          </label>
+          <select
+            {...register("isAvailable")}
+            className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm outline-none transition-all bg-white"
+          >
+            <option value="true">Available</option>
+            <option value="false">Not Available</option>
+          </select>
+        </div>
       </div>
-    </div>
 
-    {/* DESCRIPTION */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Description
-      </label>
-      <textarea
-        rows={3}
-        {...register("description")}
-        className="w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 py-3 text-sm outline-none focus:border-[#E87A5D] resize-none"
-      />
-    </div>
+      {error && (
+        <p className="p-3 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100">
+          {error}
+        </p>
+      )}
 
-    {/* AVAILABILITY */}
-    <div>
-      <label className="text-sm font-medium text-gray-600">
-        Availability
-      </label>
-      <select
-        {...register("isAvailable")}
-        className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] px-4 text-sm outline-none focus:border-[#E87A5D]"
-      >
-        <option value="true">Available</option>
-        <option value="false">Not Available</option>
-      </select>
-    </div>
+      {/* Buttons */}
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={handleClose}
+          className="flex-1 py-3 border-2 border-slate-100 text-slate-500 font-bold rounded-xl hover:bg-slate-50 transition-all"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={isSubmitting || pending}
+          className="flex-1 py-3 bg-linear-to-r from-[#E87A5D] to-[#F6B88F] text-white font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-orange-200"
+        >
+          {isSubmitting || pending ? "Updating..." : "Save Changes"}
+        </button>
+      </div>
+    </form>
+  );
 
-    {/* SUBMIT BUTTON */}
-    <button
-      type="submit"
-      disabled={isSubmitting || pending}
-      className="w-full h-10 px-5 rounded-xl text-white text-xs font-semibold transition shadow-sm
-                 bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
-                 hover:opacity-90 disabled:opacity-60"
-    >
-      {isSubmitting || pending
-        ? "Saving Changes..."
-        : "Update Menu"}
-    </button>
-  </form>
-);
+  return (
+    <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto">
+      <div className="absolute inset-0" onClick={handleClose} />
+      <div className="relative w-full max-w-xl my-auto">{formContent}</div>
+    </div>
+  );
 }

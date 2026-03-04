@@ -2,22 +2,18 @@
 
 import { handleGetRestaurantById } from "@/lib/actions/restaurant-actions";
 import { handleGetReviewsByRestaurant } from "@/lib/actions/review-actions";
-import Sidebar from "../../_components/SideBar";
+
 import Tabs from "./_components/Tab";
 import { useEffect, useState } from "react";
-import { Star, StarHalf, MapPin } from "lucide-react";
+import { Star, StarHalf, MapPin, Phone } from "lucide-react";
 import { useParams } from "next/navigation";
+import Header from "../../_components/Header";
 
-export default function Layout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
 
-  const API_BASE =
-    process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000";
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000";
 
   const [restaurant, setRestaurant] = useState<any>(null);
   const [rating, setRating] = useState<number>(0);
@@ -50,9 +46,8 @@ export default function Layout({
           if (total > 0) {
             const avg =
               reviews.reduce(
-                (acc: number, r: any) =>
-                  acc + Number(r.rating ?? 0),
-                0
+                (acc: number, r: any) => acc + Number(r.rating ?? 0),
+                0,
               ) / total;
 
             setRating(Number(avg.toFixed(1)));
@@ -90,18 +85,16 @@ export default function Layout({
   if (!restaurant) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="text-red-500 font-medium">
-          Restaurant not found.
-        </div>
+        <div className="text-red-500 font-medium">Restaurant not found.</div>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
+    <div>
+      <Header />
 
-      <div className="flex-1 bg-gray-50 min-h-screen">
+      <div className="p-6">
         {/* ---------------- HEADER ---------------- */}
         <div className="bg-white p-8 flex flex-col md:flex-row items-start gap-8">
           {/* Image */}
@@ -126,20 +119,10 @@ export default function Layout({
               <div className="flex text-yellow-400">
                 {[1, 2, 3, 4, 5].map((star) => {
                   if (rating >= star) {
-                    return (
-                      <Star
-                        key={star}
-                        size={18}
-                        fill="currentColor"
-                      />
-                    );
+                    return <Star key={star} size={18} fill="currentColor" />;
                   } else if (rating >= star - 0.5) {
                     return (
-                      <StarHalf
-                        key={star}
-                        size={18}
-                        fill="currentColor"
-                      />
+                      <StarHalf key={star} size={18} fill="currentColor" />
                     );
                   } else {
                     return <Star key={star} size={18} />;
@@ -160,16 +143,14 @@ export default function Layout({
             {/* Category */}
             <div className="flex flex-wrap gap-2 mb-3 mt-3">
               {Array.isArray(restaurant.category) ? (
-                restaurant.category.map(
-                  (cat: string, index: number) => (
-                    <span
-                      key={index}
-                      className="px-2.5 py-0.5 bg-blue-50 text-[#E87A5D] text-[11px] font-bold rounded-full uppercase tracking-wider"
-                    >
-                      {cat}
-                    </span>
-                  )
-                )
+                restaurant.category.map((cat: string, index: number) => (
+                  <span
+                    key={index}
+                    className="px-2.5 py-0.5 bg-blue-50 text-[#E87A5D] text-[11px] font-bold rounded-full uppercase tracking-wider"
+                  >
+                    {cat}
+                  </span>
+                ))
               ) : (
                 <span className="inline-block px-1.5 mt-2 py-0.5 text-[15px] text-[#D06D53] font-bold rounded-lg tracking-tight w-fit mb-1 bg-[#FFF8F4]">
                   {restaurant.category}
@@ -182,6 +163,13 @@ export default function Layout({
               <MapPin size={16} />
               <p className="text-sm font-medium">
                 {restaurant.address || "Location detail available"}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-1 text-gray-500 mt-3">
+              <Phone size={16} />
+              <p className="text-sm font-medium">
+                {restaurant.contactNumber || "Contact details available"}
               </p>
             </div>
 

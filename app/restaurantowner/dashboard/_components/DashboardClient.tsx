@@ -1,16 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import Sidebar from "../../_components/SideBar";
+import { useState, useMemo } from "react";
 import { Star, MessageCircle, Utensils } from "lucide-react";
 import { useRouter } from "next/navigation";
-import UpdateRestaurantModal from "../../profile/_components/UpdateRestaurantModel";
+import UpdateRestaurantModal from "./UpdateRestaurantModel";
+import Header from "../../_components/Header";
+
+interface Review {
+  _id?: string;
+  rating?: number;
+  comment?: string;
+  createdAt?: string;
+  customer?: {
+    _id?: string;
+    name?: string;
+  };
+}
+
+interface Restaurant {
+  averageReviews?: number;
+  totalReviews?: number;
+  menu?: any[];
+}
 
 interface DashboardProps {
-  restaurant: any;
+  restaurant: Restaurant;
   menuCount: number;
-  reviews: any[]; // Added this prop
+  reviews: Review[];
 }
+
 export default function DashboardClient({
   restaurant,
   menuCount,
@@ -18,32 +36,31 @@ export default function DashboardClient({
 }: DashboardProps) {
   const [openModal, setOpenModal] = useState(false);
   const router = useRouter();
-  const latestTwoReviews = Array.isArray(reviews) ? reviews.slice(0, 2) : [];
+
+  const latestTwoReviews = useMemo(
+    () => (Array.isArray(reviews) ? reviews.slice(0, 2) : []),
+    [reviews],
+  );
 
   const stats = {
-    averageReviews: restaurant?.averageReviews || "0.0",
-    reviews: restaurant?.totalReviews || 0,
-    menuItems: restaurant?.menu?.length || 0,
-    views: restaurant?.views || 0,
-    name: restaurant?.name || "Chef",
+    averageReviews: restaurant?.averageReviews ?? 0,
+    reviews: restaurant?.totalReviews ?? 0,
+    menuItems: menuCount ?? 0,
   };
 
   return (
-    <div className="flex bg-gray-50 min-h-screen">
-      <Sidebar />
+    <div>
+      <Header />
 
-      <div className="flex-1 p-8">
+      <div className="p-12">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-2xl font-bold">
-              Welcome back, {stats.name}! 🍕
-            </h1>
+            <h1 className="text-2xl font-bold">Welcome back! 🍕</h1>
             <p className="text-gray-500">Your kitchen is looking busy today.</p>
           </div>
         </div>
 
-        {/* Highlight Card */}
         <div className="bg-orange-100 border-2 border-dashed border-orange-300 rounded-2xl p-8 text-center mb-8">
           <h2 className="text-xl font-semibold mb-2">
             Keep your flavor fresh!
@@ -61,15 +78,16 @@ export default function DashboardClient({
           </button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-white p-6 rounded-2xl shadow">
             <div className="flex items-center gap-2 text-yellow-500 mb-2">
               <Star size={18} />
               <span className="text-sm text-green-500">Live Rating</span>
             </div>
             <p className="text-gray-500 text-sm">AVERAGE RATING</p>
-            <h2 className="text-2xl font-bold">{stats.averageReviews} ⭐</h2>
+            <h2 className="text-2xl font-bold">
+              {stats.averageReviews.toFixed(1)} ⭐
+            </h2>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow">
@@ -87,52 +105,64 @@ export default function DashboardClient({
               <span className="text-sm text-green-400">Active</span>
             </div>
             <p className="text-gray-500 text-sm">MENU ITEMS</p>
-            <h2 className="text-2xl font-bold">{menuCount}</h2>
+            <h2 className="text-2xl font-bold">{stats.menuItems}</h2>
           </div>
         </div>
 
-        {/* Latest Reviews (Mapped from data if available) */}
-        {latestTwoReviews.length > 0 && (
-          <div className="bg-white p-6 rounded-2xl shadow max-w-xl">
-            <h2 className="font-semibold text-lg mb-4">Latest Love 🧡</h2>
-            <div className="space-y-4">
+        {/* Reviews Section */}
+        <div className="bg-white p-6 rounded-2xl shadow w-full">
+          <h2 className="font-semibold text-lg mb-4">Latest Love 🧡</h2>
+
+          {latestTwoReviews.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {latestTwoReviews.map((review, index) => {
                 const rating = Math.max(
                   0,
-                  Math.min(5, Math.round(Number(review?.rating) || 0)),
+                  Math.min(5, Math.round(review?.rating ?? 0)),
                 );
-                const comment = review?.comment || "No comment provided.";
-                const userName =
-                  review?.users?.name || review?.customer?.name || "Anonymous";
-                const createdAt = review?.createdAt
-                  ? new Date(review.createdAt).toLocaleDateString()
-                  : "";
+
+                const userName = review?.customer?.name || "Anonymous";
 
                 return (
                   <div
-                    key={review?._id || `${userName}-${index}`}
-                    className="border-l-4 border-orange-400 pl-4 "
+                    key={review?._id ?? index}
+                    className="border-l-4 border-orange-400 pl-4 flex flex-col justify-between"
                   >
-                    <div className="text-yellow-500 text-sm mb-2">
-                      {"★".repeat(rating)} {createdAt}
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="text-yellow-500 text-sm">
+                          {"★".repeat(rating)}
+                          {"☆".repeat(5 - rating)}
+                        </div>
+                        <span className="text-gray-400 text-xs">
+                          {review?.createdAt &&
+                            new Date(review.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+
+                      <p className="text-gray-600 text-sm mb-4 italic leading-relaxed">
+                        "{review?.comment}"
+                      </p>
                     </div>
-                    <p className="text-gray-600 text-sm mb-2">"{comment}"</p>
-                    <p className="text-gray-400 text-xs">— {userName}</p>
+
+                    <p className="text-gray-500 font-medium text-xs mt-auto">
+                      — {userName}
+                    </p>
                   </div>
                 );
               })}
             </div>
-          </div>
-        )}
+          ) : (
+            <p className="text-gray-500 text-sm">No reviews yet.</p>
+          )}
+        </div>
       </div>
 
       <UpdateRestaurantModal
         restaurant={restaurant}
         isOpen={openModal}
         onClose={() => setOpenModal(false)}
-        onSuccess={() => {
-          router.refresh();
-        }}
+        onSuccess={() => router.refresh()}
       />
     </div>
   );

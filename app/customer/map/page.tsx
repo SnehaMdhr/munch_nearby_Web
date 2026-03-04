@@ -1,6 +1,7 @@
 import { handleGetAllRestaurants } from "@/lib/actions/restaurant-actions";
+
 import MapWrapper from "./MapWrapper";
-import Sidebar from "../_components/SideBar";
+import Header from "../_components/Header";
 
 export default async function Page() {
   const res = await handleGetAllRestaurants();
@@ -8,7 +9,7 @@ export default async function Page() {
   if (!res.success) {
     return (
       <div className="flex">
-        <Sidebar />
+        <Header />
         <div className="flex-1 p-10 text-red-500">
           Failed to load restaurants
         </div>
@@ -17,16 +18,10 @@ export default async function Page() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[#F8F6F4]">
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Main Content */}
-      <div className="flex-1 p-8">
-
-        {/* Map Section */}
+    <div className="h-screen flex flex-col overflow-hidden">
+      <Header />
+      <div className="flex-1 min-h-0">
         <MapWrapper restaurants={res.data} />
-
       </div>
     </div>
   );

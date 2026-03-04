@@ -15,19 +15,19 @@ export type Restaurant = {
 
 type MapClientProps = {
   restaurantId: string | null;
-  restaurants: Restaurant[]; 
+  restaurants: Restaurant[];
 };
 
 const RestaurantMapClient = dynamic<MapClientProps>(
-  () => import("./RestaurantMapClient"),
-  { ssr: false }
+  () => import("../customer/map/_components/RestaurantMapClient"),
+  { ssr: false },
 );
 
 type Props = {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  restaurantId: string | null;      
-  restaurants: Restaurant[];         
+  restaurantId: string | null;
+  restaurants: Restaurant[];
 };
 
 export default function RestaurantMapSheet({
@@ -41,7 +41,8 @@ export default function RestaurantMapSheet({
 
   useEffect(() => {
     if (!open) return;
-    const onKeyDown = (e: KeyboardEvent) => e.key === "Escape" && onOpenChange(false);
+    const onKeyDown = (e: KeyboardEvent) =>
+      e.key === "Escape" && onOpenChange(false);
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open, onOpenChange]);
@@ -50,7 +51,9 @@ export default function RestaurantMapSheet({
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [open]);
 
   if (!mounted) return null;
@@ -77,8 +80,12 @@ export default function RestaurantMapSheet({
           >
             <div className="flex items-start justify-between gap-4 p-5 border-b border-black/10">
               <div>
-                <h2 className="text-lg font-extrabold text-gray-900">Restaurant Map</h2>
-                <p className="text-sm text-gray-600">Showing selected restaurant.</p>
+                <h2 className="text-lg font-extrabold text-gray-900">
+                  Restaurant Map
+                </h2>
+                <p className="text-sm text-gray-600">
+                  Showing selected restaurant.
+                </p>
               </div>
 
               <button
@@ -91,12 +98,15 @@ export default function RestaurantMapSheet({
             </div>
 
             <div className="flex-1">
-              <RestaurantMapClient restaurantId={restaurantId} restaurants={restaurants} />
+              <RestaurantMapClient
+                restaurantId={restaurantId}
+                restaurants={restaurants}
+              />
             </div>
           </motion.aside>
         </>
       )}
     </AnimatePresence>,
-    document.body
+    document.body,
   );
 }

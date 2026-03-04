@@ -1,6 +1,6 @@
 import { handleWhoAmI } from "@/lib/actions/auth-actions";
 import { notFound, redirect } from "next/navigation";
-import Sidebar from "../_components/SideBar";
+import Sidebar from "../_components/Header";
 import RestaurantProfileForm from "./_components/RestaurantProfileForm";
 import Link from "next/link";
 

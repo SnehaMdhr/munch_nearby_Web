@@ -2,8 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
-import { useRef, useState } from "react";
-import Image from "next/image";
+import { useRef, useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import { handleUpdateProfile } from "@/lib/actions/auth-actions";
@@ -32,11 +31,41 @@ const updateUserSchema = z.object({
 
 type UpdateUserData = z.infer<typeof updateUserSchema>;
 
-export default function ProfileForm({ user }: { user: any }) {
+interface ProfileFormProps {
+  user: {
+    name?: string;
+    email?: string;
+    imageUrl?: string;
+  };
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}
+
+export default function ProfileForm({
+  user,
+  onSuccess,
+  onCancel,
+}: ProfileFormProps) {
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const getInitialPreview = () => {
+    if (!user?.imageUrl) return null;
+    return user.imageUrl.startsWith("http")
+      ? user.imageUrl
+      : `${process.env.NEXT_PUBLIC_API_BASE}${user.imageUrl}`;
+  };
+
+  const [previewImage, setPreviewImage] = useState<string | null>(
+    getInitialPreview(),
+  );
+
   const {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<UpdateUserData>({
     resolver: zodResolver(updateUserSchema),
@@ -46,21 +75,16 @@ export default function ProfileForm({ user }: { user: any }) {
     },
   });
 
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
   const handleImageChange = (
     file: File | undefined,
-    onChange: (file?: File) => void
+    onChange: (file?: File) => void,
   ) => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => setPreviewImage(reader.result as string);
       reader.readAsDataURL(file);
-    } else {
-      setPreviewImage(null);
+      onChange(file);
     }
-    onChange(file);
   };
 
   const removeImage = (onChange?: (file?: File) => void) => {
@@ -70,171 +94,160 @@ export default function ProfileForm({ user }: { user: any }) {
   };
 
   const onSubmit = async (data: UpdateUserData) => {
-    try {
-      const formData = new FormData();
-      formData.append("name", data.name);
-      formData.append("email", data.email);
-      if (data.image) formData.append("image", data.image);
+    setError("");
+    startTransition(async () => {
+      try {
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("email", data.email);
 
-      const res = await handleUpdateProfile(formData);
-      if (!res.success) throw new Error(res.message);
+        if (data.image) {
+          formData.append("image", data.image);
+        }
 
-      toast.success("Profile updated successfully 🎉");
-      removeImage();
-    } catch (err: any) {
-      toast.error(err.message || "Profile update failed");
-    }
+        const res = await handleUpdateProfile(formData);
+
+        if (!res?.success) {
+          throw new Error(res?.message || "Update failed");
+        }
+
+        toast.success("Profile updated successfully!");
+        onSuccess?.();
+      } catch (err: any) {
+        setError(err?.message || "Profile update failed");
+        toast.error(err?.message || "Profile update failed");
+      }
+    });
+  };
+
+  const handleCancelAction = () => {
+    reset();
+    setPreviewImage(getInitialPreview());
+    onCancel?.();
   };
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6] flex justify-center p-8">
-      <div className="w-full max-w-3xl bg-white rounded-3xl shadow-md p-10">
+    <>
+      <div className="flex mb-5 justify-between items-start">
+        <div className="space-y-1">
+          <h2 className="text-2xl font-black text-slate-800">
+            Profile <span className="text-orange-500">Settings</span>
+          </h2>
+          <p className="text-sm text-slate-500">
+            Manage your account information and preferences.
+          </p>
+        </div>
+      </div>
 
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">
-          Profile Settings
-        </h1>
-        <p className="text-gray-500 mb-8">
-          Manage your account information and preferences.
-        </p>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-
-          {/* Profile Photo Section */}
-          <div className="flex items-center gap-6">
-
-            {/* Avatar */}
-            <div className="relative w-24 h-24">
-              {previewImage ? (
-                <img
-                  src={previewImage}
-                  className="w-24 h-24 rounded-full object-cover"
-                />
-              ) : user?.imageUrl ? (
-                <Image
-                  src={process.env.NEXT_PUBLIC_API_BASE + user.imageUrl}
-                  alt="Profile"
-                  fill
-                  className="rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400">
-                  No Image
-                </div>
-              )}
-            </div>
-
-            {/* Upload Buttons */}
-            <div>
-              <p className="font-semibold text-gray-700 mb-1">
-                Profile Photo
-              </p>
-              <p className="text-sm text-gray-400 mb-3">
-                JPG, PNG or WEBP. Max size 5MB
-              </p>
-
-              <Controller
-                name="image"
-                control={control}
-                render={({ field: { onChange } }) => (
-                  <>
-                    <input
-                      ref={fileInputRef}
-                      type="file"
-                      accept=".jpg,.jpeg,.png,.webp"
-                      hidden
-                      onChange={(e) =>
-                        handleImageChange(e.target.files?.[0], onChange)
-                      }
-                    />
-
-                    <div className="flex gap-4">
-                      <button
-                        type="button"
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-5 py-2 rounded-xl 
-                                   bg-[#E87A5D]/10 text-[#E87A5D] 
-                                   font-medium hover:bg-[#E87A5D]/20 transition"
-                      >
-                        Upload New Photo
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => removeImage(onChange)}
-                        className="text-gray-500 hover:text-red-500 transition"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Controller
+          name="image"
+          control={control}
+          render={({ field: { onChange } }) => (
+            <section
+              className="rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50/50 p-6 flex flex-col items-center cursor-pointer hover:bg-orange-100/50 transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <div className="size-24 rounded-full bg-white border-2 border-orange-100 overflow-hidden flex items-center justify-center shadow-inner relative">
+                {previewImage ? (
+                  <img
+                    src={previewImage}
+                    className="w-full h-full object-cover"
+                    alt="Preview"
+                  />
+                ) : (
+                  <span className="text-3xl">👤</span>
                 )}
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                accept=".jpg,.jpeg,.png,.webp"
+                onChange={(e) =>
+                  handleImageChange(e.target.files?.[0], onChange)
+                }
               />
-
+              <div className="flex gap-3 mt-2">
+                <p className="text-xs font-bold text-orange-600">
+                  {previewImage ? "Change Photo" : "Upload Photo"}
+                </p>
+                {previewImage && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeImage(onChange);
+                    }}
+                    className="text-xs font-bold text-red-400 hover:text-red-600"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
               {errors.image && (
-                <p className="text-sm text-red-500 mt-2">
+                <p className="text-xs text-red-500 mt-1">
                   {errors.image.message}
                 </p>
               )}
-            </div>
-          </div>
+            </section>
+          )}
+        />
 
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Full Name
+        <div className="space-y-4">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold text-slate-700">
+              Full Name *
             </label>
             <input
               {...register("name")}
-              className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-5 pr-3 text-sm outline-none focus:border-[#E87A5D]"
+              placeholder="John Doe"
+              className="rounded-xl border-2 border-orange-50 px-4 py-2 text-sm focus:border-orange-400 outline-none transition-all"
             />
             {errors.name && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.name.message}
-              </p>
+              <p className="text-xs text-red-500">{errors.name.message}</p>
             )}
           </div>
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm font-bold text-slate-700">
               Email Address
             </label>
             <input
               {...register("email")}
-              className="h-11 w-full rounded-lg border border-black/10 bg-[#FFF8F4] pl-5 pr-3 text-sm outline-none focus:border-[#E87A5D]"
+              type="email"
+              readOnly
+              className="rounded-xl border-2 border-slate-100 bg-slate-50 px-4 py-2 text-sm text-slate-500 cursor-not-allowed outline-none"
             />
-            {errors.email && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.email.message}
-              </p>
-            )}
+            <p className="text-[10px] text-slate-400 italic">
+              Email cannot be changed.
+            </p>
           </div>
+        </div>
 
-          {/* Footer Buttons */}
-          <div className="flex justify-end gap-4 pt-6 border-t">
-            <button
-              type="button"
-              className="px-6 py-2 rounded-xl border border-gray-300
-                         text-gray-600 hover:bg-gray-100 transition"
-            >
-              Cancel
-            </button>
+        {error && (
+          <p className="p-3 bg-red-50 text-red-700 text-sm rounded-xl border border-red-100">
+            {error}
+          </p>
+        )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 
-                               py-2 px-6  text-white text-xs font-semibold 
-                               rounded-xl transition shadow-sm
-                               bg-linear-to-r from-[#E87A5D] to-[#F6B88F]
-                               hover:opacity-90"
-            >
-              {isSubmitting ? "Updating..." : "Update Profile"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div className="flex gap-3 pt-2">
+          <button
+            type="button"
+            onClick={handleCancelAction}
+            className="flex-1 py-3 border-2 border-slate-100 text-slate-500 font-bold rounded-xl hover:bg-slate-50 transition-all"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting || pending}
+            className="flex-1 py-3 bg-linear-to-r from-[#E87A5D] to-[#F6B88F] text-white font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition-all shadow-lg shadow-orange-200"
+          >
+            {isSubmitting || pending ? "Updating..." : "Update Profile"}
+          </button>
+        </div>
+      </form>
+    </>
   );
 }

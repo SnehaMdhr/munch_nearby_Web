@@ -1,10 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import "tailwindcss";
 
-/* :root {
-  --background: #ffffff;
+:root {
+  --background: #FFF7ED;
   --foreground: #171717;
-} */
+}
 
 /* *{
   font-family: "Plus Jakarta Sans", sans-serif !important;
@@ -20,14 +20,14 @@
 
 @media (prefers-color-scheme: light) {
   :root {
-    --background: #FFF8F4;
+      --background: #FFF7ED;
     --foreground: #ededed;
   }
 }
 
 body {
-  /* background: var(--background); */
-  color: var(--foreground);
+  background: var(--background);
+  /* color: var(--foreground); */
   /* font-family: "Plus Jakarta Sans", sans-serif;
    */
 

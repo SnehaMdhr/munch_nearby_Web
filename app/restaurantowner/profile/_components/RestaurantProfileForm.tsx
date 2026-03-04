@@ -80,7 +80,7 @@ export default function RestaurantProfileForm({ user }: { user: any }) {
 
       if (!res.success) throw new Error(res.message);
 
-      toast.success("Profile updated successfully 🎉");
+      toast.success("Profile updated successfully!");
       removeImage();
     } catch (err: any) {
       toast.error(err.message || "Profile update failed");
