@@ -14,25 +14,7 @@ import UpdateReviewModel from "../menu/_components/UpdateReviewModel";
 import Image from "next/image";
 import { Edit2, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
-
-/* -------------------- ZOD SCHEMA -------------------- */
-
-const RawReviewSchema = z.object({
-  _id: z.string(),
-  customer: z.union([
-    z.string(),
-    z.object({
-      _id: z.string(),
-      name: z.string().optional(),
-      imageUrl: z.string().optional(),
-    }),
-  ]),
-  rating: z.union([z.number(), z.string()]),
-  comment: z.string().optional(),
-  createdAt: z.string().optional(),
-});
-
-type RawReview = z.infer<typeof RawReviewSchema>;
+import { RawReview, RawReviewSchema } from "./reviewSchema";
 
 type Review = {
   _id: string;

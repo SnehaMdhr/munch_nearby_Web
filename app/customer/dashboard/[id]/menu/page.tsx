@@ -4,27 +4,13 @@ import { useEffect, useState, useMemo } from "react";
 import { useParams } from "next/navigation";
 import { handleGetMenusByRestaurant } from "@/lib/actions/menu-actions";
 import { z } from "zod";
-
-/* -------------------- ZOD SCHEMA -------------------- */
-
-const MenuSchema = z.object({
-  _id: z.string(),
-  name: z.string(),
-  price: z.number(),
-  category: z.string(),
-  description: z.string(),
-  imageUrl: z.string().optional(), // ✅ keep only ONE image field
-  isAvailable: z.boolean(),
-});
-
-type Menu = z.infer<typeof MenuSchema>;
+import { MenuSchema, MenuType } from "./menuSchema";
 
 export default function Page() {
   const params = useParams();
-  const restaurantId =
-    typeof params?.id === "string" ? params.id : "";
+  const restaurantId = typeof params?.id === "string" ? params.id : "";
 
-  const [menus, setMenus] = useState<Menu[]>([]);
+  const [menus, setMenus] = useState<MenuType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,9 +21,7 @@ export default function Page() {
 
     const fetchMenus = async () => {
       try {
-        const res = await handleGetMenusByRestaurant(
-          restaurantId
-        );
+        const res = await handleGetMenusByRestaurant(restaurantId);
 
         if (!res.success) {
           setError(res.message || "Failed to fetch menus");
@@ -65,7 +49,7 @@ export default function Page() {
   /* -------------------- GROUP BY CATEGORY -------------------- */
 
   const groupedMenus = useMemo(() => {
-    return menus.reduce((acc: Record<string, Menu[]>, menu) => {
+    return menus.reduce((acc: Record<string, MenuType[]>, menu) => {
       if (!acc[menu.category]) acc[menu.category] = [];
       acc[menu.category].push(menu);
       return acc;
@@ -90,9 +74,7 @@ export default function Page() {
 
     if (!apiBase) return normalizedPath;
 
-    const base = apiBase.endsWith("/")
-      ? apiBase.slice(0, -1)
-      : apiBase;
+    const base = apiBase.endsWith("/") ? apiBase.slice(0, -1) : apiBase;
 
     const path = normalizedPath.startsWith("/")
       ? normalizedPath
@@ -118,13 +100,10 @@ export default function Page() {
       ) : (
         Object.entries(groupedMenus).map(([category, items]) => (
           <div key={category} className="mb-14">
-            
             {/* Category Header */}
             <div className="flex items-center gap-3 mb-6">
               <div className="h-6 w-1.5 bg-[#E87A5D] rounded-full"></div>
-              <h2 className="text-xl font-bold text-gray-800">
-                {category}
-              </h2>
+              <h2 className="text-xl font-bold text-gray-800">{category}</h2>
             </div>
 
             {/* Menu Grid */}
@@ -163,9 +142,7 @@ export default function Page() {
                             : "bg-red-100 text-red-500"
                         }`}
                       >
-                        {menu.isAvailable
-                          ? "Available"
-                          : "Not Available"}
+                        {menu.isAvailable ? "Available" : "Not Available"}
                       </span>
                     </div>
 
