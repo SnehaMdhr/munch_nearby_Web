@@ -7,9 +7,12 @@ import Tabs from "./_components/Tab";
 import { useEffect, useState } from "react";
 import { Star, StarHalf, MapPin, Phone } from "lucide-react";
 import { useParams } from "next/navigation";
-import Header from "@/app/(public)/_components/Header";
+import PublicHeader from "@/app/(public)/_components/Header";
+import CustomerHeader from "../../_components/Header";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
   const params = useParams<{ id: string }>();
   const id = params?.id ?? "";
 
@@ -92,7 +95,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div>
-      <Header />
+      {user ? <CustomerHeader /> : <PublicHeader />}
 
       <div className="p-6">
         {/* ---------------- HEADER ---------------- */}

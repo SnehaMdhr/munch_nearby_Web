@@ -34,6 +34,10 @@ export function DashboardPageContent({
   hideHeader = false,
 }: DashboardPageContentProps) {
   const { user } = useAuth();
+  const isCustomer =
+    String(user?.role ?? "")
+      .trim()
+      .toLowerCase() === "customer";
 
   const requireLogin = () => {
     if (!user) {
@@ -87,7 +91,10 @@ export function DashboardPageContent({
   // ---------------- FETCH MY FAVOURITES ----------------
   useEffect(() => {
     const fetchFavourites = async () => {
-      if (!user) return;
+      if (!user || !isCustomer) {
+        setFavourites([]);
+        return;
+      }
       try {
         const res = await handleGetMyFavourites();
         if (res.success && Array.isArray(res.data)) {
@@ -103,11 +110,15 @@ export function DashboardPageContent({
       }
     };
     fetchFavourites();
-  }, [user]);
+  }, [user, isCustomer]);
 
   // ---------------- TOGGLE FAVOURITE ----------------
   const handleToggleFavourite = async (restaurantId: string) => {
     if (!requireLogin()) return;
+    if (!isCustomer) {
+      toast.info("Customers only");
+      return;
+    }
     setFavLoading(restaurantId);
     try {
       if (favourites.includes(restaurantId)) {
