@@ -13,6 +13,7 @@ import AddReviewModel from "../menu/_components/AddReviewModel";
 import UpdateReviewModel from "../menu/_components/UpdateReviewModel";
 import Image from "next/image";
 import { Edit2, Trash2 } from "lucide-react";
+import { toast } from "react-toastify";
 
 /* -------------------- ZOD SCHEMA -------------------- */
 
@@ -270,7 +271,13 @@ export default function Page() {
           Restaurant <span className="text-orange-500">Reviews</span>
         </h1>
         <button
-          onClick={() => setOpen(true)}
+          onClick={() => {
+            if (!user) {
+              toast.info("Please login first");
+              return;
+            }
+            setOpen(true);
+          }}
           className="px-5 py-2 rounded-xl bg-linear-to-r from-[#E87A5D] to-[#F6B88F] text-white font-medium shadow-md hover:scale-105 transition"
         >
           + Add Review

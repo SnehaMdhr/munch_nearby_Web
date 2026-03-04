@@ -179,13 +179,18 @@ export default function RestaurantMapClient({
   // geolocation
   useEffect(() => {
     if (!navigator.geolocation) return;
+
+    const handleGeoError = (error: GeolocationPositionError) => {
+      if (error.code === error.PERMISSION_DENIED) return;
+    };
+
     navigator.geolocation.getCurrentPosition(
       (pos) =>
         setUserLocation({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
         }),
-      (err) => console.error(err),
+      handleGeoError,
     );
   }, []);
 
@@ -213,10 +218,8 @@ export default function RestaurantMapClient({
           url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
 
-        {/* ✅ Auto focus map on selected restaurant */}
         <FitToSelection center={destination} />
 
-        {/* ✅ Only one restaurant marker */}
         <Marker
           position={[destination.lat, destination.lng]}
           icon={restaurantIcon}

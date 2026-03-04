@@ -3,6 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { Home, Map, Heart } from "lucide-react";
+import { toast } from "react-toastify";
 import LoginForm from "@/app/(auth)/_components/LoginForm";
 import RegisterForm from "@/app/(auth)/_components/RegisterForm";
 import ResetPasswordModal from "@/app/(auth)/_components/ResetPasswordModal";

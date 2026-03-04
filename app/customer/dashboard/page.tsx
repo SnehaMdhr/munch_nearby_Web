@@ -18,11 +18,30 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import RestaurantMapSheet from "../../_components/RestaurantMapSheet";
 import Header from "../_components/Header";
 
+type DashboardPageContentProps = {
+  hideHeader?: boolean;
+};
+
 export default function Page() {
+  return <DashboardPageContent />;
+}
+
+export function DashboardPageContent({
+  hideHeader = false,
+}: DashboardPageContentProps) {
   const { user } = useAuth();
+
+  const requireLogin = () => {
+    if (!user) {
+      toast.info("Please login first");
+      return false;
+    }
+    return true;
+  };
 
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [favourites, setFavourites] = useState<string[]>([]);
@@ -88,7 +107,7 @@ export default function Page() {
 
   // ---------------- TOGGLE FAVOURITE ----------------
   const handleToggleFavourite = async (restaurantId: string) => {
-    if (!user) return;
+    if (!requireLogin()) return;
     setFavLoading(restaurantId);
     try {
       if (favourites.includes(restaurantId)) {
@@ -140,7 +159,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      {!hideHeader && <Header />}
 
       {/* HERO SECTION */}
       <div className="px-6 pt-6">
@@ -333,6 +352,7 @@ export default function Page() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => {
+                        if (!requireLogin()) return;
                         setMapRestaurantId(restaurant._id);
                         setMapOpen(true);
                       }}
