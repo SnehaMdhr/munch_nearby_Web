@@ -129,10 +129,13 @@ export default function Page() {
   const handleConfirmDelete = async () => {
     if (!selectedReviewId || !restaurantId) return;
     const res = await handleDeleteReview(selectedReviewId, restaurantId);
-    if (res.success)
+    if (res.success) {
+      toast.success("Review deleted successfully");
       setReviews((prev) => prev.filter((r) => r._id !== selectedReviewId));
-    else alert(res.message || "Failed to delete review");
-    closeDeleteModal();
+    } else {
+      toast.error(res.message || "Failed to delete review");
+      closeDeleteModal();
+    }
   };
 
   /* -------------------- SPLIT REVIEWS -------------------- */
