@@ -29,6 +29,11 @@ jest.mock("@/app/_components/ChangePasswordModel", () => ({
     isOpen ? <div>Change Password Modal</div> : null,
 }));
 
+jest.mock("next/image", () => ({
+  __esModule: true,
+  default: ({ priority, ...props }: any) => <img {...props} />,
+}));
+
 describe("Customer Header", () => {
   it("renders primary navigation items", () => {
     render(<Header />);

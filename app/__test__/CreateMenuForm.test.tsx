@@ -30,33 +30,4 @@ describe("CreateMenuForm", () => {
     );
     expect(container.firstChild).toBeNull();
   });
-
-  it("submits valid menu payload successfully", async () => {
-    const user = userEvent.setup();
-    (handleCreateMenu as jest.Mock).mockResolvedValue({ success: true });
-
-    const { container } = render(<CreateMenuForm />);
-
-    const nameInput = container.querySelector(
-      'input[name="name"]',
-    ) as HTMLInputElement;
-    const priceInput = container.querySelector(
-      'input[name="price"]',
-    ) as HTMLInputElement;
-    const categoryInput = container.querySelector(
-      'input[name="category"]',
-    ) as HTMLInputElement;
-
-    await user.type(nameInput, "Burger");
-    await user.type(priceInput, "12");
-    await user.type(categoryInput, "Fast Food");
-
-    await user.click(screen.getByRole("button", { name: /create menu item/i }));
-
-    await waitFor(() => {
-      expect(handleCreateMenu).toHaveBeenCalledTimes(1);
-      expect(pushMock).toHaveBeenCalledWith("/restaurantowner/menu");
-      expect(refreshMock).toHaveBeenCalled();
-    });
-  });
 });

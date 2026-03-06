@@ -248,10 +248,10 @@ export function DashboardPageContent({
             </button>
           ))}
 
-          <button className="flex items-center gap-2 px-5 py-2 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm ml-auto">
+          {/* <button className="flex items-center gap-2 px-5 py-2 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm ml-auto">
             <SlidersHorizontal size={16} className="text-[#E87A5D]" />
             <span>More Filters</span>
-          </button>
+          </button> */}
         </div>
 
         <div className="flex items-center justify-between mb-8 mt-4">

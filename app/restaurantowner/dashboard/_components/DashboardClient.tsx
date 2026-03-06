@@ -6,47 +6,48 @@ import { useRouter } from "next/navigation";
 import UpdateRestaurantModal from "./UpdateRestaurantModel";
 import Header from "../../_components/Header";
 
-interface Review {
+type Review = {
   _id?: string;
   rating?: number;
   comment?: string;
   createdAt?: string;
-  customer?: {
-    _id?: string;
-    name?: string;
-  };
-}
+  customer?: { _id?: string; name?: string };
+};
 
-interface Restaurant {
-  averageReviews?: number;
-  totalReviews?: number;
-  menu?: any[];
-}
-
-interface DashboardProps {
-  restaurant: Restaurant;
+type Props = {
+  restaurant: any;
   menuCount: number;
   reviews: Review[];
-}
+};
 
 export default function DashboardClient({
   restaurant,
   menuCount,
   reviews,
-}: DashboardProps) {
+}: Props) {
   const [openModal, setOpenModal] = useState(false);
   const router = useRouter();
+
+  const validReviews = Array.isArray(reviews)
+    ? reviews.filter(
+        (r) => typeof r.rating === "number" && r.rating! >= 1 && r.rating! <= 5,
+      )
+    : [];
+
+  const reviewCount = validReviews.length;
+
+  const avgRating =
+    reviewCount > 0
+      ? (
+          validReviews.reduce((sum, r) => sum + (r.rating as number), 0) /
+          reviewCount
+        ).toFixed(1)
+      : "0.0";
 
   const latestTwoReviews = useMemo(
     () => (Array.isArray(reviews) ? reviews.slice(0, 2) : []),
     [reviews],
   );
-
-  const stats = {
-    averageReviews: restaurant?.averageReviews ?? 0,
-    reviews: restaurant?.totalReviews ?? 0,
-    menuItems: menuCount ?? 0,
-  };
 
   return (
     <div>
@@ -85,9 +86,7 @@ export default function DashboardClient({
               <span className="text-sm text-green-500">Live Rating</span>
             </div>
             <p className="text-gray-500 text-sm">AVERAGE RATING</p>
-            <h2 className="text-2xl font-bold">
-              {stats.averageReviews.toFixed(1)} ⭐
-            </h2>
+            <h2 className="text-2xl font-bold">{avgRating} ⭐</h2>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow">
@@ -96,7 +95,7 @@ export default function DashboardClient({
               <span className="text-sm text-blue-400">Total</span>
             </div>
             <p className="text-gray-500 text-sm">REVIEWS</p>
-            <h2 className="text-2xl font-bold">{stats.reviews}</h2>
+            <h2 className="text-2xl font-bold">{reviewCount}</h2>
           </div>
 
           <div className="bg-white p-6 rounded-2xl shadow">
@@ -105,7 +104,7 @@ export default function DashboardClient({
               <span className="text-sm text-green-400">Active</span>
             </div>
             <p className="text-gray-500 text-sm">MENU ITEMS</p>
-            <h2 className="text-2xl font-bold">{stats.menuItems}</h2>
+            <h2 className="text-2xl font-bold">{menuCount}</h2>
           </div>
         </div>
 
