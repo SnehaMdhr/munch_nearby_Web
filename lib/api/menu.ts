@@ -79,7 +79,6 @@ export const updateMenu = async (id: string, menuData: FormData | object) => {
 export const deleteMenu = async (id: string) => {
   try {
     const response = await axiosInstance.delete(API.MENU.OWNER.DELETE(id));
-
     return response.data;
   } catch (err: Error | any) {
     throw new Error(

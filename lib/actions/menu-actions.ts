@@ -9,7 +9,7 @@ import {
   updateMenu,
   deleteMenu,
   adminDeleteMenu,
-} from "../api/menu";
+} from "@/lib/api/menu";
 
 export const handleGetAllMenus = async () => {
   try {
@@ -116,19 +116,16 @@ export const handleUpdateMenu = async (
 export const handleDeleteMenu = async (id: string) => {
   try {
     const res = await deleteMenu(id);
-
-    if (res.success) {
-      revalidatePath("/restaurantowner/dashboard");
-
-      return {
-        success: true,
-        message: "Menu deleted successfully",
-      };
-    }
-
-    return { success: false, message: res.message || "Delete failed" };
-  } catch (err: Error | any) {
-    return { success: false, message: err.message || "Delete failed" };
+    return {
+      success: true,
+      data: res?.data ?? res,
+      message: res?.message ?? "Menu deleted successfully",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error?.message ?? "Failed to delete menu",
+    };
   }
 };
 

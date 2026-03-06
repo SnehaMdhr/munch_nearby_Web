@@ -204,7 +204,7 @@ export default function Page() {
                 onClick={() =>
                   searchQuery
                     ? setSearchQuery("")
-                    : (window.location.href = "/")
+                    : (window.location.href = "/customer/dashboard")
                 }
                 className="group flex items-center gap-2 rounded-full bg-[#E87A5D] px-8 py-3.5 font-bold text-white transition-all hover:bg-[#D06D53] hover:shadow-lg hover:shadow-[#E87A5D]/30 active:scale-95"
               >

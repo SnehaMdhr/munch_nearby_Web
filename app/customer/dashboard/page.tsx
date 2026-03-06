@@ -18,11 +18,34 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 import RestaurantMapSheet from "../../_components/RestaurantMapSheet";
 import Header from "../_components/Header";
 
+type DashboardPageContentProps = {
+  hideHeader?: boolean;
+};
+
 export default function Page() {
+  return <DashboardPageContent />;
+}
+
+export function DashboardPageContent({
+  hideHeader = false,
+}: DashboardPageContentProps) {
   const { user } = useAuth();
+  const isCustomer =
+    String(user?.role ?? "")
+      .trim()
+      .toLowerCase() === "customer";
+
+  const requireLogin = () => {
+    if (!user) {
+      toast.info("Please login first");
+      return false;
+    }
+    return true;
+  };
 
   const [restaurants, setRestaurants] = useState<any[]>([]);
   const [favourites, setFavourites] = useState<string[]>([]);
@@ -68,7 +91,10 @@ export default function Page() {
   // ---------------- FETCH MY FAVOURITES ----------------
   useEffect(() => {
     const fetchFavourites = async () => {
-      if (!user) return;
+      if (!user || !isCustomer) {
+        setFavourites([]);
+        return;
+      }
       try {
         const res = await handleGetMyFavourites();
         if (res.success && Array.isArray(res.data)) {
@@ -84,11 +110,15 @@ export default function Page() {
       }
     };
     fetchFavourites();
-  }, [user]);
+  }, [user, isCustomer]);
 
   // ---------------- TOGGLE FAVOURITE ----------------
   const handleToggleFavourite = async (restaurantId: string) => {
-    if (!user) return;
+    if (!requireLogin()) return;
+    if (!isCustomer) {
+      toast.info("Customers only");
+      return;
+    }
     setFavLoading(restaurantId);
     try {
       if (favourites.includes(restaurantId)) {
@@ -140,7 +170,7 @@ export default function Page() {
 
   return (
     <div className="min-h-screen">
-      <Header />
+      {!hideHeader && <Header />}
 
       {/* HERO SECTION */}
       <div className="px-6 pt-6">
@@ -218,10 +248,10 @@ export default function Page() {
             </button>
           ))}
 
-          <button className="flex items-center gap-2 px-5 py-2 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm ml-auto">
+          {/* <button className="flex items-center gap-2 px-5 py-2 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-700 hover:bg-gray-50 transition shadow-sm ml-auto">
             <SlidersHorizontal size={16} className="text-[#E87A5D]" />
             <span>More Filters</span>
-          </button>
+          </button> */}
         </div>
 
         <div className="flex items-center justify-between mb-8 mt-4">
@@ -333,6 +363,7 @@ export default function Page() {
                   <div className="flex gap-3">
                     <button
                       onClick={() => {
+                        if (!requireLogin()) return;
                         setMapRestaurantId(restaurant._id);
                         setMapOpen(true);
                       }}

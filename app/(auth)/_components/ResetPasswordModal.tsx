@@ -11,30 +11,13 @@ import {
 import { ArrowLeft, Eye, EyeOff, X } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { resetPasswordSchema, requestResetSchema } from "../schema";
 
-// ---------------------- SCHEMAS ----------------------
-const requestResetSchema = z.object({
-  email: z.string().email("Enter a valid email"),
-});
-
-const resetPasswordSchema = z
-  .object({
-    email: z.string().email("Enter a valid email"),
-    otp: z.string().min(4, "Enter valid OTP"),
-    newPassword: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string().min(6, "Confirm your password"),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-// ---------------------- COMPONENT ----------------------
 interface ResetPasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void; // called after successful reset
-  switchToLogin?: () => void; // called when Back to Login clicked
+  onSuccess?: () => void;
+  switchToLogin?: () => void;
 }
 
 export default function ResetPasswordModal({
@@ -47,14 +30,12 @@ export default function ResetPasswordModal({
   const [showPassword, setShowPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
 
-  // ---------------- Request OTP Form ----------------
   const {
     register: registerRequest,
     handleSubmit: handleSubmitRequest,
     formState: { errors: requestErrors },
   } = useForm<{ email: string }>({ resolver: zodResolver(requestResetSchema) });
 
-  // ---------------- Reset Password Form ----------------
   const {
     register: registerReset,
     handleSubmit: handleSubmitReset,

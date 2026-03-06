@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { Utensils, Navigation, X, Locate, Loader2 } from "lucide-react";
+import { Utensils, Navigation, X, Locate, MapPin, Loader2 } from "lucide-react";
 import {
   MapContainer,
   TileLayer,
@@ -80,34 +80,29 @@ const selectedRestaurantIcon = L.divIcon({
 
 const userIcon = L.divIcon({
   html: renderToStaticMarkup(
-    <div style={{ position: "relative", width: "46px", height: "46px" }}>
-      <div
+    <div
+      style={{
+        width: "40px",
+        height: "40px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <MapPin
+        size={34}
         style={{
-          position: "absolute",
-          inset: 0,
-          backgroundColor: "#E87A5D",
-          borderRadius: "50%",
-          animation: "pulse-ring 2s ease-out infinite",
+          color: "#E87A5D",
+          filter: "drop-shadow(0 3px 8px rgba(0,0,0,0.25))",
         }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          top: "14px",
-          left: "14px",
-          width: "18px",
-          height: "18px",
-          borderRadius: "50%",
-          backgroundColor: "#E87A5D",
-          border: "3px solid white",
-          boxShadow: "0 0 8px rgba(232,122,93,0.4)",
-        }}
+        strokeWidth={2.5}
       />
     </div>,
   ),
   className: "",
-  iconSize: [46, 46],
-  iconAnchor: [23, 23],
+  iconSize: [40, 40],
+  iconAnchor: [20, 36],
+  popupAnchor: [0, -30],
 });
 
 type Restaurant = {

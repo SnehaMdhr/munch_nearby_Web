@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import RestaurantOnboardingModal from "../profile/_components/RestaurantOnboardingModal";
+import RestaurantOnboardingModal from "../_components/RestaurantOnboardingModal";
 import { handleGetMyRestaurant } from "@/lib/actions/restaurant-actions";
 
 export default function RestaurantOnboardingPage() {

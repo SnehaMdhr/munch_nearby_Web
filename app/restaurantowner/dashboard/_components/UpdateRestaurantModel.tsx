@@ -7,14 +7,11 @@ import Image from "next/image";
 import { toast } from "react-toastify";
 import { z } from "zod";
 import { handleUpdateRestaurant } from "@/lib/actions/restaurant-actions";
+import {
+  UpdateRestaurantData,
+  updateRestaurantSchema,
+} from "../../restaurantschema";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ACCEPTED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/jpg",
-  "image/png",
-  "image/webp",
-];
 const DAYS_OF_WEEK = [
   "Monday",
   "Tuesday",
@@ -24,34 +21,6 @@ const DAYS_OF_WEEK = [
   "Saturday",
   "Sunday",
 ];
-
-export const updateRestaurantSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  address: z.string().min(5, "Address is required"),
-  mapLink: z.string().url("Invalid URL").optional().or(z.literal("")),
-  contactNumber: z.string().min(5, "Contact number is required"),
-  category: z.string().optional(),
-  description: z.string().optional(),
-  openingHours: z.array(
-    z.object({
-      day: z.string(),
-      open: z.string(),
-      close: z.string(),
-      isClosed: z.boolean(),
-    }),
-  ),
-  imageUrl: z
-    .instanceof(File)
-    .optional()
-    .refine((file) => !file || file.size <= MAX_FILE_SIZE, {
-      message: "Max file size is 5MB",
-    })
-    .refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type), {
-      message: "Only JPG, JPEG, PNG or WEBP formats are supported",
-    }),
-});
-
-export type UpdateRestaurantData = z.infer<typeof updateRestaurantSchema>;
 
 interface Props {
   restaurant: any;

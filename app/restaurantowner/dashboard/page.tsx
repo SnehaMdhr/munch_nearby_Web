@@ -2,6 +2,7 @@ import DashboardClient from "./_components/DashboardClient";
 import { redirect } from "next/navigation";
 import { handleGetMyRestaurant } from "@/lib/actions/restaurant-actions";
 import { handleGetReviewsForOwner } from "@/lib/actions/review-actions";
+import { handleGetMenusByRestaurant } from "@/lib/actions/menu-actions";
 
 function StatusMessage({ status }: { status?: string | null }) {
   let message = "Please create your restaurant first.";
@@ -50,7 +51,27 @@ export default async function Page() {
       return <StatusMessage status={restaurant.status} />;
     }
 
-    const menuCount = restaurant.menus?.length || restaurant.menu?.length || 0;
+    // Use menus endpoint for accurate count
+    let menuCount = restaurant.menus?.length || restaurant.menu?.length || 0;
+    try {
+      const menusRes = await handleGetMenusByRestaurant(restaurant._id);
+      if (menusRes.success && Array.isArray(menusRes.data)) {
+        menuCount = menusRes.data.length;
+      }
+    } catch {}
+
+    const toValidRating = (value: unknown): number | undefined => {
+      const n =
+        typeof value === "number"
+          ? value
+          : typeof value === "string"
+            ? parseFloat(value)
+            : NaN;
+
+      if (!Number.isFinite(n)) return undefined;
+      if (n < 1 || n > 5) return undefined;
+      return n;
+    };
 
     let reviews: {
       _id?: string;
@@ -59,34 +80,59 @@ export default async function Page() {
       createdAt?: string;
       customer?: { _id?: string; name?: string };
     }[] = [];
+
+    type RawReview = {
+      _id?: string;
+      rating?: number | string | null;
+      comment?: string | null;
+      createdAt?: string | Date | null;
+      user?: string | { _id?: string; name?: string | null } | null;
+      customer?: string | { _id?: string; name?: string | null } | null;
+      restaurant?: string | { _id?: string } | null;
+    };
+
+    const isForCurrentRestaurant = (r: RawReview, restaurantId: string) => {
+      const rid =
+        typeof r.restaurant === "string" ? r.restaurant : r.restaurant?._id;
+      return !rid || String(rid) === String(restaurantId);
+    };
+
     try {
       const reviewsRes = await handleGetReviewsForOwner();
-      if (reviewsRes.success && Array.isArray(reviewsRes.data)) {
-        reviews = reviewsRes.data.map((r: any) => {
+
+      const raw: RawReview[] = Array.isArray(reviewsRes?.data)
+        ? (reviewsRes.data as RawReview[])
+        : Array.isArray(reviewsRes?.data?.reviews)
+          ? (reviewsRes.data.reviews as RawReview[])
+          : [];
+
+      const seen = new Set<string>();
+
+      reviews = raw
+        .filter((r) => isForCurrentRestaurant(r, restaurant._id))
+        .map((r: RawReview) => {
           const actor = r.user ?? r.customer;
-          const name =
-            typeof actor === "string"
-              ? undefined
-              : actor?.name?.trim() || undefined;
+          const id = r?._id ? String(r._id) : undefined;
+
+          const rating = toValidRating(r?.rating);
+
           return {
-            _id: r._id,
-            rating:
-              typeof r.rating === "number" ? r.rating : Number(r.rating) || 0,
-            comment: r.comment ?? "",
-            createdAt: r.createdAt ? String(r.createdAt) : undefined,
+            _id: id,
+            rating,
+            comment: typeof r?.comment === "string" ? r.comment : "",
+            createdAt: r?.createdAt ? String(r.createdAt) : undefined,
             customer: {
               _id: typeof actor === "string" ? actor : actor?._id,
-              name,
+              name: typeof actor === "string" ? undefined : actor?.name?.trim(),
             },
           };
+        })
+        .filter((r: { _id?: string; rating?: number }) => {
+          if (!r._id || seen.has(r._id)) return false;
+          seen.add(r._id);
+          return typeof r.rating === "number";
         });
-      }
     } catch {}
-
-    if (!restaurant) {
-      console.error("[Dashboard] No restaurant data");
-      redirect("/restaurantowner/profile");
-    }
 
     return (
       <DashboardClient

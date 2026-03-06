@@ -12,6 +12,7 @@ import UpdateMenuForm from "./_components/UpdateMenuForm";
 import CreateMenuForm from "./_components/CreateMenuForm";
 import Header from "../_components/Header";
 import { Edit2, Trash2 } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function Page() {
   const router = useRouter();
@@ -80,6 +81,7 @@ export default function Page() {
     if (!deleteId) return;
     const res = await handleDeleteMenu(deleteId);
     if (res.success) {
+      toast.success("Menu item deleted successfully");
       setMenus((prev) => prev.filter((m) => m._id !== deleteId));
       setIsOpen(false);
       setDeleteId(null);
